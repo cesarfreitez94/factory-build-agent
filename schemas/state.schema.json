@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FBA Project State",
+  "description": "State machine schema for Factory Build Agent project state",
+  "type": "object",
+  "required": ["project", "current_phase", "methodology", "phases", "artifacts"],
+  "properties": {
+    "project": {
+      "type": "string",
+      "description": "Project name (directory name by default)"
+    },
+    "framework_version": {
+      "type": "string",
+      "description": "Version of FBA framework used"
+    },
+    "init_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of initialization"
+    },
+    "current_phase": {
+      "type": "string",
+      "enum": ["init", "elicitation", "documentation", "planning", "tasks", "construction", "testing", "review", "ci_cd", "complete"],
+      "description": "Current phase of the development lifecycle"
+    },
+    "methodology": {
+      "type": "string",
+      "description": "Elicitation methodology in use (e.g. BABOK, JTBD, User Story Mapping, DDD)"
+    },
+    "phases": {
+      "type": "object",
+      "description": "Status of each phase",
+      "properties": {
+        "elicitation": {
+          "type": "object",
+          "properties": {
+            "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
+            "agent": {"type": "string"}
+          }
+        },
+        "documentation": {
+          "type": "object",
+          "properties": {
+            "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
+            "agent": {"type": "string"}
+          }
+        },
+        "planning": {
+          "type": "object",
+          "properties": {
+            "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
+            "agent": {"type": "string"}
+          }
+        },
+        "construction": {
+          "type": "object",
+          "properties": {
+            "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
+            "agent": {"type": "string"}
+          }
+        },
+        "testing": {
+          "type": "object",
+          "properties": {
+            "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
+            "agent": {"type": "string"}
+          }
+        },
+        "review": {
+          "type": "object",
+          "properties": {
+            "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
+            "agent": {"type": "string"}
+          }
+        },
+        "ci_cd": {
+          "type": "object",
+          "properties": {
+            "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
+            "agent": {"type": "string"}
+          }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "description": "Generated artifacts and their status",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "status": {"type": "string", "enum": ["draft", "valid", "published"]},
+          "version": {"type": "integer"}
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "description": "Arbitrary key-value context for the current phase"
+    }
+  }
+}
