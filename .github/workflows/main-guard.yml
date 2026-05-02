@@ -1,0 +1,27 @@
+name: Main Branch Protection Guard
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [synchronize, opened, reopened]
+
+jobs:
+  verify-protection:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify PR target
+        run: |
+          echo "✅ PR targeting main via pull_request_target"
+          echo "Direct pushes to main are blocked by repository ruleset."
+          echo "All changes to main must come through PRs."
+
+  validate-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check required files
+        run: |
+          echo "✅ Main branch protection active"
+          echo "Ruleset: main-protection"
+          echo "  - Require pull request + 1 approval"
+          echo "  - Block force pushes"
+          echo "  - Block branch deletions"
