@@ -24,7 +24,7 @@ phases:
     agent: documentador
     command: /fba:specify
     input_artifacts: ["prd.md"]
-    output_artifacts: ["prd.md"]
+    output_artifacts: ["prd.md", "prd.json"]
     description: Generate structured PRD document
     phase_key: documentation
   - name: planning
