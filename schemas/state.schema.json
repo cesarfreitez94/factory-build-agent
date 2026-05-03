@@ -31,6 +31,13 @@
       "type": "object",
       "description": "Status of each phase",
       "properties": {
+        "init": {
+          "type": "object",
+          "properties": {
+            "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
+            "agent": {"type": "string"}
+          }
+        },
         "elicitation": {
           "type": "object",
           "properties": {

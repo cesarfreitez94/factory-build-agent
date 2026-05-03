@@ -164,3 +164,130 @@ def test_state_schema_validation(runner, temp_project):
     schema = json.loads(schema_path.read_text())
 
     jsonschema.validate(state, schema)
+
+
+def test_init_creates_schemas(runner, temp_project):
+    """Verify fba init copies schemas to .factory/schemas/."""
+    result = runner.invoke(main, ["init", "-d", str(temp_project)])
+    assert result.exit_code == 0
+
+    schemas_dir = temp_project / ".factory" / "schemas"
+    assert schemas_dir.is_dir()
+    schema_files = list(schemas_dir.glob("*.schema.json"))
+    assert len(schema_files) >= 1
+    assert (schemas_dir / "prd.schema.json").is_file()
+
+
+class TestStatusCommand:
+    def test_status_shows_project_info(self, runner, temp_project):
+        runner.invoke(main, ["init", "-d", str(temp_project)])
+        result = runner.invoke(main, ["status", "-d", str(temp_project)])
+        assert result.exit_code == 0
+        assert "Current phase: init" in result.output
+        assert "Methodology: BABOK" in result.output
+
+    def test_status_requires_factory(self, runner, temp_project):
+        result = runner.invoke(main, ["status", "-d", str(temp_project)])
+        assert result.exit_code == 1
+        assert "No .factory/ found" in result.output
+
+
+class TestTransitionCommand:
+    def test_valid_transition(self, runner, temp_project):
+        runner.invoke(main, ["init", "-d", str(temp_project)])
+        result = runner.invoke(main, ["transition", "elicitation", "-d", str(temp_project)])
+        assert result.exit_code == 0
+        assert "Transitioned" in result.output
+
+        state = json.loads((temp_project / ".factory" / "state.json").read_text())
+        assert state["current_phase"] == "elicitation"
+
+    def test_invalid_transition(self, runner, temp_project):
+        runner.invoke(main, ["init", "-d", str(temp_project)])
+        result = runner.invoke(main, ["transition", "construction", "-d", str(temp_project)])
+        assert result.exit_code == 1
+        assert "Invalid transition" in result.output
+
+
+class TestRecordCommand:
+    def test_record_event(self, runner, temp_project):
+        runner.invoke(main, ["init", "-d", str(temp_project)])
+        result = runner.invoke(
+            main,
+            ["record", "elicitation_start", "--data", '{"stakeholders": 3}', "-d", str(temp_project)],
+        )
+        assert result.exit_code == 0
+        assert "Event 'elicitation_start' recorded" in result.output
+
+        events_path = temp_project / ".factory" / "events.jsonl"
+        lines = events_path.read_text().strip().split("\n")
+        assert len(lines) == 2
+
+        event = json.loads(lines[1])
+        assert event["type"] == "elicitation_start"
+        assert event["data"]["stakeholders"] == 3
+
+
+class TestValidateCommand:
+    def test_validate_valid_prd(self, runner, temp_project):
+        runner.invoke(main, ["init", "-d", str(temp_project)])
+
+        valid_prd = {
+            "vision": "A vehicle registration module for Odoo v18.",
+            "stakeholders": [
+                {"name": "Admin", "role": "User", "interest": "Track vehicles"}
+            ],
+            "objectives": ["Automate vehicle registration"],
+            "functional_requirements": [
+                {
+                    "id": "RF-01",
+                    "description": "CRUD operations for vehicles",
+                    "priority": "high",
+                }
+            ],
+            "non_functional_requirements": [
+                {
+                    "id": "RNF-01",
+                    "description": "Must respond under 2 seconds",
+                    "category": "performance",
+                    "priority": "medium",
+                }
+            ],
+            "acceptance_criteria": [
+                {
+                    "id": "CA-01",
+                    "criterion": "User can create a vehicle with required fields",
+                }
+            ],
+            "glossary": [
+                {"term": "CRUD", "definition": "Create, Read, Update, Delete operations"}
+            ],
+        }
+        art_path = temp_project / ".factory" / "prd.json"
+        art_path.write_text(json.dumps(valid_prd))
+
+        result = runner.invoke(main, ["validate", "prd", "-d", str(temp_project)])
+        assert result.exit_code == 0
+        assert "valid" in result.output
+
+    def test_validate_invalid_prd(self, runner, temp_project):
+        runner.invoke(main, ["init", "-d", str(temp_project)])
+
+        invalid_prd = {"vision": "Too short"}  # missing required fields
+        art_path = temp_project / ".factory" / "prd.json"
+        art_path.write_text(json.dumps(invalid_prd))
+
+        result = runner.invoke(main, ["validate", "prd", "-d", str(temp_project)])
+        assert result.exit_code == 1
+        assert "validation failed" in result.output
+
+    def test_validate_missing_artifact(self, runner, temp_project):
+        runner.invoke(main, ["init", "-d", str(temp_project)])
+        result = runner.invoke(main, ["validate", "prd", "-d", str(temp_project)])
+        assert "artifact file not found" in result.output
+
+    def test_validate_unknown_artifact(self, runner, temp_project):
+        runner.invoke(main, ["init", "-d", str(temp_project)])
+        result = runner.invoke(main, ["validate", "nonexistent", "-d", str(temp_project)])
+        assert result.exit_code == 1
+        assert "No schema found" in result.output
