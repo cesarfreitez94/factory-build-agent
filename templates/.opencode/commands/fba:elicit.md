@@ -26,7 +26,7 @@ If the user provided a module description in the command (e.g.,
 Otherwise, ask the user to describe their module idea in natural language.
 
 ### 3. Execute BABOK Elicitation (Single-Pass)
-Follow the elicitation process defined in `.opencode/agents/elicitador.yaml`:
+Follow the elicitation process defined in `.opencode/agents/elicitador.md`:
 - Present the full BABOK questionnaire (context, stakeholders, objectives,
   functional requirements, non-functional requirements, constraints, acceptance criteria)
   in a single structured message.

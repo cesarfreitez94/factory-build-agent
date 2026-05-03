@@ -29,7 +29,7 @@ Read `.factory/context/elicitation.json`. Review the structured data:
 - Acceptance criteria
 
 ### 3. Generate PRD Documents
-Follow the documentador agent instructions in `.opencode/agents/documentador.yaml`:
+Follow the documentador agent instructions in `.opencode/agents/documentador.md`:
 
 #### 3a. Generate `.factory/prd.json`
 Create the machine-readable PRD in JSON format conforming to the PRD schema

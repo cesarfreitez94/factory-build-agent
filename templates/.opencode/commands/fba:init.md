@@ -20,14 +20,14 @@ before any other FBA slash command.
 2. Run `fba init` in the project directory to create:
    - `.factory/state.json` — state machine tracking
    - `.factory/events.jsonl` — append-only event log
-   - `.opencode/agents/` — agent definitions (YAML)
+   - `.opencode/agents/` — agent definitions (Markdown)
    - `.opencode/commands/` — slash command definitions
    - `.github/workflows/factory-ci.yml` — CI/CD template
    - `AGENTS.md` — project context for OpenCode agents
 
 3. Verify all key files were created:
    - `.factory/state.json` exists and is valid JSON
-   - `.opencode/agents/orchestrator.yaml` exists
+   - `.opencode/agents/orchestrator.md` exists
    - `.opencode/commands/fba:init.md` exists
    - `.github/workflows/factory-ci.yml` exists
    - `AGENTS.md` exists
