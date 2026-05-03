@@ -75,12 +75,12 @@ def test_init_creates_events_log(runner, temp_project):
     assert event["agent"] == "fba_cli"
 
 
-def test_init_creates_agents_yaml(runner, temp_project):
+def test_init_creates_agents_md(runner, temp_project):
     """Verify fba init creates agent definition files."""
     result = runner.invoke(main, ["init", "-d", str(temp_project)])
 
     assert result.exit_code == 0
-    assert (temp_project / ".opencode" / "agents" / "orchestrator.yaml").is_file()
+    assert (temp_project / ".opencode" / "agents" / "orchestrator.md").is_file()
 
 
 def test_init_creates_slash_commands(runner, temp_project):
@@ -105,19 +105,25 @@ def test_init_creates_slash_commands(runner, temp_project):
         assert (commands_dir / cmd).is_file(), f"Missing command: {cmd}"
 
 
-def test_init_orchestrator_yaml_content(runner, temp_project):
-    """Verify the orchestrator.yaml has correct phase definitions."""
+def test_init_orchestrator_md_content(runner, temp_project):
+    """Verify the orchestrator.md has correct frontmatter and body."""
     result = runner.invoke(main, ["init", "-d", str(temp_project)])
     assert result.exit_code == 0
 
     import yaml
-    orchestrator = yaml.safe_load(
-        (temp_project / ".opencode" / "agents" / "orchestrator.yaml").read_text()
-    )
-    assert orchestrator["name"] == "orchestrator"
-    assert orchestrator["methodology"] == "BABOK"
-    assert len(orchestrator["phases"]) == 9
-    assert "valid_transitions" in orchestrator
+    path = temp_project / ".opencode" / "agents" / "orchestrator.md"
+    text = path.read_text()
+    parts = text.split("---", 2)
+    assert len(parts) >= 3, "Missing frontmatter delimiters"
+
+    frontmatter = yaml.safe_load(parts[1])
+    body = parts[2]
+
+    assert frontmatter["mode"] == "primary"
+    assert len(frontmatter["description"]) > 20
+    assert "permission" in frontmatter
+    assert "Phase Flow" in body or "phase" in body.lower()
+    assert "Milestone Completion Protocol" in body
 
 
 def test_init_creates_github_workflow(runner, temp_project):
@@ -291,3 +297,64 @@ class TestValidateCommand:
         result = runner.invoke(main, ["validate", "nonexistent", "-d", str(temp_project)])
         assert result.exit_code == 1
         assert "No schema found" in result.output
+
+
+class TestUpdateCommand:
+    def test_update_requires_factory(self, runner, temp_project):
+        result = runner.invoke(main, ["update", "-d", str(temp_project)])
+        assert result.exit_code == 1
+        assert "No .factory/ found" in result.output
+
+    def test_update_copies_new_templates(self, runner, temp_project):
+        runner.invoke(main, ["init", "-d", str(temp_project)])
+
+        agents = temp_project / ".opencode" / "agents"
+        for md_file in agents.glob("*.md"):
+            md_file.unlink()
+
+        result = runner.invoke(main, ["update", "-d", str(temp_project)])
+        assert result.exit_code == 0
+        assert (agents / "orchestrator.md").is_file()
+        assert (agents / "elicitador.md").is_file()
+        assert (agents / "documentador.md").is_file()
+
+    def test_update_cleans_obsolete_yaml(self, runner, temp_project):
+        runner.invoke(main, ["init", "-d", str(temp_project)])
+
+        agents = temp_project / ".opencode" / "agents"
+        (agents / "stale.yaml").write_text("obsolete")
+
+        result = runner.invoke(main, ["update", "-d", str(temp_project)])
+        assert result.exit_code == 0
+        assert "Removed obsolete" in result.output
+        assert not (agents / "stale.yaml").exists()
+
+    def test_update_preserves_state(self, runner, temp_project):
+        runner.invoke(main, ["init", "-d", str(temp_project)])
+
+        state_path = temp_project / ".factory" / "state.json"
+        original = state_path.read_text()
+
+        result = runner.invoke(main, ["update", "-d", str(temp_project)])
+        assert result.exit_code == 0
+
+        current = state_path.read_text()
+        assert current == original
+
+    def test_update_preserves_artifacts(self, runner, temp_project):
+        runner.invoke(main, ["init", "-d", str(temp_project)])
+
+        prd_path = temp_project / ".factory" / "prd.json"
+        prd_data = {"vision": "Test PRD preserved across update"}
+        prd_path.write_text(json.dumps(prd_data))
+
+        runner.invoke(main, ["transition", "elicitation", "-d", str(temp_project)])
+
+        result = runner.invoke(main, ["update", "-d", str(temp_project)])
+        assert result.exit_code == 0
+
+        preserved = json.loads(prd_path.read_text())
+        assert preserved["vision"] == "Test PRD preserved across update"
+
+        state = json.loads((temp_project / ".factory" / "state.json").read_text())
+        assert state["current_phase"] == "elicitation"

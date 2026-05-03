@@ -7,6 +7,30 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.2.1] - 2026-05-03
+
+### Corregido
+
+- Agentes definidos como `.yaml` convertidos a `.md` con frontmatter OpenCode (#28)
+- `fba:elicit` ahora encuentra correctamente al agente `elicitador`
+- `StateManager._get_valid_transitions()` ahora lee de `state.json` en vez de parsear `orchestrator.yaml`
+
+### Agregado
+
+- Paso de validacion manual del milestone branch antes del PR a `main` (CONTRIBUTING.md)
+- Milestone Completion Protocol en `orchestrator.md`: el agente solicita confirmacion explicita antes de abrir PR a `main`
+- Nuevos tests para formato `.md` de agentes (frontmatter, body, modos, permisos)
+- Comando `fba update` para actualizar plantillas en proyectos existentes sin tocar estado ni artefactos
+- `_cleanup_obsolete()` elimina archivos `.yaml` viejos al ejecutar `fba update`
+
+### Cambiado
+
+- `src/fba/state.py`: eliminada dependencia de `PyYAML` en `StateManager`
+- `templates/.opencode/agents/*.yaml` → `templates/.opencode/agents/*.md`
+- Documentacion actualizada: `AGENTS.md`, `ROADMAP.md`, `docs/testing/`
+
+---
+
 ## [0.2.0] - 2026-05-03
 
 ### Agregado

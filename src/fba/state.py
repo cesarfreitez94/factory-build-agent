@@ -2,8 +2,6 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-import yaml
-
 
 class StateManager:
     """Manages the Factory Build Agent state machine for a project."""
@@ -11,7 +9,6 @@ class StateManager:
     def __init__(self, project_dir: Path):
         self.project_dir = Path(project_dir).resolve()
         self._factory_dir = self.project_dir / ".factory"
-        self._opencode_dir = self.project_dir / ".opencode"
 
     @property
     def state_path(self) -> Path:
@@ -20,10 +17,6 @@ class StateManager:
     @property
     def events_path(self) -> Path:
         return self._factory_dir / "events.jsonl"
-
-    @property
-    def orchestrator_path(self) -> Path:
-        return self._opencode_dir / "agents" / "orchestrator.yaml"
 
     @property
     def current_phase(self) -> str:
@@ -103,7 +96,5 @@ class StateManager:
         self.save(state)
 
     def _get_valid_transitions(self) -> dict:
-        if not self.orchestrator_path.exists():
-            return {}
-        orchestrator = yaml.safe_load(self.orchestrator_path.read_text())
-        return orchestrator.get("valid_transitions", {})
+        state = self.load()
+        return state.get("valid_transitions", {})

@@ -59,13 +59,46 @@ def init(project_dir):
     click.echo("  2. Start eliciting requirements: /fba:elicit \"your idea\"")
 
 
+@main.command()
+@click.option("--project-dir", "-d", default=None, help="Target project directory (default: current directory)")
+def update(project_dir):
+    """Update project templates without touching state or artifacts.
+
+    Overwrites .opencode/, .github/workflows/, and AGENTS.md with
+    the latest templates. Removes known obsolete files.
+    Does NOT modify .factory/state.json, .factory/events.jsonl,
+    or any generated artifacts.
+    """
+    target = _resolve_project_dir(project_dir)
+
+    click.echo(f"Updating Factory Build Agent templates in {target}...")
+
+    _copy_templates(target)
+    _cleanup_obsolete(target)
+
+    click.echo(f"✅ Factory Build Agent templates updated in {target}")
+
+
 def _copy_templates(target: Path):
     templates_src = TEMPLATES_DIR
     if not templates_src.exists():
         click.echo(f"⚠  Templates directory not found: {templates_src}")
         return
 
-    shutil.copytree(templates_src, target, dirs_exist_ok=True)
+    shutil.copytree(
+        templates_src, target,
+        dirs_exist_ok=True,
+        ignore=shutil.ignore_patterns(".factory", ".factory/*"),
+    )
+
+
+def _cleanup_obsolete(target: Path):
+    """Remove known obsolete files from project after template update."""
+    agents_dir = target / ".opencode" / "agents"
+    if agents_dir.is_dir():
+        for yaml_file in agents_dir.glob("*.yaml"):
+            yaml_file.unlink()
+            click.echo(f"  🗑  Removed obsolete: agents/{yaml_file.name}")
 
 
 def _copy_schemas(target: Path):
@@ -97,10 +130,22 @@ def _init_factory_state(target: Path):
             "elicitation": {"status": "pending", "agent": "elicitador"},
             "documentation": {"status": "pending", "agent": "documentador"},
             "planning": {"status": "pending", "agent": "planificador"},
+            "tasks": {"status": "pending", "agent": "planificador"},
             "construction": {"status": "pending", "agent": "constructor"},
             "testing": {"status": "pending", "agent": "tester"},
             "review": {"status": "pending", "agent": "revisor"},
             "ci_cd": {"status": "pending", "agent": "cicd_manager"},
+        },
+        "valid_transitions": {
+            "init": ["elicitation"],
+            "elicitation": ["documentation"],
+            "documentation": ["planning"],
+            "planning": ["tasks"],
+            "tasks": ["construction"],
+            "construction": ["testing"],
+            "testing": ["review"],
+            "review": ["ci_cd"],
+            "ci_cd": ["complete"],
         },
         "artifacts": {},
         "context": {},
