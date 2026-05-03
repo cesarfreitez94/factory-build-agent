@@ -1,0 +1,197 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://opencode.ai/fba/schemas/prd.schema.json",
+  "title": "Product Requirements Document",
+  "description": "Schema for FBA-generated Product Requirements Document (PRD). Validates the machine-readable prd.json artifact.",
+  "type": "object",
+  "required": [
+    "vision",
+    "stakeholders",
+    "objectives",
+    "functional_requirements",
+    "non_functional_requirements",
+    "acceptance_criteria",
+    "glossary"
+  ],
+  "properties": {
+    "vision": {
+      "type": "string",
+      "minLength": 10,
+      "description": "High-level vision statement describing the product's purpose and value proposition."
+    },
+    "stakeholders": {
+      "type": "array",
+      "minItems": 1,
+      "description": "List of stakeholders involved in or affected by the product.",
+      "items": {
+        "type": "object",
+        "required": ["name", "role", "interest"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Stakeholder name or identifier."
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Stakeholder's role in the project."
+          },
+          "interest": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What the stakeholder cares about or expects from the product."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 1,
+      "description": "List of measurable business objectives the product aims to achieve.",
+      "items": {
+        "type": "string",
+        "minLength": 5
+      }
+    },
+    "functional_requirements": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Functional requirements describing what the product must do.",
+      "items": {
+        "type": "object",
+        "required": ["id", "description", "priority"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^RF-\\d{2,}$",
+            "description": "Unique identifier in format RF-NN (e.g. RF-01, RF-02)."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 10,
+            "description": "Clear description of the functional requirement."
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["high", "medium", "low"],
+            "description": "Requirement priority level."
+          },
+          "acceptance_criteria": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Specific acceptance criteria for this functional requirement.",
+            "items": {
+              "type": "string",
+              "minLength": 5
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "non_functional_requirements": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Non-functional requirements describing quality attributes and constraints.",
+      "items": {
+        "type": "object",
+        "required": ["id", "description", "category", "priority"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^RNF-\\d{2,}$",
+            "description": "Unique identifier in format RNF-NN (e.g. RNF-01)."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 10,
+            "description": "Clear description of the non-functional requirement."
+          },
+          "category": {
+            "type": "string",
+            "enum": ["performance", "security", "usability", "reliability", "maintainability"],
+            "description": "Category of non-functional requirement."
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["high", "medium", "low"],
+            "description": "Requirement priority level."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Overall acceptance criteria for the product.",
+      "items": {
+        "type": "object",
+        "required": ["id", "criterion"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^CA-\\d{2,}$",
+            "description": "Unique identifier in format CA-NN (e.g. CA-01)."
+          },
+          "criterion": {
+            "type": "string",
+            "minLength": 10,
+            "description": "Description of the acceptance criterion."
+          },
+          "related_requirements": {
+            "type": "array",
+            "minItems": 1,
+            "description": "IDs of functional requirements this criterion validates.",
+            "items": {
+              "type": "string",
+              "pattern": "^RF-\\d{2,}$"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "description": "Technical, business, or regulatory constraints affecting the product.",
+      "items": {
+        "type": "string",
+        "minLength": 5
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "External or internal dependencies for the product to be delivered.",
+      "items": {
+        "type": "string",
+        "minLength": 5
+      }
+    },
+    "glossary": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Definitions of key terms used throughout the document.",
+      "items": {
+        "type": "object",
+        "required": ["term", "definition"],
+        "properties": {
+          "term": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The term being defined."
+          },
+          "definition": {
+            "type": "string",
+            "minLength": 5,
+            "description": "Clear definition of the term."
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
