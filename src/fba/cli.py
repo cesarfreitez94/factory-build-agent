@@ -5,11 +5,13 @@ from pathlib import Path
 
 import click
 
+from fba import __version__
+
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent.parent / "templates"
 
 
 @click.group()
-@click.version_option(version="0.1.0")
+@click.version_option(version=__version__)
 def main():
     """Factory Build Agent - Multi-agent framework for Odoo v18 module development."""
 
@@ -56,7 +58,7 @@ def _init_factory_state(target: Path):
 
     state = {
         "project": target.name,
-        "framework_version": "0.1.0",
+        "framework_version": __version__,
         "init_at": datetime.now(timezone.utc).isoformat(),
         "current_phase": "init",
         "methodology": "BABOK",
@@ -85,7 +87,7 @@ def _init_events_log(target: Path):
         "ts": datetime.now(timezone.utc).isoformat(),
         "type": "init",
         "agent": "fba_cli",
-        "framework_version": "0.1.0",
+        "framework_version": __version__,
         "project": target.name,
     }
 
