@@ -26,6 +26,7 @@ phases:
     input_artifacts: ["prd.md"]
     output_artifacts: ["prd.md"]
     description: Generate structured PRD document
+    phase_key: documentation
   - name: planning
     agent: planificador
     command: /fba:plan
@@ -65,8 +66,8 @@ phases:
 
 valid_transitions:
   init: [elicitation]
-  elicitation: [specification]
-  specification: [planning]
+  elicitation: [documentation]
+  documentation: [planning]
   planning: [tasks]
   tasks: [construction]
   construction: [testing]
