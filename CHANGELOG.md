@@ -20,6 +20,8 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 - Paso de validacion manual del milestone branch antes del PR a `main` (CONTRIBUTING.md)
 - Milestone Completion Protocol en `orchestrator.md`: el agente solicita confirmacion explicita antes de abrir PR a `main`
 - Nuevos tests para formato `.md` de agentes (frontmatter, body, modos, permisos)
+- Comando `fba update` para actualizar plantillas en proyectos existentes sin tocar estado ni artefactos
+- `_cleanup_obsolete()` elimina archivos `.yaml` viejos al ejecutar `fba update`
 
 ### Cambiado
 

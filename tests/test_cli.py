@@ -297,3 +297,64 @@ class TestValidateCommand:
         result = runner.invoke(main, ["validate", "nonexistent", "-d", str(temp_project)])
         assert result.exit_code == 1
         assert "No schema found" in result.output
+
+
+class TestUpdateCommand:
+    def test_update_requires_factory(self, runner, temp_project):
+        result = runner.invoke(main, ["update", "-d", str(temp_project)])
+        assert result.exit_code == 1
+        assert "No .factory/ found" in result.output
+
+    def test_update_copies_new_templates(self, runner, temp_project):
+        runner.invoke(main, ["init", "-d", str(temp_project)])
+
+        agents = temp_project / ".opencode" / "agents"
+        for md_file in agents.glob("*.md"):
+            md_file.unlink()
+
+        result = runner.invoke(main, ["update", "-d", str(temp_project)])
+        assert result.exit_code == 0
+        assert (agents / "orchestrator.md").is_file()
+        assert (agents / "elicitador.md").is_file()
+        assert (agents / "documentador.md").is_file()
+
+    def test_update_cleans_obsolete_yaml(self, runner, temp_project):
+        runner.invoke(main, ["init", "-d", str(temp_project)])
+
+        agents = temp_project / ".opencode" / "agents"
+        (agents / "stale.yaml").write_text("obsolete")
+
+        result = runner.invoke(main, ["update", "-d", str(temp_project)])
+        assert result.exit_code == 0
+        assert "Removed obsolete" in result.output
+        assert not (agents / "stale.yaml").exists()
+
+    def test_update_preserves_state(self, runner, temp_project):
+        runner.invoke(main, ["init", "-d", str(temp_project)])
+
+        state_path = temp_project / ".factory" / "state.json"
+        original = state_path.read_text()
+
+        result = runner.invoke(main, ["update", "-d", str(temp_project)])
+        assert result.exit_code == 0
+
+        current = state_path.read_text()
+        assert current == original
+
+    def test_update_preserves_artifacts(self, runner, temp_project):
+        runner.invoke(main, ["init", "-d", str(temp_project)])
+
+        prd_path = temp_project / ".factory" / "prd.json"
+        prd_data = {"vision": "Test PRD preserved across update"}
+        prd_path.write_text(json.dumps(prd_data))
+
+        runner.invoke(main, ["transition", "elicitation", "-d", str(temp_project)])
+
+        result = runner.invoke(main, ["update", "-d", str(temp_project)])
+        assert result.exit_code == 0
+
+        preserved = json.loads(prd_path.read_text())
+        assert preserved["vision"] == "Test PRD preserved across update"
+
+        state = json.loads((temp_project / ".factory" / "state.json").read_text())
+        assert state["current_phase"] == "elicitation"
