@@ -1,7 +1,6 @@
 """Tests for the FBA CLI."""
 
 import json
-import os
 from pathlib import Path
 
 import pytest
@@ -84,11 +83,40 @@ def test_init_creates_agents_yaml(runner, temp_project):
 
 
 def test_init_creates_slash_commands(runner, temp_project):
-    """Verify fba init creates slash command files."""
+    """Verify fba init creates all slash command files."""
     result = runner.invoke(main, ["init", "-d", str(temp_project)])
 
     assert result.exit_code == 0
-    assert (temp_project / ".opencode" / "commands" / "fba:init.md").is_file()
+
+    commands_dir = temp_project / ".opencode" / "commands"
+    expected_commands = [
+        "fba:init.md",
+        "fba:elicit.md",
+        "fba:specify.md",
+        "fba:plan.md",
+        "fba:tasks.md",
+        "fba:build.md",
+        "fba:test.md",
+        "fba:review.md",
+        "fba:ship.md",
+    ]
+    for cmd in expected_commands:
+        assert (commands_dir / cmd).is_file(), f"Missing command: {cmd}"
+
+
+def test_init_orchestrator_yaml_content(runner, temp_project):
+    """Verify the orchestrator.yaml has correct phase definitions."""
+    result = runner.invoke(main, ["init", "-d", str(temp_project)])
+    assert result.exit_code == 0
+
+    import yaml
+    orchestrator = yaml.safe_load(
+        (temp_project / ".opencode" / "agents" / "orchestrator.yaml").read_text()
+    )
+    assert orchestrator["name"] == "orchestrator"
+    assert orchestrator["methodology"] == "BABOK"
+    assert len(orchestrator["phases"]) == 9
+    assert "valid_transitions" in orchestrator
 
 
 def test_init_creates_github_workflow(runner, temp_project):
