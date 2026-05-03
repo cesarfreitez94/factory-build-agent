@@ -7,6 +7,31 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.2.0] - 2026-05-03
+
+### Agregado
+
+- M1: Elicitacion BABOK + Documentacion (completado)
+- Schema PRD (`schemas/prd.schema.json`) con validacion completa (30 tests)
+- Modulo `src/fba/state.py`: StateManager para gestion de fases, eventos y artefactos
+- Comandos CLI: `fba status`, `fba transition`, `fba record`, `fba validate`
+- Agente Elicitador (`elicitador.yaml`) con flujo BABOK single-pass
+- Agente Documentador (`documentador.yaml`) con generacion de prd.json + prd.md
+- Slash commands expandidos: `fba:elicit.md`, `fba:specify.md`
+- `fba init` ahora copia schemas a `.factory/schemas/`
+- Tests de integracion simulando flujo elicitacion completo (7 tests)
+- Tests de definiciones de agentes (25 tests)
+- Guia de testing para M1 (`docs/testing/m1-elicitacion.md`)
+- Total: 101 tests, lint limpio
+
+### Cambiado
+
+- `state.schema.json`: fase `init` agregada a las fases
+- `orchestrator.yaml`: `specification` → `documentation` para consistencia
+- `fba:elicit.md` y `fba:specify.md` expandidos de stubs a documentacion completa
+
+---
+
 ## [0.1.0] - 2026-05-02
 
 ### Agregado
