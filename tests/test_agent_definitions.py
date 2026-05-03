@@ -102,6 +102,29 @@ class TestElicitadorAgent:
         assert "context/elicitation.json" in artifacts
 
 
+class TestDocumentadorAgent:
+    def test_documentador_exists(self):
+        assert (AGENTS_DIR / "documentador.yaml").is_file()
+
+    def test_documentador_has_prd_prompt(self):
+        agent = yaml.safe_load((AGENTS_DIR / "documentador.yaml").read_text())
+        prompt = agent["prompt"]
+        assert "prd.json" in prompt
+        assert "prd.md" in prompt
+        assert "validation" in prompt.lower()
+        assert "functional_requirements" in prompt
+
+    def test_documentador_has_input_phase(self):
+        agent = yaml.safe_load((AGENTS_DIR / "documentador.yaml").read_text())
+        assert agent.get("input_phase") == "elicitation"
+
+    def test_documentador_defines_both_outputs(self):
+        agent = yaml.safe_load((AGENTS_DIR / "documentador.yaml").read_text())
+        artifacts = {a["name"] for a in agent["output_artifacts"]}
+        assert "prd.json" in artifacts
+        assert "prd.md" in artifacts
+
+
 class TestOrchestratorValidTransitions:
     def test_valid_transitions_use_known_phases(self):
         orchestrator = yaml.safe_load(
