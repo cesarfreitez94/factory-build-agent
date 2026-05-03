@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
+from fba import __version__
 from fba.cli import main
 
 
@@ -24,7 +25,7 @@ def test_cli_version(runner):
     """Verify the CLI shows version."""
     result = runner.invoke(main, ["--version"])
     assert result.exit_code == 0
-    assert "0.1.0" in result.output
+    assert __version__ in result.output
 
 
 def test_init_creates_directories(runner, temp_project):
