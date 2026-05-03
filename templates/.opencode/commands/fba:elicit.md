@@ -1,6 +1,5 @@
 ---
-description: Elicit requirements for an Odoo v18 module using BABOK methodology
-agent: elicitador
+description: Elicit requirements for an Odoo v18 module using BABOK methodology with interactive selection
 ---
 
 # fba:elicit
@@ -25,17 +24,46 @@ If the user provided a module description in the command (e.g.,
 `/fba:elicit "modulo de registro de vehiculos"`), use it directly.
 Otherwise, ask the user to describe their module idea in natural language.
 
-### 3. Execute BABOK Elicitation (Single-Pass)
-Follow the elicitation process defined in `.opencode/agents/elicitador.md`:
-- Present the full BABOK questionnaire (context, stakeholders, objectives,
-  functional requirements, non-functional requirements, constraints, acceptance criteria)
-  in a single structured message.
-- Let the user respond to all questions at once.
-- If responses are incomplete, ask targeted follow-ups for the missing sections.
+### 3. Consult BABOK Methodology
+Read `.opencode/agents/elicitador.md` to understand the BABOK methodology
+guidelines for Odoo v18 module elicitation. Based on the user's module
+description, determine which BABOK knowledge areas are most relevant and
+what specific questions will yield the best requirements.
 
-### 4. Generate Structured Output
-Parse user responses into `.factory/context/elicitation.json` with the format
-defined in the elicitador agent.
+### 4. Execute Elicitation via Question Tool
+
+CRITICAL: You MUST use the `question` tool to present elicitation questions
+interactively. This allows the user to select options (letters) rather than
+typing free-form responses. The user can also write a custom answer when
+they choose "Otro (especificar)".
+
+**Question Generation Guidelines:**
+
+Based on the user's module idea, generate 8-12 selection-based questions
+grouped into these BABOK categories:
+
+| Category | Focus | Min Questions |
+|----------|-------|---------------|
+| A. Business Context & Stakeholders | Domain, users, stakeholders, problem | 2 |
+| B. Objectives & Scope | Goals, success metrics, in/out scope | 2 |
+| C. Functional Requirements | Core features needed for the specific module | 3 |
+| D. Non-Functional Requirements | Performance, security, usability, maintainability | 2 |
+| E. Constraints & Dependencies | Technical limits, Odoo dependencies, data | 1 |
+| F. Acceptance Criteria | Measurable criteria for module acceptance | 1 |
+
+**For each question:**
+- Provide 4-6 predefined options as lettered choices (A, B, C, ...)
+- ALWAYS include "Otro (especificar)" as the last option
+- Tailor options to the specific module domain (do NOT use generic templates)
+- For stakeholder/user questions, allow multiple selection (`multiple: true`)
+
+**After the first batch**, if responses are incomplete or reveal gaps:
+- Ask targeted follow-up questions for the missing BABOK categories
+- Always use the `question` tool with selection format
+
+### 5. Generate Structured Output
+Parse the user's selected responses into `.factory/context/elicitation.json`
+following the format defined in `.opencode/agents/elicitador.md`.
 
 Ensure the JSON file has all required sections:
 - `initial_description`: user's original description
@@ -49,7 +77,7 @@ Ensure the JSON file has all required sections:
 - `acceptance_criteria[]`: (id CA-NN, criterion, related_requirements)
 - `glossary[]`: (term, definition)
 
-### 5. Update State and Record Events
+### 6. Update State and Record Events
 After saving `elicitation.json`:
 1. Record the elicitation event:
    ```bash
@@ -61,7 +89,7 @@ After saving `elicitation.json`:
    fba transition elicitation
    ```
 
-### 6. Report Results
+### 7. Report Results
 Summarize what was elicited:
 - Number of stakeholders identified
 - Number of functional requirements (RF)
@@ -80,23 +108,41 @@ Summarize what was elicited:
 ```
 User: /fba:elicit "modulo de registro de vehiculos con marca, modelo, ano, placa"
 
-Agent (Elicitador):
-> Entendido. Voy a realizar la elicitacion BABOK. Por favor responde las
-> siguientes preguntas sobre tu modulo Odoo v18:
+Agent (Orchestrator):
+[Consults BABOK methodology in elicitador.md]
+[Generates contextual questions for fleet management domain]
 
-> ### A. Contexto del Negocio y Stakeholders
-> 1. ¿Cual es el proceso de negocio que este modulo debe soportar?
-> 2. ¿Quienes son los usuarios principales?
-> ...
+> [Uses question tool]
+> Header: "Contexto del Negocio"
+> Q: "¿Cual es el dominio principal de este modulo?"
+> - A) Gestion de flota vehicular y transporte
+> - B) Gestion de activos fijos (vehiculos como activos)
+> - C) Control de mantenimiento de vehiculos
+> - D) Control de combustible y gastos por vehiculo
+> - E) Otro (especificar)
 
-User: [responde todas las preguntas]
+User selects option A
 
-Agent (Elicitador):
+Agent:
+> [Uses question tool again]
+> Header: "Stakeholders"
+> Q: "¿Quienes usaran el modulo?" (multiple: true)
+> - A) Conductores (registran datos del vehiculo)
+> - B) Gerentes de flota (consultas, reportes)
+> - C) Mecanicos (registran mantenimiento)
+> - D) Administradores del sistema
+> - E) Otro (especificar)
+
+User selects A, B
+
+[... continues with remaining questions ...]
+
+Agent:
 > ✅ Elicitacion completada. Resultados:
 > - 3 stakeholders identificados
-> - 5 requisitos funcionales (RF-01 a RF-05)
-> - 3 requisitos no funcionales (RNF-01 a RNF-03)
-> - 4 criterios de aceptacion (CA-01 a CA-04)
+> - 8 requisitos funcionales (RF-01 a RF-08)
+> - 4 requisitos no funcionales (RNF-01 a RNF-04)
+> - 5 criterios de aceptacion (CA-01 a CA-05)
 >
 > El contexto se guardo en .factory/context/elicitation.json
 > Fase actual: elicitation
