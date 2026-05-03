@@ -8,7 +8,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 
 | Milestone | Estado | Inicio |
 |-----------|--------|--------|
-| M0: Fundacion | ⏳ En progreso | 2026-05-02 |
+| M0: Fundacion | ✅ Completado | 2026-05-02 / 2026-05-02 |
 | M1: Elicitacion + Documentacion | ⬜ Pendiente | - |
 | M2: Planificacion + SDD | ⬜ Pendiente | - |
 | M3: Construccion + MVP | ⬜ Pendiente | - |
@@ -25,17 +25,17 @@ necesaria para empezar a trabajar con agentes.
 
 - [x] Definicion de arquitectura y decisiones de diseno
 - [x] Documentos raiz: AGENTS.md, README.md, ROADMAP.md
-- [ ] Repositorio GitHub + git init
-- [ ] `pyproject.toml` con dependencias (Click, pytest, jsonschema, PyYAML)
-- [ ] Estructura de directorios: `src/fba/`, `templates/`, `schemas/`, `tests/`, `docs/`
-- [ ] CLI: comando `fba init` que genera estructura `.factory/` y `.opencode/`
-- [ ] Templates: `state.json`, `events.jsonl`, comandos slash base, agentes YAML
-- [ ] Schemas: `state.schema.json`
-- [ ] Orquestador base: slash command `/fba:init`
-- [ ] AGENTS.md para proyecto Odoo destino (template que `fba init` copia)
-- [ ] CI del framework: GitHub Actions para tests + lint
-- [ ] Tests unitarios de CLI y sistema de estado
-- [ ] `docs/PRD.md` del propio framework
+- [x] Repositorio GitHub + git init (incluye issues, templates, workflows)
+- [x] `pyproject.toml` con dependencias (Click, pytest, jsonschema, PyYAML)
+- [x] Estructura de directorios: `src/fba/`, `templates/`, `schemas/`, `tests/`, `docs/`
+- [x] CLI: comando `fba init` que genera estructura `.factory/` y `.opencode/`
+- [x] Templates: `state.json`, `events.jsonl`, comandos slash base, agentes YAML
+- [x] Schemas: `state.schema.json`
+- [x] Orquestador base: slash command `/fba:init` y `orchestrator.yaml`
+- [x] AGENTS.md para proyecto Odoo destino (template que `fba init` copia)
+- [x] CI del framework: GitHub Actions para tests + lint (ci.yml y main-guard.yml)
+- [x] Tests unitarios de CLI y sistema de estado (10 tests, cobertura > 80%)
+- [x] `docs/PRD.md` del propio framework
 
 ### Verificacion
 
