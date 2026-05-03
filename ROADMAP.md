@@ -9,7 +9,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | Milestone | Estado | Inicio |
 |-----------|--------|--------|
 | M0: Fundacion | ✅ Completado | 2026-05-02 / 2026-05-02 |
-| M1: Elicitacion + Documentacion | ⬜ Pendiente | - |
+| M1: Elicitacion + Documentacion | ✅ Completado | 2026-05-03 / 2026-05-03 |
 | M2: Planificacion + SDD | ⬜ Pendiente | - |
 | M3: Construccion + MVP | ⬜ Pendiente | - |
 
@@ -53,24 +53,29 @@ genera un PRD estructurado siguiendo la metodologia BABOK.
 
 ### Tareas
 
-- [ ] Sub-agente Elicitador (BABOK Elicitation & Collaboration, Requirements Life Cycle)
-- [ ] Slash command `/fba:elicit`
-- [ ] Flujo de preguntas estructurado BABOK:
+- [x] Sub-agente Elicitador (BABOK Elicitation & Collaboration, Requirements Life Cycle)
+- [x] Slash command `/fba:elicit` con flujo completo BABOK single-pass
+- [x] Flujo de preguntas estructurado BABOK:
   - Contexto del negocio y stakeholders
   - Objetivos y metas
   - Requisitos funcionales
   - Requisitos no funcionales
   - Restricciones y dependencias
   - Criterios de aceptacion
-- [ ] Sub-agente Documentador: toma output del elicitador y genera PRD.md
-- [ ] Template PRD.md (Vision, Stakeholders, Requisitos, Criterios, Glosario)
-- [ ] Schema JSON para validar PRD
-- [ ] Tests unitarios + integracion (simular elicitacion completa)
+- [x] Sub-agente Documentador: toma output del elicitador y genera PRD.md + prd.json
+- [x] Template PRD.md (Vision, Stakeholders, Requisitos, Criterios, Glosario)
+- [x] Schema JSON para validar PRD (`schemas/prd.schema.json`)
+- [x] State management (`src/fba/state.py`) con StateManager
+- [x] Comandos CLI: `fba status`, `fba transition`, `fba record`, `fba validate`
+- [x] Tests unitarios + integracion (101 tests, flujo elicitacion completo)
 
 ### Verificacion
 
 ```
-/fba:elicit "modulo de registro de vehiculos"  # produce PRD.md valido y completo
+fba init
+fba transition elicitation   # simula /fba:elicit
+fba transition documentation # simula /fba:specify
+fba validate prd             # valida PRD contra schema
 ```
 
 ---
