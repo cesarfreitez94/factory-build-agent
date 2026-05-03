@@ -7,6 +7,9 @@
 
 ## Reglas Fundamentales
 
+> ⛔ **main es SOLO-LECTURA. Cero commits directos. Cero excepciones.**
+> Toda modificacion al codigo se hace en branches y entra a main exclusivamente via Pull Request mergeado.
+
 1. **NUNCA hacer commit directo a `main`**. Solo se mergea via Pull Request.
 2. **Siempre crear un GitHub Issue antes de escribir codigo**. Nada se desarrolla sin issue.
 3. **Usar la convencion de branching** descrita abajo.
