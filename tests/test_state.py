@@ -13,9 +13,6 @@ def project_dir(tmp_path):
     factory_dir = tmp_path / ".factory"
     factory_dir.mkdir()
 
-    opencode_agents = tmp_path / ".opencode" / "agents"
-    opencode_agents.mkdir(parents=True)
-
     state = {
         "project": tmp_path.name,
         "framework_version": "0.1.0",
@@ -27,19 +24,12 @@ def project_dir(tmp_path):
             "elicitation": {"status": "pending", "agent": "elicitador"},
             "documentation": {"status": "pending", "agent": "documentador"},
             "planning": {"status": "pending", "agent": "planificador"},
+            "tasks": {"status": "pending", "agent": "planificador"},
             "construction": {"status": "pending", "agent": "constructor"},
             "testing": {"status": "pending", "agent": "tester"},
             "review": {"status": "pending", "agent": "revisor"},
             "ci_cd": {"status": "pending", "agent": "cicd_manager"},
         },
-        "artifacts": {},
-        "context": {},
-    }
-    (factory_dir / "state.json").write_text(json.dumps(state, indent=2))
-
-    orchestrator = {
-        "name": "orchestrator",
-        "methodology": "BABOK",
         "valid_transitions": {
             "init": ["elicitation"],
             "elicitation": ["documentation"],
@@ -51,9 +41,10 @@ def project_dir(tmp_path):
             "review": ["ci_cd"],
             "ci_cd": ["complete"],
         },
+        "artifacts": {},
+        "context": {},
     }
-    import yaml
-    (opencode_agents / "orchestrator.yaml").write_text(yaml.dump(orchestrator))
+    (factory_dir / "state.json").write_text(json.dumps(state, indent=2))
 
     return tmp_path
 
@@ -173,6 +164,27 @@ class TestStateManagerArtifacts:
     def test_add_artifact_version_unknown_raises(self, state_mgr):
         with pytest.raises(ValueError, match="Unknown artifact"):
             state_mgr.add_artifact_version("nonexistent")
+
+
+class TestValidTransitionsFromState:
+    def test_valid_transitions_use_known_phases(self, state_mgr):
+        state = state_mgr.load()
+        transitions = state.get("valid_transitions", {})
+
+        all_phases = set(state["phases"].keys()) | {"init", "complete"}
+
+        for from_phase, to_list in transitions.items():
+            assert from_phase in all_phases, f"Unknown from_phase '{from_phase}'"
+            for to_phase in to_list:
+                assert to_phase in all_phases | {"complete"}, \
+                    f"Unknown to_phase '{to_phase}' in transition"
+
+    def test_transitions_cover_all_phases(self, state_mgr):
+        state = state_mgr.load()
+        transitions = state.get("valid_transitions", {})
+        phases = set(state["phases"].keys())
+
+        assert set(transitions.keys()) == phases
 
 
 def _read_events(path: Path) -> list:

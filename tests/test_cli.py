@@ -75,12 +75,12 @@ def test_init_creates_events_log(runner, temp_project):
     assert event["agent"] == "fba_cli"
 
 
-def test_init_creates_agents_yaml(runner, temp_project):
+def test_init_creates_agents_md(runner, temp_project):
     """Verify fba init creates agent definition files."""
     result = runner.invoke(main, ["init", "-d", str(temp_project)])
 
     assert result.exit_code == 0
-    assert (temp_project / ".opencode" / "agents" / "orchestrator.yaml").is_file()
+    assert (temp_project / ".opencode" / "agents" / "orchestrator.md").is_file()
 
 
 def test_init_creates_slash_commands(runner, temp_project):
@@ -105,19 +105,25 @@ def test_init_creates_slash_commands(runner, temp_project):
         assert (commands_dir / cmd).is_file(), f"Missing command: {cmd}"
 
 
-def test_init_orchestrator_yaml_content(runner, temp_project):
-    """Verify the orchestrator.yaml has correct phase definitions."""
+def test_init_orchestrator_md_content(runner, temp_project):
+    """Verify the orchestrator.md has correct frontmatter and body."""
     result = runner.invoke(main, ["init", "-d", str(temp_project)])
     assert result.exit_code == 0
 
     import yaml
-    orchestrator = yaml.safe_load(
-        (temp_project / ".opencode" / "agents" / "orchestrator.yaml").read_text()
-    )
-    assert orchestrator["name"] == "orchestrator"
-    assert orchestrator["methodology"] == "BABOK"
-    assert len(orchestrator["phases"]) == 9
-    assert "valid_transitions" in orchestrator
+    path = temp_project / ".opencode" / "agents" / "orchestrator.md"
+    text = path.read_text()
+    parts = text.split("---", 2)
+    assert len(parts) >= 3, "Missing frontmatter delimiters"
+
+    frontmatter = yaml.safe_load(parts[1])
+    body = parts[2]
+
+    assert frontmatter["mode"] == "primary"
+    assert len(frontmatter["description"]) > 20
+    assert "permission" in frontmatter
+    assert "Phase Flow" in body or "phase" in body.lower()
+    assert "Milestone Completion Protocol" in body
 
 
 def test_init_creates_github_workflow(runner, temp_project):
