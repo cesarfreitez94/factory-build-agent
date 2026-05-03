@@ -252,7 +252,7 @@ ls /tmp/test-m1/.opencode/agents/
 
 **Resultado esperado**:
 ```
-documentador.yaml  elicitador.yaml  orchestrator.yaml
+documentador.md  elicitador.md  orchestrator.md
 ```
 
 ### 12. Verificar slash commands instalados

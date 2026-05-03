@@ -19,6 +19,9 @@
 7. **Si un feat ya mergeado necesita fix**: crear `feat/X.Y.Z` donde Z es fix/mejora.
 8. **Todos los PRs requieren 1 aprobacion** antes de merge.
 9. **Cada milestone incluye `docs/testing/`** con instrucciones para el usuario.
+10. **PR de milestone a `main` requiere validacion manual del usuario.**
+    El agente debe solicitar confirmacion explicita al usuario antes de abrir el PR.
+    Sin esta confirmacion, el PR a `main` no se abre.
 
 ---
 
@@ -86,10 +89,16 @@ main (PROTEGIDO - solo PR merge)
 4. Completar todas las sub-issues via PRs al milestone branch
 5. Actualizar ROADMAP.md y CHANGELOG.md
 6. Verificar que docs/testing/mX-descripcion.md existe
-7. Abrir PR del milestone branch a main
-8. Revisar checklist de completitud
-9. Merge a main
-10. Cerrar Epic Issue
+7. **Validar el milestone branch manualmente**:
+   a. Ejecutar `pytest` y confirmar 0 fallos
+   b. Seguir los pasos en `docs/testing/mX-*.md`
+   c. Probar los comandos slash en un proyecto limpio
+   d. El usuario debe dar confirmacion explicita
+   e. ⛔ El agente NO PUEDE abrir PR a main sin esta confirmacion
+8. Abrir PR del milestone branch a main
+9. Revisar checklist de completitud
+10. Merge a main
+11. Cerrar Epic Issue
 ```
 
 ---

@@ -30,7 +30,7 @@ of this framework is Odoo addons; the framework itself is a development tool.
 
 ### Agent System
 
-1 orchestrator + 7 sub-agents defined declaratively in `.opencode/agents/*.yaml`:
+1 orchestrator + 7 sub-agents defined declaratively in `.opencode/agents/*.md`:
 - **Orchestrator** — Coordinates phases, validates artifacts, invokes sub-agents.
 - **Elicitador** — Requirements elicitation using BABOK methodology.
 - **Documentador** — Generates PRD.md and SDD.md documentation.
@@ -40,7 +40,7 @@ of this framework is Odoo addons; the framework itself is a development tool.
 - **Revisor de Codigo** — Code quality, security, and spec-adherence review.
 - **CI/CD Manager** — Generates GitHub Actions workflows and manages releases.
 
-The agent system is extensible: adding a new sub-agent = adding a YAML definition + a slash command.
+The agent system is extensible: adding a new sub-agent = adding a Markdown definition + a slash command.
 
 ## Development Workflow
 
@@ -66,8 +66,13 @@ The agent system is extensible: adding a new sub-agent = adding a YAML definitio
 3. Desglosar sub-issues con labels de fase y tipo
 4. Iterar feat/X.Y.Z → PR → merge a milestone branch
 5. Completadas todas las sub-issues → actualizar ROADMAP.md y CHANGELOG.md
-6. PR de milestone/X.0 → main → aprobar → merge
-7. Cerrar Epic Issue
+6. Validar el milestone branch manualmente:
+   a. Ejecutar pytest y confirmar 0 fallos
+   b. Seguir los pasos en docs/testing/mX-*.md
+   c. El usuario debe dar confirmacion explicita
+   d. El agente NO PUEDE abrir PR a main sin esta confirmacion
+7. PR de milestone/X.0 → main → aprobar → merge
+8. Cerrar Epic Issue
 ```
 
 ### Convencion de Commits
@@ -114,7 +119,7 @@ main (PROTEGIDO - solo PR merge)
 | Communication | Files + Events | Simple, traceable, no external infrastructure |
 | CI/CD | GitHub Actions | Native GitHub integration |
 | OpenSpec/SpecKit | Native compatibility | Artifact format compatibility, no hard dependencies |
-| Extensibility | YAML declarative | Add agents/methodologies without modifying core code |
+| Extensibility | Markdown declarative | Add agents/methodologies without modifying core code |
 
 ## Development Phases
 
@@ -131,7 +136,7 @@ See [ROADMAP.md](ROADMAP.md) for full milestone details and progress tracking.
 - **Click** for CLI
 - **pytest** for framework testing
 - **JSON Schema** (jsonschema) for artifact validation
-- **PyYAML** for agent definition parsing
+- **PyYAML** for frontmatter and state file parsing
 
 ## Project Structure
 

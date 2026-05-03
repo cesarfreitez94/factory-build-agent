@@ -67,7 +67,7 @@ ls -d /tmp/test-fba/.factory /tmp/test-fba/.opencode /tmp/test-fba/.github
 # Archivos clave
 ls -la /tmp/test-fba/.factory/state.json
 ls -la /tmp/test-fba/.factory/events.jsonl
-ls -la /tmp/test-fba/.opencode/agents/orchestrator.yaml
+ls -la /tmp/test-fba/.opencode/agents/orchestrator.md
 ls -la /tmp/test-fba/.opencode/commands/fba:init.md
 ls -la /tmp/test-fba/AGENTS.md
 ls -la /tmp/test-fba/.github/workflows/factory-ci.yml

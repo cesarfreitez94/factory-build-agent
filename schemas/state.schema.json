@@ -59,6 +59,13 @@
             "agent": {"type": "string"}
           }
         },
+        "tasks": {
+          "type": "object",
+          "properties": {
+            "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
+            "agent": {"type": "string"}
+          }
+        },
         "construction": {
           "type": "object",
           "properties": {
@@ -87,6 +94,14 @@
             "agent": {"type": "string"}
           }
         }
+      }
+    },
+    "valid_transitions": {
+      "type": "object",
+      "description": "Mapping of phase to list of allowed next phases",
+      "additionalProperties": {
+        "type": "array",
+        "items": {"type": "string"}
       }
     },
     "artifacts": {

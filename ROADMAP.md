@@ -161,9 +161,9 @@ Orquestador (fase actual, validacion, transiciones)
 └── CI/CD Manager (GitHub Actions + releases)
 ```
 
-Cada agente se define declarativamente en YAML en `.opencode/agents/`.
+Cada agente se define declarativamente en Markdown en `.opencode/agents/`.
 El sistema es extensible por diseno: agregar un nuevo agente es agregar
-un archivo YAML con su definicion y un slash command.
+un archivo Markdown con su definicion y un slash command.
 
 ## Decisiones de Diseno
 
@@ -175,6 +175,6 @@ un archivo YAML con su definicion y un slash command.
 | Comunicacion | Archivos + Eventos | Simple, trazable, sin infraestructura externa |
 | CI/CD | GitHub Actions | Integracion nativa con GitHub |
 | Compatibilidad | OpenSpec + SpecKit | Artefactos en formatos compatibles |
-| Extension | YAML declarativo | Agregar agentes/metodologias sin modificar nucleo |
+| Extension | Markdown declarativo | Agregar agentes/metodologias sin modificar nucleo |
 | Empaquetado | pyproject.toml | Estandar moderno de Python |
 | CLI | Click | Biblioteca madura y bien documentada |
