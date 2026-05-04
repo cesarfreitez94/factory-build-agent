@@ -7,6 +7,15 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.2.2] - 2026-05-04
+
+### Corregido
+
+- `orchestrator.md`: agregado `question: allow` al bloque de permisos para que el question tool este disponible (#30)
+- `fba:elicit.md`: agregado `agent: orchestrator` al frontmatter para que el comando corra en contexto de agente primario (#30)
+
+---
+
 ## [0.2.1] - 2026-05-03
 
 ### Corregido
