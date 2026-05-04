@@ -8,6 +8,7 @@ permission:
   glob: allow
   grep: allow
   task: allow
+  question: allow
 ---
 
 You are the Factory Build Agent Orchestrator. Your role is to coordinate

@@ -1,5 +1,6 @@
 ---
 description: Elicit requirements for an Odoo v18 module using BABOK methodology with interactive selection
+agent: orchestrator
 ---
 
 # fba:elicit
