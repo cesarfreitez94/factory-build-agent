@@ -10,7 +10,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 |-----------|--------|--------|
 | M0: Fundacion | ✅ Completado | 2026-05-02 / 2026-05-02 |
 | M1: Elicitacion + Documentacion | ✅ Completado | 2026-05-03 / 2026-05-03 |
-| M2: Planificacion + SDD | ⬜ Pendiente | - |
+| M2: Planificacion + SDD | ✅ Completado | 2026-05-04 / 2026-05-04 |
 | M3: Construccion + MVP | ⬜ Pendiente | - |
 
 ---
@@ -88,13 +88,13 @@ especifico para Odoo v18 con trazabilidad completa.
 
 ### Tareas
 
-- [ ] Sub-agente Planificador (arquitectura Odoo v18)
-- [ ] Slash command `/fba:plan`
-- [ ] Template SDD.md (Arquitectura, Modelos, Vistas, Seguridad, Dependencias, API)
-- [ ] Template plan.md (Stack, Fases, Riesgos, Estimaciones)
-- [ ] Schema JSON para validar SDD
-- [ ] Trazabilidad PRD -> SDD (cada requisito mapeado a componente de diseno)
-- [ ] Tests
+- [x] Sub-agente Planificador (arquitectura Odoo v18)
+- [x] Slash command `/fba:plan`
+- [x] Template SDD.md (Arquitectura, Modelos, Vistas, Seguridad, Dependencias, API)
+- [x] Template plan.md (Stack, Fases, Riesgos, Estimaciones)
+- [x] Schema JSON para validar SDD
+- [x] Trazabilidad PRD -> SDD (cada requisito mapeado a componente de diseno)
+- [x] Tests
 
 ### Verificacion
 
