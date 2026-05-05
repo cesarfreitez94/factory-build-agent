@@ -7,6 +7,20 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.4.0] - Pendiente
+
+### Agregado
+
+- M4: Sistema de Gates con Agente Revisor de Artefactos (planificado)
+  - `src/fba/gate.py`: GateRunner con validaciones declarativas por fase
+  - Integracion de gates en `StateManager.transition_to()`: bloquea transiciones invalidas
+  - Comando `fba gate` para diagnostico manual
+  - Agente Revisor de Artefactos: validacion cross-artifact (schema + trazabilidad + coherencia)
+  - Slash command `/fba:gate`
+  - Gates definidos en `state.json`, extensibles sin modificar codigo
+
+---
+
 ## [0.3.0] - 2026-05-04
 
 ### Agregado
