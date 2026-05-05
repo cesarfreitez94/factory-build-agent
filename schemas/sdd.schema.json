@@ -1,0 +1,487 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://opencode.ai/fba/schemas/sdd.schema.json",
+  "title": "Software Design Document",
+  "description": "Schema for FBA-generated Software Design Document (SDD). Validates the machine-readable sdd.json artifact for Odoo v18 modules.",
+  "type": "object",
+  "required": [
+    "module_name",
+    "module_display_name",
+    "version",
+    "architecture",
+    "models",
+    "views",
+    "security",
+    "dependencies",
+    "file_structure",
+    "traceability_matrix"
+  ],
+  "properties": {
+    "module_name": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Technical module name (e.g., vehicle_registry)."
+    },
+    "module_display_name": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Human-readable module name (e.g., Vehicle Registry)."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+.*$",
+      "description": "Odoo module version (e.g., 18.0.1.0.0)."
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Brief description of the module."
+    },
+    "architecture": {
+      "type": "object",
+      "required": ["description"],
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 10,
+          "description": "High-level architecture description."
+        },
+        "diagram_notes": {
+          "type": "string",
+          "description": "Key architectural decisions and design patterns."
+        }
+      },
+      "additionalProperties": false
+    },
+    "models": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Odoo models defined in this module.",
+      "items": {
+        "type": "object",
+        "required": ["name", "display_name", "description", "fields", "traceability"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "pattern": "^[a-z0-9_.]+$",
+            "description": "Technical model name (e.g., vehicle.registry)."
+          },
+          "display_name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Human-readable model name."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 5,
+            "description": "Description of the model's purpose."
+          },
+          "inherit": {
+            "type": ["string", "null"],
+            "description": "Parent model name if inherited, or null."
+          },
+          "fields": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Fields defined in this model.",
+            "items": {
+              "type": "object",
+              "required": ["name", "type", "display_name", "description", "traceability"],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[a-z][a-z0-9_]*$",
+                  "description": "Field technical name."
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["char", "text", "integer", "float", "boolean", "date", "datetime", "binary", "selection", "many2one", "one2many", "many2many", "html", "monetary"],
+                  "description": "Odoo field type."
+                },
+                "display_name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Human-readable field label."
+                },
+                "required": {
+                  "type": "boolean",
+                  "description": "Whether this field is required."
+                },
+                "unique": {
+                  "type": "boolean",
+                  "description": "Whether this field must be unique."
+                },
+                "size": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Max size for char fields."
+                },
+                "compute": {
+                  "type": "string",
+                  "description": "Compute method name if field is computed."
+                },
+                "selection": {
+                  "type": "array",
+                  "description": "Selection options for selection fields.",
+                  "items": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {"type": "string"}
+                  }
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 5,
+                  "description": "Description of the field's purpose."
+                },
+                "traceability": {
+                  "type": "array",
+                  "minItems": 1,
+                  "description": "PRD requirement IDs this field implements.",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^RF-\\d{2,}$"
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "relations": {
+            "type": "array",
+            "description": "Relational fields linking to other models.",
+            "items": {
+              "type": "object",
+              "required": ["type", "model", "field", "description"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["Many2one", "One2many", "Many2many"],
+                  "description": "Type of relation."
+                },
+                "model": {
+                  "type": "string",
+                  "minLength": 3,
+                  "description": "Target model technical name."
+                },
+                "field": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Relation field name."
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 5,
+                  "description": "Description of the relationship."
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "traceability": {
+            "type": "array",
+            "minItems": 1,
+            "description": "PRD requirement IDs this model implements.",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "views": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Odoo views defined for this module.",
+      "items": {
+        "type": "object",
+        "required": ["model", "type", "name", "description", "fields", "traceability"],
+        "properties": {
+          "model": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Model technical name this view belongs to."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["form", "tree", "search", "kanban", "calendar", "graph", "pivot", "activity", "qweb"],
+            "description": "Odoo view type."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "description": "XML view ID."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 5,
+            "description": "Description of the view's purpose."
+          },
+          "fields": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Main fields displayed in this view.",
+            "items": {"type": "string", "minLength": 1}
+          },
+          "filters": {
+            "type": "array",
+            "description": "Search filters for search views.",
+            "items": {
+              "type": "object",
+              "required": ["name", "domain_type"],
+              "properties": {
+                "name": {"type": "string", "minLength": 1},
+                "domain_type": {"type": "string", "enum": ["field", "group_by", "filter"]},
+                "field_name": {"type": "string"},
+                "description": {"type": "string"}
+              },
+              "additionalProperties": false
+            }
+          },
+          "traceability": {
+            "type": "array",
+            "minItems": 1,
+            "description": "PRD requirement IDs this view implements.",
+            "items": {"type": "string"}
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "security": {
+      "type": "object",
+      "required": ["groups", "access_rights"],
+      "properties": {
+        "groups": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Security groups for this module.",
+          "items": {
+            "type": "object",
+            "required": ["name", "display_name", "description"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Group XML ID."
+              },
+              "display_name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Human-readable group name."
+              },
+              "description": {
+                "type": "string",
+                "minLength": 5,
+                "description": "What this group can do."
+              },
+              "implied_ids": {
+                "type": "array",
+                "description": "Inherited group IDs.",
+                "items": {"type": "string"}
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "access_rights": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Access control rules per model per group.",
+          "items": {
+            "type": "object",
+            "required": ["model", "group", "perm_read", "perm_write", "perm_create", "perm_unlink"],
+            "properties": {
+              "model": {
+                "type": "string",
+                "minLength": 3,
+                "description": "Model technical name."
+              },
+              "group": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Group XML ID."
+              },
+              "perm_read": {"type": "boolean"},
+              "perm_write": {"type": "boolean"},
+              "perm_create": {"type": "boolean"},
+              "perm_unlink": {"type": "boolean"}
+            },
+            "additionalProperties": false
+          }
+        },
+        "record_rules": {
+          "type": "array",
+          "description": "Record-level security rules.",
+          "items": {
+            "type": "object",
+            "required": ["name", "model", "domain", "description"],
+            "properties": {
+              "name": {"type": "string", "minLength": 1},
+              "model": {"type": "string", "minLength": 3},
+              "domain": {"type": "string", "minLength": 1},
+              "description": {"type": "string", "minLength": 5},
+              "groups": {
+                "type": "array",
+                "items": {"type": "string"}
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "dependencies": {
+      "type": "object",
+      "required": ["required"],
+      "properties": {
+        "required": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Required Odoo addon dependencies.",
+          "items": {"type": "string", "minLength": 2}
+        },
+        "optional": {
+          "type": "array",
+          "description": "Optional Odoo addon dependencies.",
+          "items": {"type": "string", "minLength": 2}
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Explanation of why each dependency is needed."
+        }
+      },
+      "additionalProperties": false
+    },
+    "workflows": {
+      "type": "array",
+      "description": "Workflows and state machines.",
+      "items": {
+        "type": "object",
+        "required": ["name", "model", "description", "traceability"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Workflow name."
+          },
+          "model": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Model this workflow applies to."
+          },
+          "states": {
+            "type": "array",
+            "minItems": 2,
+            "description": "States in the workflow.",
+            "items": {"type": "string", "minLength": 1}
+          },
+          "description": {
+            "type": "string",
+            "minLength": 5,
+            "description": "Description of the workflow."
+          },
+          "traceability": {
+            "type": "array",
+            "minItems": 1,
+            "description": "PRD requirement IDs this workflow implements.",
+            "items": {"type": "string"}
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "reporting": {
+      "type": "array",
+      "description": "Report definitions.",
+      "items": {
+        "type": "object",
+        "required": ["name", "type", "model", "description"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "type": {
+            "type": "string",
+            "enum": ["pdf", "excel", "dashboard", "qweb"]
+          },
+          "model": {"type": "string", "minLength": 3},
+          "description": {"type": "string", "minLength": 5},
+          "traceability": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "file_structure": {
+      "type": "object",
+      "required": ["module", "files"],
+      "properties": {
+        "module": {
+          "type": "string",
+          "minLength": 3,
+          "description": "Module directory name."
+        },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Files in the module.",
+          "items": {
+            "type": "string",
+            "minLength": 3,
+            "pattern": "^[a-zA-Z0-9_/.]+$"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "traceability_matrix": {
+      "type": "object",
+      "required": ["mappings"],
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Description of the traceability mapping."
+        },
+        "mappings": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Maps each PRD requirement to SDD components.",
+          "items": {
+            "type": "object",
+            "required": ["requirement", "sdD_components", "description"],
+            "properties": {
+              "requirement": {
+                "type": "string",
+                "minLength": 2,
+                "description": "PRD requirement ID (RF-NN or RNF-NN)."
+              },
+              "sdD_components": {
+                "type": "array",
+                "minItems": 1,
+                "description": "SDD component names this requirement maps to.",
+                "items": {"type": "string", "minLength": 1}
+              },
+              "description": {
+                "type": "string",
+                "minLength": 5,
+                "description": "How this requirement maps to these SDD components."
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

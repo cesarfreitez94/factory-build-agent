@@ -210,8 +210,9 @@ def test_init_creates_schemas(runner, temp_project):
     schemas_dir = temp_project / ".factory" / "schemas"
     assert schemas_dir.is_dir()
     schema_files = list(schemas_dir.glob("*.schema.json"))
-    assert len(schema_files) >= 1
+    assert len(schema_files) >= 2
     assert (schemas_dir / "prd.schema.json").is_file()
+    assert (schemas_dir / "sdd.schema.json").is_file()
 
 
 class TestStatusCommand:

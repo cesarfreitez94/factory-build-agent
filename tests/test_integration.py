@@ -259,6 +259,93 @@ class TestFullElicitationFlow:
         assert result.exit_code == 1
         assert "validation failed" in result.output
 
+    def test_sdd_validation_via_cli(self, runner, project):
+        """Validate an SDD artifact via fba validate sdd."""
+        runner.invoke(main, ["init", "-d", str(project)])
+
+        sdd = {
+            "module_name": "vehicle_registry",
+            "module_display_name": "Vehicle Registry",
+            "version": "18.0.1.0.0",
+            "summary": "Vehicle management module for Odoo v18",
+            "architecture": {
+                "description": "Simple module with one model, basic views, and security for vehicle management"
+            },
+            "models": [
+                {
+                    "name": "vehicle.registry",
+                    "display_name": "Vehicle",
+                    "description": "Main vehicle registry model for storing vehicle data",
+                    "fields": [
+                        {
+                            "name": "plate",
+                            "type": "char",
+                            "display_name": "License Plate",
+                            "required": True,
+                            "unique": True,
+                            "size": 20,
+                            "description": "Unique vehicle license plate number",
+                            "traceability": ["RF-01"]
+                        }
+                    ],
+                    "traceability": ["RF-01"]
+                }
+            ],
+            "views": [
+                {
+                    "model": "vehicle.registry",
+                    "type": "form",
+                    "name": "vehicle.registry.form",
+                    "description": "Main vehicle form view",
+                    "fields": ["plate"],
+                    "traceability": ["RF-01"]
+                }
+            ],
+            "security": {
+                "groups": [
+                    {
+                        "name": "vehicle_user",
+                        "display_name": "Vehicle User",
+                        "description": "Can view and create vehicles"
+                    }
+                ],
+                "access_rights": [
+                    {
+                        "model": "vehicle.registry",
+                        "group": "vehicle_user",
+                        "perm_read": True,
+                        "perm_write": True,
+                        "perm_create": True,
+                        "perm_unlink": False
+                    }
+                ]
+            },
+            "dependencies": {
+                "required": ["base"],
+                "reason": "base module is required for all Odoo addons"
+            },
+            "file_structure": {
+                "module": "vehicle_registry",
+                "files": ["__manifest__.py", "__init__.py", "models/vehicle_registry.py"]
+            },
+            "traceability_matrix": {
+                "mappings": [
+                    {
+                        "requirement": "RF-01",
+                        "sdD_components": ["vehicle.registry model", "vehicle.registry.form view"],
+                        "description": "CRUD operations for vehicle records"
+                    }
+                ]
+            }
+        }
+        (project / ".factory" / "sdd.json").write_text(
+            json.dumps(sdd, indent=2, ensure_ascii=False)
+        )
+
+        result = runner.invoke(main, ["validate", "sdd", "-d", str(project)])
+        assert result.exit_code == 0
+        assert "valid" in result.output
+
     def test_complete_m1_flow(self, runner, project):
         """End-to-end simulation of the M1 flow: elicit -> specify."""
         _create_elicitation_context(project)
