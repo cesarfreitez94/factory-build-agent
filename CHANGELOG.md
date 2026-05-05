@@ -7,6 +7,18 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.5.0] - Unreleased
+
+### Agregado
+
+- M3: Construccion + MVP (en progreso) (#59)
+  - M3.1: Constructor Core — Modulo Skeleton y Modelos (#60)
+  - M3.2: Constructor Completo — Vistas, Seguridad, Datos (#61)
+  - M3.3: Tester QA + Code Reviewer (#62)
+  - M3.4: CI/CD Manager + Integracion E2E + Docs (#63)
+
+---
+
 ## [0.4.0] - 2026-05-05
 
 ### Agregado
