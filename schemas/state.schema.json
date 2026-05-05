@@ -143,7 +143,7 @@
               "properties": {
                 "type": {
                   "type": "string",
-                  "enum": ["schema", "artifact_exists", "traceability", "content_check"],
+                  "enum": ["schema", "artifact_exists", "traceability", "content_check", "semantic_check"],
                   "description": "Rule evaluation type"
                 },
                 "rule_name": {
@@ -170,6 +170,19 @@
                   "type": "object",
                   "description": "Content checks mapping (for content_check rule type)",
                   "additionalProperties": {"type": "integer"}
+                },
+                "source_path": {
+                  "type": "string",
+                  "description": "Path to the source artifact for comparison (for semantic_check rule type)"
+                },
+                "target_path": {
+                  "type": "string",
+                  "description": "Path to the target artifact to validate (for semantic_check rule type)"
+                },
+                "dimensions": {
+                  "type": "array",
+                  "description": "Semantic dimensions to evaluate (for semantic_check rule type)",
+                  "items": {"type": "string"}
                 }
               }
             }

@@ -191,6 +191,19 @@ def _init_factory_state(target: Path):
                         "schema": "prd.schema.json",
                         "path": ".factory/prd.json",
                     },
+                    {
+                        "type": "semantic_check",
+                        "rule_name": "prd_semantic_relevance",
+                        "source_path": ".factory/context/elicitation.json",
+                        "target_path": ".factory/prd.json",
+                        "dimensions": [
+                            "domain_consistency",
+                            "objective_alignment",
+                            "terminology_match",
+                            "stakeholder_relevance",
+                            "requirement_relevance",
+                        ],
+                    },
                 ],
             },
             "planning": {
@@ -218,6 +231,19 @@ def _init_factory_state(target: Path):
                         "rule_name": "prd_sdd_traceability",
                         "prd_path": ".factory/prd.json",
                         "sdd_path": ".factory/sdd.json",
+                    },
+                    {
+                        "type": "semantic_check",
+                        "rule_name": "sdd_semantic_relevance",
+                        "source_path": ".factory/context/elicitation.json",
+                        "target_path": ".factory/sdd.json",
+                        "dimensions": [
+                            "domain_consistency",
+                            "objective_alignment",
+                            "terminology_match",
+                            "stakeholder_relevance",
+                            "requirement_relevance",
+                        ],
                     },
                 ],
             },
@@ -359,13 +385,19 @@ def gate(phase, all_gates, project_dir):
             click.echo("   (no rules defined)")
 
         for r in result.results:
-            rs = "✅" if r.passed else "❌"
+            if r.requires_agent:
+                rs = "⏳"
+            else:
+                rs = "✅" if r.passed else "❌"
             click.echo(f"   {rs} {r.rule}: {r.message}")
 
         if result.failures:
             click.echo(f"   Owner agent: {result.owner_agent}")
             click.echo(f"   {result.error_count} failure(s)")
             all_passed = False
+
+        if result.pending_agent_checks:
+            click.echo(f"   ⏳ {len(result.pending_agent_checks)} pending agent evaluation(s)")
         click.echo("")
 
     if not all_passed:

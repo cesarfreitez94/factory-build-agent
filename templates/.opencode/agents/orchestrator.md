@@ -21,15 +21,22 @@ the development lifecycle of an Odoo v18 module.
 
 ## Phase Flow
 ```
-/fba:init --> /fba:elicit --> /fba:gate --> /fba:specify --> /fba:gate
-                                                                     |
-/fba:plan --> /fba:gate --> /fba:tasks --> /fba:gate --> /fba:build   |
-                                                                      |
-/fba:ship <-- /fba:review <-- /fba:test <-- /fba:gate <--------------+
+/fba:init --> /fba:elicit --> /fba:gate --> /fba:semantic-check
+                                              |                |
+                                              v                v
+                                        /fba:specify --> /fba:gate --> /fba:semantic-check
+                                                                              |
+                                                                              v
+/fba:plan --> /fba:gate --> /fba:semantic-check --> /fba:tasks --> /fba:gate
+                                                                              |
+                                                                              v
+/fba:build --> /fba:gate --> /fba:test --> /fba:review --> /fba:ship
 ```
 
 Each phase transition is gated: artifacts must pass `fba gate` before the
-next phase can begin.
+next phase can begin. For phases that produce semantic content (documentation,
+planning), gate validation includes semantic checks that must be resolved
+by the validador_semantico agent.
 
 ## Phases Reference
 
@@ -40,6 +47,7 @@ next phase can begin.
 | documentation | documentador | /fba:specify | context/elicitation.json | prd.json, prd.md | documentation |
 | planning | planificador | /fba:plan | prd.md | sdd.md, plan.md | planning |
 | gate | revisor_artefactos | /fba:gate | current artifacts | gate_report.json | - |
+| semantic | validador_semantico | /fba:semantic-check | elicitation.json, prd.json or sdd.json | semantic_report.json | - |
 | tasks | planificador | /fba:tasks | sdd.md, plan.md | tasks.md | tasks |
 | construction | constructor | /fba:build | sdd.md, tasks.md | odoo_module/ | construction |
 | testing | tester | /fba:test | odoo_module/ | test_report.md | testing |
@@ -129,11 +137,27 @@ After completing any phase (except `ci_cd`), you MUST follow this protocol:
    ```bash
    fba gate
    ```
-   - If gates pass: proceed to step 3.
-   - If gates fail: invoke the Revisor de Artefactos sub-agent via
-     `/fba:gate` to diagnose and offer the correction cycle.
+   - If gates pass AND `pending_agent_checks` is 0: proceed to step 3.
+   - If gates fail (structural): invoke the Revisor de Artefactos sub-agent
+     via `/fba:gate` to diagnose and offer the correction cycle.
      Do NOT offer progression until all gates pass or the user
      explicitly authorizes `--force`.
+   - If gates pass BUT `pending_agent_checks` > 0: semantic checks are
+     pending. Invoke the Validador Semantico sub-agent:
+     ```
+     task(
+       description="Validacion semantica para <phase>",
+       prompt="Run /fba:semantic-check for the current phase <phase>. Read
+         .factory/state.json to find the semantic_check rule, read the
+         source and target artifacts, evaluate all dimensions, generate
+         semantic_report.json, and present results with correction options.",
+       subagent_type="general"
+     )
+     ```
+     DO NOT pass task_id — this must be a fresh session.
+     After the validador completes, re-check: if semantic passes,
+     proceed to step 3; if fails, the validador will handle the
+     correction cycle with the owning agent (also in fresh sessions).
 
 3. **Ask the user** using the `question` tool:
    - Header: `"Fase completada: <phase_name>"`
@@ -147,7 +171,8 @@ After completing any phase (except `ci_cd`), you MUST follow this protocol:
    - Read the next slash command from `.opencode/commands/` to get the
      agent name and instructions.
    - Invoke the appropriate sub-agent using the `task` tool with the
-     command's instructions as the task prompt.
+     command's instructions as the task prompt. **Do NOT pass task_id**
+     — each sub-agent invocation must be a fresh session.
    - Display the sub-agent's result to the user.
    - After the sub-agent completes, repeat this protocol for the new phase.
 
@@ -173,6 +198,7 @@ See `.opencode/commands/` for full documentation of each slash command.
 - `/fba:init` -- Initialize project structure
 - `/fba:elicit` -- Elicit requirements (interactive, uses question tool)
 - `/fba:gate` -- Run gate validation and diagnostics
+- `/fba:semantic-check` -- Run LLM-based semantic validation on artifacts
 - `/fba:specify` -- Generate PRD
 - `/fba:plan` -- Generate SDD and technical plan
 - `/fba:tasks` -- Create task list

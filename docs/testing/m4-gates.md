@@ -39,8 +39,8 @@ Debe mostrar:
 ```
 Gates defined: ['elicitation', 'documentation', 'planning']
   elicitation: 2 rules, owner=elicitador
-  documentation: 3 rules, owner=documentador
-  planning: 4 rules, owner=planificador
+  documentation: 4 rules, owner=documentador
+  planning: 5 rules, owner=planificador
 ```
 
 ### 2. Verificar que `fba gate` diagnostica fase actual
@@ -129,9 +129,80 @@ fba gate -d /tmp/test-m4
    ✅ elicitation_content_minimum: All content checks passed
 ```
 
-### 6. Transicion con `--force`
+Nota: La fase `elicitation` no tiene reglas `semantic_check`, por lo que no muestra `⏳ pending`.
 
-**Objetivo**: `--force` permite saltar el gate.
+### 6. Verificar gate de documentacion con PRD (incluye semantic_check)
+
+**Objetivo**: Verificar que el gate `documentation` incluye la regla `semantic_check` como pending.
+
+**Comandos**:
+```bash
+# Crear un PRD valido para pasar los gates estructurales
+cat > /tmp/test-m4/.factory/prd.json << 'EOF'
+{
+  "vision": "Sistema de gestion de inventario en bodega",
+  "stakeholders": [{"name": "Admin", "role": "Administrador", "interest": "Gestion total"}],
+  "objectives": ["Control de stock en tiempo real"],
+  "functional_requirements": [
+    {"id": "RF-01", "description": "CRUD de productos con stock", "priority": "high",
+     "acceptance_criteria": ["Crear producto en < 1 min"]}
+  ],
+  "non_functional_requirements": [
+    {"id": "RNF-01", "description": "Tiempo de respuesta < 2 segundos", "category": "performance", "priority": "high"}
+  ],
+  "acceptance_criteria": [{"id": "CA-01", "criterion": "Usuario crea producto en < 1 min", "related_requirements": ["RF-01"]}],
+  "glossary": [{"term": "SKU", "definition": "Stock Keeping Unit"}]
+}
+EOF
+
+cat > /tmp/test-m4/.factory/prd.md << 'EOF'
+# PRD - Sistema de Inventario
+EOF
+
+fba transition documentation -d /tmp/test-m4 --force
+fba gate documentation -d /tmp/test-m4
+```
+
+**Resultado esperado**:
+```
+✅ Gate: documentation
+   Validates that PRD is complete and schema-valid
+   ✅ prd_json_exists: Artifact exists: .factory/prd.json
+   ✅ prd_md_exists: Artifact exists: .factory/prd.md
+   ✅ prd_schema_valid: Schema validation passed: .factory/prd.json
+   ⏳ prd_semantic_relevance: Semantic check pending: comparing .factory/context/elicitation.json → .factory/prd.json across 5 dimensions — requires agent evaluation
+   ⏳ 1 pending agent evaluation(s)
+```
+
+### 7. Verificar agente Validador Semantico
+
+**Objetivo**: El agente validador_semantico existe en las plantillas.
+
+**Comando**:
+```bash
+ls /tmp/test-m4/.opencode/agents/validador_semantico.md
+```
+
+**Resultado esperado**: El archivo existe.
+
+### 8. Verificar slash command `/fba:semantic-check`
+
+**Objetivo**: El comando slash existe en las plantillas.
+
+**Comando**:
+```bash
+head -5 /tmp/test-m4/.opencode/commands/fba:semantic-check.md
+```
+
+**Resultado esperado**:
+```
+---
+description: Run semantic validation on project artifacts to verify relevance against original request
+agent: validador_semantico
+---
+```
+
+### 9. Transicion con `--force`
 
 **Comandos**:
 ```bash
@@ -148,9 +219,9 @@ Transitioned to 'documentation'
 ⚠️  Gate validation was skipped (--force)
 ```
 
-### 7. Verificar gate de documentacion
+### 10. Verificar gate de documentacion (sin PRD)
 
-**Objetivo**: El gate `documentation` valida PRD.
+**Objetivo**: El gate `documentation` valida PRD cuando no hay PRD generado.
 
 **Comandos**:
 ```bash
@@ -165,7 +236,7 @@ fba gate documentation -d /tmp/test-m4
    ...
 ```
 
-### 8. Verificar `fba gate --all`
+### 11. Verificar `fba gate --all`
 
 **Objetivo**: El flag `--all` muestra todos los gates definidos.
 
@@ -176,7 +247,7 @@ fba gate --all -d /tmp/test-m4
 
 **Resultado esperado**: Muestra gates de `elicitation`, `documentation`, y `planning` con sus estados.
 
-### 9. Verificar agente Revisor de Artefactos
+### 12. Verificar agente Revisor de Artefactos
 
 **Objetivo**: El agente existe en las plantillas.
 
@@ -187,7 +258,7 @@ ls /tmp/test-m4/.opencode/agents/revisor_artefactos.md
 
 **Resultado esperado**: El archivo existe.
 
-### 10. Verificar slash command `/fba:gate`
+### 13. Verificar slash command `/fba:gate`
 
 **Objetivo**: El comando slash existe en las plantillas.
 
@@ -204,7 +275,7 @@ agent: revisor_artefactos
 ---
 ```
 
-### 11. Limits
+### 14. Limpieza
 
 **Objetivo**: Limpiar.
 
@@ -233,6 +304,15 @@ Ejecutar `fba update` en el proyecto para copiar las plantillas mas recientes:
 ```bash
 fba update -d <project-dir>
 ```
+
+### `fba gate` muestra ⏳ pending pero no se ejecuta la validacion semantica
+
+El simbolo `⏳` indica que la regla `semantic_check` requiere evaluacion LLM
+desde un agente. No se resuelve desde la CLI — el orquestador o el Revisor de
+Artefactos deben invocar al `validador_semantico` via `task` tool.
+
+Para probar manualmente que la regla existe, verificar que `state.json` contiene
+reglas de tipo `semantic_check` en los gates de `documentation` y `planning`:
 
 ### Tests fallan en test_gate.py
 

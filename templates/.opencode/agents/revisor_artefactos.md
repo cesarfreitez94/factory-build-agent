@@ -55,6 +55,9 @@ least one SDD component in the traceability matrix.
 Read `.factory/state.json` to identify the current phase.
 - If a specific phase is requested, validate that phase's gates.
 - Otherwise, validate gates for the current phase.
+- If the gate definition includes `semantic_check` rules, semantic
+  validation will be needed. After structural validation passes,
+  the validador_semantico agent must be invoked in a fresh session.
 
 ### 2. Run Gate Validation
 Execute the gate system for the relevant phase:
@@ -63,6 +66,30 @@ fba gate <phase>
 ```
 
 Parse the output to identify which rules passed or failed.
+
+If any rule has `requires_agent: true` (semantic_check), the structural
+validation passed but semantic validation is pending. Skip to Step 2b.
+
+### 2b. Handle Semantic Checks
+
+If the gate results include `pending_agent_checks > 0`:
+
+1. The validador_semantico agent must evaluate the semantic alignment.
+2. Invoke it using the `task` tool **without task_id** (fresh session):
+   ```
+   task(
+     description="Validacion semantica para <phase>",
+     prompt="Run /fba:semantic-check for phase <phase>. Read state.json
+       to find the semantic_check rule, read elicitation.json and the
+       target artifact, evaluate all dimensions, generate
+       semantic_report.json, and present results with correction options
+       following the validador_semantico agent procedure.",
+     subagent_type="general"
+   )
+   ```
+3. After completion, check the result. If the semantic check passed,
+   proceed normally. If it failed, the validador's correction cycle
+   handles re-invoking the owning agent (also in fresh sessions).
 
 ### 3. Run Schema Validation
 ```bash
@@ -136,9 +163,12 @@ If the user selects **C**:
 ## Important Rules
 
 1. Always run `fba gate` BEFORE `fba validate` to get structured gate results.
-2. Never modify artifacts directly — delegate corrections to the owning sub-agent.
-3. Always present results with clear pass/fail indicators per rule.
-4. When invoking a sub-agent for correction, pass the full list of validation
+2. If gate results include `pending_agent_checks > 0`, delegate semantic
+   validation to the validador_semantico agent in a fresh session (no task_id).
+3. Never modify artifacts directly — delegate corrections to the owning sub-agent
+   in a FRESH session (no task_id).
+4. Always present results with clear pass/fail indicators per rule.
+5. When invoking a sub-agent for correction, pass the full list of validation
    errors as context so the sub-agent knows exactly what needs fixing.
-5. After correction, re-run ALL validation steps to ensure no new issues
+6. After correction, re-run ALL validation steps to ensure no new issues
    were introduced.

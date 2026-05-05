@@ -101,6 +101,16 @@ class TestRuleResult:
         for key in ["passed", "rule", "message", "details"]:
             assert key in d
 
+    def test_requires_agent_default_false(self):
+        r = RuleResult(passed=True, rule="test")
+        assert r.requires_agent is False
+        assert r.to_dict()["requires_agent"] is False
+
+    def test_requires_agent_true(self):
+        r = RuleResult(passed=True, rule="semantic", requires_agent=True)
+        assert r.requires_agent is True
+        assert r.to_dict()["requires_agent"] is True
+
 
 class TestGateResult:
     def test_all_passed(self):
@@ -137,6 +147,31 @@ class TestGateResult:
         assert gr.passed is True
         assert gr.error_count == 0
         assert gr.failures == []
+
+    def test_pending_agent_checks_empty(self):
+        results = [
+            RuleResult(passed=True, rule="r1", message="ok"),
+            RuleResult(passed=True, rule="r2", message="ok"),
+        ]
+        gr = GateResult(passed=True, phase="test", results=results)
+        assert gr.pending_agent_checks == []
+
+    def test_pending_agent_checks_with_semantic(self):
+        results = [
+            RuleResult(passed=True, rule="r1", message="ok"),
+            RuleResult(passed=True, rule="semantic", requires_agent=True, message="pending"),
+        ]
+        gr = GateResult(passed=True, phase="test", results=results)
+        assert len(gr.pending_agent_checks) == 1
+        assert gr.pending_agent_checks[0].rule == "semantic"
+
+    def test_to_dict_includes_pending_agent_checks(self):
+        results = [
+            RuleResult(passed=True, rule="semantic", requires_agent=True),
+        ]
+        gr = GateResult(passed=True, phase="test", results=results)
+        d = gr.to_dict()
+        assert d["pending_agent_checks"] == 1
 
 
 class TestGateError:
@@ -602,3 +637,323 @@ class TestGateRunnerMissingFactory:
         result = runner.check_current_phase()
         assert result.passed is True
         assert result.phase == "init"
+
+
+class TestGateRunnerSemanticCheck:
+    def setup_semantic_state(self, tmp_path):
+        factory = tmp_path / ".factory"
+        factory.mkdir(parents=True)
+
+        schemas_dir = factory / "schemas"
+        schemas_dir.mkdir()
+
+        context_dir = factory / "context"
+        context_dir.mkdir()
+
+        state = {
+            "project": "test",
+            "current_phase": "documentation",
+            "methodology": "BABOK",
+            "phases": {
+                "documentation": {"status": "in_progress", "agent": "documentador"},
+            },
+            "valid_transitions": {},
+            "gates": {
+                "documentation": {
+                    "description": "Semantic validation gate",
+                    "owner_agent": "documentador",
+                    "rules": [
+                        {
+                            "type": "semantic_check",
+                            "rule_name": "prd_semantic_check",
+                            "source_path": ".factory/context/elicitation.json",
+                            "target_path": ".factory/prd.json",
+                            "dimensions": [
+                                "domain_consistency",
+                                "objective_alignment",
+                            ],
+                        },
+                    ],
+                },
+            },
+            "artifacts": {},
+        }
+        (factory / "state.json").write_text(json.dumps(state, indent=2))
+        return tmp_path
+
+    def test_semantic_check_does_not_block(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            from pathlib import Path as P
+            d = self.setup_semantic_state(P(tmp))
+
+            elicitation = {
+                "initial_description": "modulo de inventario",
+                "business_context": "gestion de stock",
+                "objectives": ["control de inventario"],
+                "stakeholders": [{"name": "admin", "role": "admin", "interest": "gestión"}],
+                "functional_requirements": [{"id": "RF-01", "description": "CRUD productos"}],
+                "non_functional_requirements": [{"id": "RNF-01", "description": "rendimiento", "category": "performance"}],
+                "glossary": [{"term": "stock", "definition": "inventario"}],
+            }
+            (d / ".factory" / "context" / "elicitation.json").write_text(json.dumps(elicitation))
+
+            prd = {
+                "vision": "gestion de flota vehicular",
+                "objectives": ["registro vehiculos"],
+                "stakeholders": [{"name": "chofer", "role": "conductor", "interest": "gestion flota"}],
+                "functional_requirements": [{"id": "RF-01", "description": "CRUD vehiculos", "priority": "high"}],
+                "non_functional_requirements": [{"id": "RNF-01", "description": "seguridad acceso", "category": "security"}],
+                "glossary": [{"term": "vehiculo", "definition": "unidad de flota"}],
+            }
+            (d / ".factory" / "prd.json").write_text(json.dumps(prd))
+
+            runner = GateRunner(d)
+            result = runner.check_phase("documentation")
+
+            assert result.passed is True
+            assert result.results[0].passed is True
+            assert result.results[0].requires_agent is True
+
+    def test_semantic_check_packages_eval_data(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            from pathlib import Path as P
+            d = self.setup_semantic_state(P(tmp))
+
+            elicitation = {
+                "initial_description": "modulo de inventario",
+                "business_context": "gestion de stock en almacen",
+                "objectives": ["control de inventario", "trazabilidad"],
+                "stakeholders": [
+                    {"name": "admin", "role": "administrador", "interest": "gestion total"},
+                    {"name": "operador", "role": "bodeguero", "interest": "registro entradas"},
+                ],
+                "functional_requirements": [
+                    {"id": "RF-01", "description": "CRUD de productos con stock"},
+                    {"id": "RF-02", "description": "registro de movimientos"},
+                ],
+                "non_functional_requirements": [
+                    {"id": "RNF-01", "description": "tiempo respuesta < 2s", "category": "performance"},
+                ],
+                "glossary": [
+                    {"term": "SKU", "definition": "Stock Keeping Unit"},
+                ],
+            }
+            (d / ".factory" / "context" / "elicitation.json").write_text(json.dumps(elicitation))
+
+            prd = {
+                "vision": "sistema de gestion de inventario",
+                "objectives": ["control stock"],
+                "stakeholders": [{"name": "admin", "role": "admin", "interest": "control"}],
+                "functional_requirements": [{"id": "RF-01", "description": "CRUD productos", "priority": "high"}],
+                "non_functional_requirements": [{"id": "RNF-01", "description": "rendimiento", "category": "performance"}],
+                "glossary": [{"term": "inventario", "definition": "conjunto de productos"}],
+                "constraints": ["solo Odoo Community"],
+                "dependencies": {"required": ["base"], "optional": ["mail"]},
+            }
+            (d / ".factory" / "prd.json").write_text(json.dumps(prd))
+
+            runner = GateRunner(d)
+            result = runner.check_phase("documentation")
+
+            eval_data = result.results[0].details["eval_data"]
+            assert eval_data["source_path"] == ".factory/context/elicitation.json"
+            assert eval_data["target_path"] == ".factory/prd.json"
+            assert eval_data["dimensions"] == ["domain_consistency", "objective_alignment"]
+
+            assert eval_data["source_snapshot"]["initial_description"] == "modulo de inventario"
+            assert eval_data["source_snapshot"]["business_context"] == "gestion de stock en almacen"
+            assert len(eval_data["source_snapshot"]["objectives"]) == 2
+            assert len(eval_data["source_snapshot"]["stakeholders"]) == 2
+
+            assert eval_data["target_snapshot"]["vision"] == "sistema de gestion de inventario"
+            assert len(eval_data["target_snapshot"]["functional_requirements"]) == 1
+            assert eval_data["target_snapshot"]["constraints"] == ["solo Odoo Community"]
+            assert eval_data["target_snapshot"]["dependencies"]["required"] == ["base"]
+
+    def test_semantic_check_missing_source(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            from pathlib import Path as P
+            d = self.setup_semantic_state(P(tmp))
+
+            prd = {"vision": "test", "objectives": ["test"]}
+            (d / ".factory" / "prd.json").write_text(json.dumps(prd))
+
+            runner = GateRunner(d)
+            result = runner.check_phase("documentation")
+
+            assert result.passed is True
+            assert result.results[0].passed is True
+            assert result.results[0].requires_agent is False
+            assert "not found" in result.results[0].message
+
+    def test_semantic_check_missing_target(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            from pathlib import Path as P
+            d = self.setup_semantic_state(P(tmp))
+
+            elicitation = {"initial_description": "modulo X", "business_context": "test"}
+            (d / ".factory" / "context" / "elicitation.json").write_text(json.dumps(elicitation))
+
+            runner = GateRunner(d)
+            result = runner.check_phase("documentation")
+
+            assert result.passed is True
+            assert result.results[0].passed is True
+            assert result.results[0].requires_agent is False
+            assert "not found" in result.results[0].message
+
+    def test_semantic_check_invalid_json(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            from pathlib import Path as P
+            d = self.setup_semantic_state(P(tmp))
+
+            (d / ".factory" / "context" / "elicitation.json").write_text("not valid json")
+            (d / ".factory" / "prd.json").write_text("also not json")
+
+            runner = GateRunner(d)
+            result = runner.check_phase("documentation")
+
+            assert result.passed is True
+            assert result.results[0].passed is True
+            assert result.results[0].requires_agent is False
+            assert "invalid json" in result.results[0].message.lower()
+
+    def test_semantic_check_default_dimensions(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            from pathlib import Path as P
+            d = P(tmp)
+            factory = d / ".factory"
+            factory.mkdir(parents=True)
+
+            context_dir = factory / "context"
+            context_dir.mkdir()
+
+            elicitation = {
+                "initial_description": "modulo de prueba",
+                "business_context": "testing",
+            }
+            (context_dir / "elicitation.json").write_text(json.dumps(elicitation))
+
+            prd = {"vision": "test"}
+            (factory / "prd.json").write_text(json.dumps(prd))
+
+            state = {
+                "project": "test",
+                "current_phase": "docs",
+                "methodology": "BABOK",
+                "phases": {},
+                "valid_transitions": {},
+                "gates": {
+                    "docs": {
+                        "description": "t",
+                        "owner_agent": "d",
+                        "rules": [{
+                            "type": "semantic_check",
+                            "rule_name": "check",
+                            "source_path": ".factory/context/elicitation.json",
+                            "target_path": ".factory/prd.json",
+                        }],
+                    },
+                },
+                "artifacts": {},
+            }
+            (factory / "state.json").write_text(json.dumps(state))
+
+            runner = GateRunner(d)
+            result = runner.check_phase("docs")
+
+            eval_data = result.results[0].details["eval_data"]
+            assert len(eval_data["dimensions"]) == 5
+            assert "domain_consistency" in eval_data["dimensions"]
+
+
+class TestCLIGateSemanticCheck:
+    def setup_semantic_cli_state(self, tmp_path):
+        factory = tmp_path / ".factory"
+        factory.mkdir(parents=True)
+
+        context_dir = factory / "context"
+        context_dir.mkdir()
+
+        elicitation = {
+            "initial_description": "modulo de inventario",
+            "business_context": "gestion stock",
+            "objectives": ["control inventario"],
+            "stakeholders": [{"name": "admin", "role": "admin", "interest": "gestion"}],
+            "functional_requirements": [{"id": "RF-01", "description": "CRUD productos"}],
+            "non_functional_requirements": [{"id": "RNF-01", "description": "rendimiento", "category": "performance"}],
+            "glossary": [{"term": "SKU", "definition": "codigo producto"}],
+        }
+        (context_dir / "elicitation.json").write_text(json.dumps(elicitation))
+
+        prd = {
+            "vision": "gestion inventario",
+            "objectives": ["control stock"],
+            "stakeholders": [{"name": "admin", "role": "admin", "interest": "control"}],
+            "functional_requirements": [{"id": "RF-01", "description": "CRUD productos", "priority": "high"}],
+            "non_functional_requirements": [{"id": "RNF-01", "description": "rendimiento", "category": "performance"}],
+            "glossary": [{"term": "inventario", "definition": "conjunto productos"}],
+        }
+        (factory / "prd.json").write_text(json.dumps(prd))
+
+        state = {
+            "project": "test",
+            "current_phase": "documentation",
+            "methodology": "BABOK",
+            "phases": {
+                "documentation": {"status": "in_progress", "agent": "documentador"},
+            },
+            "valid_transitions": {},
+            "gates": {
+                "documentation": {
+                    "description": "Documentation gate with semantic check",
+                    "owner_agent": "documentador",
+                    "rules": [
+                        {"type": "artifact_exists", "rule_name": "prd_exists", "path": ".factory/prd.json"},
+                        {
+                            "type": "semantic_check",
+                            "rule_name": "prd_semantic",
+                            "source_path": ".factory/context/elicitation.json",
+                            "target_path": ".factory/prd.json",
+                            "dimensions": ["domain_consistency"],
+                        },
+                    ],
+                },
+            },
+            "artifacts": {},
+        }
+        (factory / "state.json").write_text(json.dumps(state, indent=2))
+        return tmp_path
+
+    def test_cli_gate_shows_pending_semantic(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            from pathlib import Path as P
+            d = self.setup_semantic_cli_state(P(tmp))
+
+            runner_cli = CliRunner()
+            result = runner_cli.invoke(main, ["gate", "documentation", "-d", str(d)])
+
+            assert result.exit_code == 0
+            assert "⏳" in result.output
+            assert "prd_semantic" in result.output
+            assert "pending agent evaluation" in result.output
+
+    def test_cli_gate_semantic_does_not_fail_passed_gate(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            from pathlib import Path as P
+            d = self.setup_semantic_cli_state(P(tmp))
+
+            runner_cli = CliRunner()
+            result = runner_cli.invoke(main, ["gate", "documentation", "-d", str(d)])
+
+            assert result.exit_code == 0
+            assert "✅ Gate:" in result.output
+            assert "pending" in result.output

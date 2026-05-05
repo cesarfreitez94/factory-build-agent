@@ -9,6 +9,7 @@ class RuleResult:
     rule: str
     message: str = ""
     details: dict = field(default_factory=dict)
+    requires_agent: bool = False
 
     def to_dict(self):
         return {
@@ -16,6 +17,7 @@ class RuleResult:
             "rule": self.rule,
             "message": self.message,
             "details": self.details,
+            "requires_agent": self.requires_agent,
         }
 
 
@@ -35,6 +37,10 @@ class GateResult:
     def error_count(self):
         return len(self.failures)
 
+    @property
+    def pending_agent_checks(self):
+        return [r for r in self.results if r.requires_agent]
+
     def to_dict(self):
         return {
             "passed": self.passed,
@@ -43,6 +49,7 @@ class GateResult:
             "owner_agent": self.owner_agent,
             "results": [r.to_dict() for r in self.results],
             "error_count": self.error_count,
+            "pending_agent_checks": len(self.pending_agent_checks),
         }
 
 
@@ -115,6 +122,8 @@ class GateRunner:
             return self._check_traceability(rule)
         elif rule_type == "content_check":
             return self._check_content(rule)
+        elif rule_type == "semantic_check":
+            return self._check_semantic(rule)
         else:
             return RuleResult(
                 passed=False,
@@ -345,6 +354,120 @@ class GateRunner:
             rule=rule_name,
             message="All content checks passed",
             details={"path": path_str, "checks_passed": len(checks)},
+        )
+
+    def _check_semantic(self, rule: dict) -> RuleResult:
+        rule_name = rule.get("rule_name", "semantic_check")
+        source_path_str = rule.get("source_path", "")
+        target_path_str = rule.get("target_path", "")
+        dimensions = rule.get("dimensions", [
+            "domain_consistency",
+            "objective_alignment",
+            "terminology_match",
+            "stakeholder_relevance",
+            "requirement_relevance",
+        ])
+
+        source_path = self._resolve_path(source_path_str)
+        if not source_path.exists():
+            return RuleResult(
+                passed=True,
+                rule=rule_name,
+                message=f"Semantic check deferred: source artifact not found ({source_path_str})",
+                details={"source_path": source_path_str, "target_path": target_path_str},
+                requires_agent=False,
+            )
+
+        target_path = self._resolve_path(target_path_str)
+        if not target_path.exists():
+            return RuleResult(
+                passed=True,
+                rule=rule_name,
+                message=f"Semantic check deferred: target artifact not found ({target_path_str})",
+                details={"source_path": source_path_str, "target_path": target_path_str},
+                requires_agent=False,
+            )
+
+        try:
+            source_data = json.loads(source_path.read_text())
+        except json.JSONDecodeError as e:
+            return RuleResult(
+                passed=True,
+                rule=rule_name,
+                message=f"Semantic check deferred: invalid JSON in source ({source_path_str}): {e}",
+                details={"source_path": source_path_str, "target_path": target_path_str},
+                requires_agent=False,
+            )
+
+        try:
+            target_data = json.loads(target_path.read_text())
+        except json.JSONDecodeError as e:
+            return RuleResult(
+                passed=True,
+                rule=rule_name,
+                message=f"Semantic check deferred: invalid JSON in target ({target_path_str}): {e}",
+                details={"source_path": source_path_str, "target_path": target_path_str},
+                requires_agent=False,
+            )
+
+        eval_data = {
+            "source_path": source_path_str,
+            "target_path": target_path_str,
+            "dimensions": dimensions,
+            "source_snapshot": {
+                "initial_description": source_data.get("initial_description", ""),
+                "business_context": source_data.get("business_context", ""),
+                "objectives": source_data.get("objectives", [])[:10],
+                "stakeholders": [
+                    {"name": s.get("name", ""), "role": s.get("role", ""), "interest": s.get("interest", "")}
+                    for s in source_data.get("stakeholders", [])[:10]
+                ],
+                "functional_requirements": [
+                    {"id": r["id"], "description": r.get("description", "")}
+                    for r in source_data.get("functional_requirements", [])[:20]
+                ],
+                "non_functional_requirements": [
+                    {"id": r["id"], "description": r.get("description", ""), "category": r.get("category", "")}
+                    for r in source_data.get("non_functional_requirements", [])[:10]
+                ],
+                "glossary": [
+                    {"term": g.get("term", ""), "definition": g.get("definition", "")}
+                    for g in source_data.get("glossary", [])[:10]
+                ],
+            },
+            "target_snapshot": {
+                "vision": target_data.get("vision", ""),
+                "module_name": target_data.get("module_name", ""),
+                "module_display_name": target_data.get("module_display_name", ""),
+                "summary": target_data.get("summary", ""),
+                "objectives": target_data.get("objectives", [])[:10],
+                "stakeholders": [
+                    {"name": s.get("name", ""), "role": s.get("role", ""), "interest": s.get("interest", "")}
+                    for s in target_data.get("stakeholders", [])[:10]
+                ],
+                "functional_requirements": [
+                    {"id": r["id"], "description": r.get("description", ""), "priority": r.get("priority", "")}
+                    for r in target_data.get("functional_requirements", [])[:20]
+                ],
+                "non_functional_requirements": [
+                    {"id": r["id"], "description": r.get("description", ""), "category": r.get("category", "")}
+                    for r in target_data.get("non_functional_requirements", [])[:10]
+                ],
+                "glossary": [
+                    {"term": g.get("term", ""), "definition": g.get("definition", "")}
+                    for g in target_data.get("glossary", [])[:10]
+                ],
+                "constraints": target_data.get("constraints", [])[:10],
+                "dependencies": target_data.get("dependencies", {}) if isinstance(target_data.get("dependencies"), dict) else target_data.get("dependencies", [])[:10],
+            },
+        }
+
+        return RuleResult(
+            passed=True,
+            rule=rule_name,
+            message=f"Semantic check pending: comparing {source_path_str} → {target_path_str} across {len(dimensions)} dimensions — requires agent evaluation",
+            details={"eval_data": eval_data},
+            requires_agent=True,
         )
 
     def _find_schema(self, schema_name: str) -> Path | None:
