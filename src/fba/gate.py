@@ -325,11 +325,7 @@ class GateRunner:
             actual = 0
             if key.startswith("min_"):
                 field_name = key[4:]
-                if field_name.endswith("s"):
-                    field_name = field_name[:-1]
-                    actual = len(data.get(field_name, []))
-                else:
-                    actual = len(data.get(field_name, []))
+                actual = len(data.get(field_name, []))
 
                 if actual < min_count:
                     failures.append(
