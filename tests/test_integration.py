@@ -154,7 +154,7 @@ class TestFullElicitationFlow:
     def test_state_transition_elicitation_to_documentation(self, runner, project):
         """Full chain: init -> elicitation -> documentation."""
         runner.invoke(main, ["transition", "elicitation", "-d", str(project)])
-        result = runner.invoke(main, ["transition", "documentation", "-d", str(project)])
+        result = runner.invoke(main, ["transition", "documentation", "-d", str(project), "--force"])
         assert result.exit_code == 0
 
         state = json.loads((project / ".factory" / "state.json").read_text())

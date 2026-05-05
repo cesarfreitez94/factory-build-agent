@@ -118,6 +118,77 @@
     "context": {
       "type": "object",
       "description": "Arbitrary key-value context for the current phase"
+    },
+    "gates": {
+      "type": "object",
+      "description": "Gate definitions per phase. Gates are evaluated before transitioning out of a phase.",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["description", "owner_agent", "rules"],
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Human-readable description of what this gate validates"
+          },
+          "owner_agent": {
+            "type": "string",
+            "description": "Agent responsible for fixing failures (e.g. documentador, planificador)"
+          },
+          "rules": {
+            "type": "array",
+            "description": "Ordered list of validation rules to evaluate",
+            "items": {
+              "type": "object",
+              "required": ["type"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["schema", "artifact_exists", "traceability", "content_check", "semantic_check"],
+                  "description": "Rule evaluation type"
+                },
+                "rule_name": {
+                  "type": "string",
+                  "description": "Optional display name for the rule"
+                },
+                "path": {
+                  "type": "string",
+                  "description": "Path to the artifact file (relative to project dir)"
+                },
+                "schema": {
+                  "type": "string",
+                  "description": "Schema file name (for schema rule type)"
+                },
+                "prd_path": {
+                  "type": "string",
+                  "description": "Path to PRD JSON (for traceability rule type)"
+                },
+                "sdd_path": {
+                  "type": "string",
+                  "description": "Path to SDD JSON (for traceability rule type)"
+                },
+                "checks": {
+                  "type": "object",
+                  "description": "Content checks mapping (for content_check rule type)",
+                  "additionalProperties": {"type": "integer"}
+                },
+                "source_path": {
+                  "type": "string",
+                  "description": "Path to the source artifact for comparison (for semantic_check rule type)"
+                },
+                "target_path": {
+                  "type": "string",
+                  "description": "Path to the target artifact to validate (for semantic_check rule type)"
+                },
+                "dimensions": {
+                  "type": "array",
+                  "description": "Semantic dimensions to evaluate (for semantic_check rule type)",
+                  "items": {"type": "string"}
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

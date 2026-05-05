@@ -11,7 +11,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M0: Fundacion | ✅ Completado | 2026-05-02 / 2026-05-02 |
 | M1: Elicitacion + Documentacion | ✅ Completado | 2026-05-03 / 2026-05-03 |
 | M2: Planificacion + SDD | ✅ Completado | 2026-05-04 / 2026-05-04 |
-| M4: Sistema de Gates | ⬜ Pendiente | - |
+| M4: Sistema de Gates | ✅ Completado | 2026-05-05 / 2026-05-05 |
 | M3: Construccion + MVP | ⬜ Pendiente | - |
 
 ---
@@ -163,23 +163,27 @@ El sistema de gates es declarativo: las reglas de validacion se definen en
 
 ### Tareas
 
-- [ ] Modulo `src/fba/gate.py`: GateRunner con definiciones de gates declarativas
-  - Gate por fase: schema, content, traceability, cross-artifact
+- [x] Modulo `src/fba/gate.py`: GateRunner con definiciones de gates declarativas
+  - Gate por fase: schema, content, traceability, cross-artifact, semantic_check
   - Resultado estructurado con mensajes de error descriptivos
   - Carga de reglas desde `state.json`
-- [ ] Integrar gates en `StateManager.transition_to()`: bloquea transicion si gate falla
-- [ ] Comando CLI `fba gate`: validacion manual de gates para diagnostico
-- [ ] Sub-agente Revisor de Artefactos (`revisor_artefactos.md`)
+- [x] Integrar gates en `StateManager.transition_to()`: bloquea transicion si gate falla
+- [x] Comando CLI `fba gate`: validacion manual de gates para diagnostico
+- [x] Sub-agente Revisor de Artefactos (`revisor_artefactos.md`)
   - Valida artefactos contra sus schemas
   - Verifica coherencia cross-artifact (ej. trazabilidad PRD→SDD)
   - Genera reporte de validacion
   - Soporta ciclo: generar → validar → fallo → corregir → revalidar
-- [ ] Slash command `/fba:gate`
-- [ ] Actualizar orquestador: flujo incluye validacion de gates en cada transicion
-- [ ] Actualizar slash commands existentes: cada comando ejecuta `fba validate` + gate check
-- [ ] Actualizar `state.schema.json` con seccion `gates`
-- [ ] Tests unitarios + integracion de gates
-- [ ] Guia de testing: `docs/testing/m4-gates.md`
+- [x] Sub-agente Validador Semantico (`validador_semantico.md`)
+  - Valida alineacion semantica de artefactos contra la solicitud original
+  - Evalua 5 dimensiones: dominio, objetivos, terminologia, stakeholders, requisitos
+  - Correcciones delegadas al agente dueno en sesion fresca (sin task_id)
+- [x] Slash commands `/fba:gate` y `/fba:semantic-check`
+- [x] Actualizar orquestador: flujo incluye validacion de gates + semantica en cada transicion
+- [x] Actualizar slash commands existentes: cada comando ejecuta `fba validate` + gate check
+- [x] Actualizar `state.schema.json` con seccion `gates` y rule types `semantic_check`
+- [x] Tests unitarios + integracion de gates (incluyendo semantic_check)
+- [x] Guia de testing: `docs/testing/m4-gates.md`
 
 ### Verificacion
 
@@ -207,6 +211,7 @@ Orquestador (fase actual, validacion, transiciones)
 ├── Documentador (PRD + SDD)
 ├── Planificador (arquitectura Odoo)
 ├── Revisor de Artefactos (gates + validacion cross-artifact)
+├── Validador Semantico (alineacion semantica contra solicitud original)
 ├── Constructor (generacion de codigo)
 ├── Tester/QA (pruebas)
 ├── Revisor de Codigo (calidad + seguridad)

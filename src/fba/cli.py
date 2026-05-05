@@ -6,6 +6,7 @@ from pathlib import Path
 import click
 
 from fba import __version__
+from fba.gate import GateError
 from fba.state import StateManager
 
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent.parent / "templates"
@@ -147,6 +148,106 @@ def _init_factory_state(target: Path):
             "review": ["ci_cd"],
             "ci_cd": ["complete"],
         },
+        "gates": {
+            "elicitation": {
+                "description": "Validates that BABOK elicitation produced complete requirements",
+                "owner_agent": "elicitador",
+                "rules": [
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "elicitation_context_exists",
+                        "path": ".factory/context/elicitation.json",
+                    },
+                    {
+                        "type": "content_check",
+                        "rule_name": "elicitation_content_minimum",
+                        "path": ".factory/context/elicitation.json",
+                        "checks": {
+                            "min_stakeholders": 1,
+                            "min_functional_requirements": 1,
+                            "min_non_functional_requirements": 1,
+                            "min_acceptance_criteria": 1,
+                        },
+                    },
+                ],
+            },
+            "documentation": {
+                "description": "Validates that PRD is complete and schema-valid",
+                "owner_agent": "documentador",
+                "rules": [
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "prd_json_exists",
+                        "path": ".factory/prd.json",
+                    },
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "prd_md_exists",
+                        "path": ".factory/prd.md",
+                    },
+                    {
+                        "type": "schema",
+                        "rule_name": "prd_schema_valid",
+                        "schema": "prd.schema.json",
+                        "path": ".factory/prd.json",
+                    },
+                    {
+                        "type": "semantic_check",
+                        "rule_name": "prd_semantic_relevance",
+                        "source_path": ".factory/context/elicitation.json",
+                        "target_path": ".factory/prd.json",
+                        "dimensions": [
+                            "domain_consistency",
+                            "objective_alignment",
+                            "terminology_match",
+                            "stakeholder_relevance",
+                            "requirement_relevance",
+                        ],
+                    },
+                ],
+            },
+            "planning": {
+                "description": "Validates SDD, traceability, and technical plan",
+                "owner_agent": "planificador",
+                "rules": [
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "sdd_json_exists",
+                        "path": ".factory/sdd.json",
+                    },
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "plan_md_exists",
+                        "path": ".factory/plan.md",
+                    },
+                    {
+                        "type": "schema",
+                        "rule_name": "sdd_schema_valid",
+                        "schema": "sdd.schema.json",
+                        "path": ".factory/sdd.json",
+                    },
+                    {
+                        "type": "traceability",
+                        "rule_name": "prd_sdd_traceability",
+                        "prd_path": ".factory/prd.json",
+                        "sdd_path": ".factory/sdd.json",
+                    },
+                    {
+                        "type": "semantic_check",
+                        "rule_name": "sdd_semantic_relevance",
+                        "source_path": ".factory/context/elicitation.json",
+                        "target_path": ".factory/sdd.json",
+                        "dimensions": [
+                            "domain_consistency",
+                            "objective_alignment",
+                            "terminology_match",
+                            "stakeholder_relevance",
+                            "requirement_relevance",
+                        ],
+                    },
+                ],
+            },
+        },
         "artifacts": {},
         "context": {},
     }
@@ -206,15 +307,29 @@ def status(project_dir):
 
 @main.command()
 @click.argument("phase")
+@click.option("--force", is_flag=True, help="Skip gate validation (force transition)")
 @PROJECT_DIR_OPTION
-def transition(phase, project_dir):
-    """Transition the project to a new development phase."""
+def transition(phase, force, project_dir):
+    """Transition the project to a new development phase.
+
+    By default, validates gates for the current phase before allowing
+    the transition. Use --force to bypass gate validation.
+    """
     target = _resolve_project_dir(project_dir)
     state_mgr = StateManager(target)
 
     try:
-        state = state_mgr.transition_to(phase)
-        click.echo(f"Transitioned from '{state['current_phase']}' to '{phase}'")
+        state = state_mgr.transition_to(phase, skip_gates=force)
+        click.echo(f"Transitioned to '{phase}'")
+        if force:
+            click.echo("⚠️  Gate validation was skipped (--force)")
+    except GateError as e:
+        click.echo(f"❌ Gate '{e.gate_result.phase}' failed:")
+        for r in e.gate_result.failures:
+            click.echo(f"   - {r.message}")
+        click.echo("")
+        click.echo("Use 'fba gate' to diagnose or '--force' to skip validation.")
+        raise SystemExit(1)
     except ValueError as e:
         click.echo(f"Error: {e}")
         raise SystemExit(1)
@@ -235,6 +350,58 @@ def record(event_type, data, project_dir):
 
     state_mgr.record_event(event_type, parsed_data)
     click.echo(f"Event '{event_type}' recorded.")
+
+
+@main.command()
+@click.argument("phase", required=False)
+@click.option("--all", "all_gates", is_flag=True, help="Check all defined gates")
+@PROJECT_DIR_OPTION
+def gate(phase, all_gates, project_dir):
+    """Check validation gates for the current or a specific phase.
+
+    Runs gate validation rules and reports pass/fail for each rule.
+    Exit code is non-zero if any gate fails.
+    """
+    target = _resolve_project_dir(project_dir)
+    from fba.gate import GateRunner
+
+    runner = GateRunner(target)
+
+    if all_gates:
+        results = runner.check_all()
+    elif phase:
+        results = {phase: runner.check_phase(phase)}
+    else:
+        current = runner._state.get("current_phase", "init")
+        results = {current: runner.check_current_phase()}
+
+    all_passed = True
+    for phase_name, result in results.items():
+        symbol = "✅" if result.passed else "❌"
+        click.echo(f"{symbol} Gate: {phase_name}")
+        click.echo(f"   {result.description}")
+
+        if not result.results:
+            click.echo("   (no rules defined)")
+
+        for r in result.results:
+            if r.requires_agent:
+                rs = "⏳"
+            else:
+                rs = "✅" if r.passed else "❌"
+            click.echo(f"   {rs} {r.rule}: {r.message}")
+
+        if result.failures:
+            click.echo(f"   Owner agent: {result.owner_agent}")
+            click.echo(f"   {result.error_count} failure(s)")
+            all_passed = False
+
+        if result.pending_agent_checks:
+            click.echo(f"   ⏳ {len(result.pending_agent_checks)} pending agent evaluation(s)")
+        click.echo("")
+
+    if not all_passed:
+        raise SystemExit(1)
 
 
 @main.command()

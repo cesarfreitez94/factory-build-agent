@@ -7,17 +7,33 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [0.4.0] - Pendiente
+## [0.4.0] - 2026-05-05
 
 ### Agregado
 
-- M4: Sistema de Gates con Agente Revisor de Artefactos (planificado)
-  - `src/fba/gate.py`: GateRunner con validaciones declarativas por fase
-  - Integracion de gates en `StateManager.transition_to()`: bloquea transiciones invalidas
-  - Comando `fba gate` para diagnostico manual
-  - Agente Revisor de Artefactos: validacion cross-artifact (schema + trazabilidad + coherencia)
-  - Slash command `/fba:gate`
-  - Gates definidos en `state.json`, extensibles sin modificar codigo
+- M4: Sistema de Gates con Agente Revisor de Artefactos (completado) (#46)
+  - `src/fba/gate.py`: GateRunner con `RuleResult`, `GateResult`, `GateError` y validaciones declarativas (#47)
+  - Integracion de gates en `StateManager.transition_to()`: bloquea transiciones invalidas con `skip_gates` opcional (#48)
+  - Comando `fba gate [--all] [phase]` para diagnostico manual de gates (#49)
+  - `fba transition --force`: permite saltar gates cuando el usuario lo autoriza (#49)
+  - Gates definidos en `state.json["gates"]`, inicializados por `fba init` para elicitation, documentation, planning (#49)
+  - `state.schema.json` actualizado con seccion `gates` declarativa (#49)
+  - Sub-agente Revisor de Artefactos (`revisor_artefactos.md`): valida artefactos, verifica coherencia cross-artifact, soporta ciclo de correccion (#50)
+  - Slash command `/fba:gate`: flujo completo de validacion, diagnostico y correccion (#50)
+  - Orquestador actualizado: `/fba:gate` en phase flow, gate check en Phase Progression Protocol (#51)
+  - Slash commands `fba:specify` y `fba:plan` actualizados con paso `fba gate` antes de transicion (#51)
+  - 43 tests unitarios e integracion del sistema de gates (#52)
+  - `docs/testing/m4-gates.md` con 11 pasos de verificacion manual (#53)
+  - Validacion semantica de artefactos: nueva regla `semantic_check` en gates (#54)
+    - `src/fba/gate.py`: `_check_semantic()` empaqueta datos para evaluacion LLM con `requires_agent: true`
+    - `RuleResult.requires_agent` y `GateResult.pending_agent_checks` para detectar reglas que requieren agente
+    - `state.schema.json`: nuevo tipo `semantic_check` con `source_path`, `target_path`, `dimensions`
+    - CLI `fba gate`: output con `⏳` para reglas pending y contador de `pending agent evaluation(s)`
+    - Agente `validador_semantico.md`: evalua 5 dimensiones (dominio, objetivos, terminologia, stakeholders, requisitos)
+    - Slash command `/fba:semantic-check` con ciclo de correccion en sesiones nuevas
+    - Orquestador y Revisor de Artefactos detectan `pending_agent_checks` y delegan al validador
+    - Correcciones delegadas al agente dueno en sesion fresca sin task_id
+  - Total: 231 tests
 
 ---
 
