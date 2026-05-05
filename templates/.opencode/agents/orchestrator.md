@@ -21,24 +21,30 @@ the development lifecycle of an Odoo v18 module.
 
 ## Phase Flow
 ```
-/fba:init --> /fba:elicit --> /fba:specify --> /fba:plan --> /fba:tasks
-                                                                    |
-/fba:ship <-- /fba:review <-- /fba:test <-- /fba:build <-----------+
+/fba:init --> /fba:elicit --> /fba:gate --> /fba:specify --> /fba:gate
+                                                                     |
+/fba:plan --> /fba:gate --> /fba:tasks --> /fba:gate --> /fba:build   |
+                                                                      |
+/fba:ship <-- /fba:review <-- /fba:test <-- /fba:gate <--------------+
 ```
+
+Each phase transition is gated: artifacts must pass `fba gate` before the
+next phase can begin.
 
 ## Phases Reference
 
-| Phase | Agent | Command | Input Artifacts | Output Artifacts |
-|-------|-------|---------|-----------------|------------------|
-| init | orchestrator | /fba:init | - | project structure |
-| elicitation | orchestrator + elicitador | /fba:elicit | - | context/elicitation.json |
-| documentation | documentador | /fba:specify | context/elicitation.json | prd.json, prd.md |
-| planning | planificador | /fba:plan | prd.md | sdd.md, plan.md |
-| tasks | planificador | /fba:tasks | sdd.md, plan.md | tasks.md |
-| construction | constructor | /fba:build | sdd.md, tasks.md | odoo_module/ |
-| testing | tester | /fba:test | odoo_module/ | test_report.md |
-| review | revisor | /fba:review | odoo_module/, prd.md, sdd.md | review_report.md |
-| ci_cd | cicd_manager | /fba:ship | odoo_module/ | ci_workflow.yml |
+| Phase | Agent | Command | Input Artifacts | Output Artifacts | Gate |
+|-------|-------|---------|-----------------|------------------|------|
+| init | orchestrator | /fba:init | - | project structure | - |
+| elicitation | orchestrator + elicitador | /fba:elicit | - | context/elicitation.json | elicitation |
+| documentation | documentador | /fba:specify | context/elicitation.json | prd.json, prd.md | documentation |
+| planning | planificador | /fba:plan | prd.md | sdd.md, plan.md | planning |
+| gate | revisor_artefactos | /fba:gate | current artifacts | gate_report.json | - |
+| tasks | planificador | /fba:tasks | sdd.md, plan.md | tasks.md | tasks |
+| construction | constructor | /fba:build | sdd.md, tasks.md | odoo_module/ | construction |
+| testing | tester | /fba:test | odoo_module/ | test_report.md | testing |
+| review | revisor_codigo | /fba:review | odoo_module/, prd.md, sdd.md | review_report.md | review |
+| ci_cd | cicd_manager | /fba:ship | odoo_module/ | ci_workflow.yml | ci_cd |
 
 ## Elicitation Phase — Interactive Questioning
 
@@ -82,11 +88,20 @@ areas, question generation principles, validation rules) — not as an
 interactive question-asker.
 
 ## Validation
-- Before transitioning to the next phase, validate that output artifacts
-  meet their schemas (schemas are in `.factory/schemas/`).
-- If validation fails, keep the current phase and report errors.
-- **Elicitation validation**: Ensure `elicitation.json` has at least 1 RF,
-  1 RNF, 1 stakeholder, and 1 acceptance criterion.
+
+- Before transitioning to the next phase, run `fba gate` to validate that
+  all output artifacts for the current phase pass their declared gates.
+- Gates check: artifact existence, schema validation, content minimums,
+  and cross-artifact traceability.
+- If any gate fails, the transition is blocked. Use `fba transition --force`
+  only when explicitly authorized by the user.
+- Schemas are in `.factory/schemas/`.
+- **Elicitation gate**: context/elicitation.json exists, ≥1 stakeholder,
+  1 RF, 1 RNF, 1 acceptance criterion.
+- **Documentation gate**: prd.json exists, prd.md exists, prd.json passes
+  schema validation.
+- **Planning gate**: sdd.json exists, plan.md exists, sdd.json passes
+  schema validation, all PRD requirements mapped in SDD traceability.
 
 ## Context Injection
 - When invoking a sub-agent, include relevant context from current artifacts.
@@ -110,11 +125,21 @@ After completing any phase (except `ci_cd`), you MUST follow this protocol:
 1. **Summarize** what was accomplished — artifacts generated, key metrics,
    validation results.
 
-2. **Ask the user** using the `question` tool:
+2. **Run gate validation** on the current phase:
+   ```bash
+   fba gate
+   ```
+   - If gates pass: proceed to step 3.
+   - If gates fail: invoke the Revisor de Artefactos sub-agent via
+     `/fba:gate` to diagnose and offer the correction cycle.
+     Do NOT offer progression until all gates pass or the user
+     explicitly authorizes `--force`.
+
+3. **Ask the user** using the `question` tool:
    - Header: `"Fase completada: <phase_name>"`
    - Question: `"¿Como procedemos?"`
    - Options:
-     - A) "Continuar a la siguiente fase" (Recommended)
+     - A) "Continuar a la siguiente fase" (Recommended — only shown if gates passed)
      - B) "Quiero revisar los artefactos generados primero"
      - C) "Quiero hacer cambios en esta fase"
 
@@ -147,6 +172,7 @@ After completing any phase (except `ci_cd`), you MUST follow this protocol:
 See `.opencode/commands/` for full documentation of each slash command.
 - `/fba:init` -- Initialize project structure
 - `/fba:elicit` -- Elicit requirements (interactive, uses question tool)
+- `/fba:gate` -- Run gate validation and diagnostics
 - `/fba:specify` -- Generate PRD
 - `/fba:plan` -- Generate SDD and technical plan
 - `/fba:tasks` -- Create task list
