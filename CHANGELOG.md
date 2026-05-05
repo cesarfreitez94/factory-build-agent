@@ -24,7 +24,16 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
   - Slash commands `fba:specify` y `fba:plan` actualizados con paso `fba gate` antes de transicion (#51)
   - 43 tests unitarios e integracion del sistema de gates (#52)
   - `docs/testing/m4-gates.md` con 11 pasos de verificacion manual (#53)
-  - Total: 218 tests
+  - Validacion semantica de artefactos: nueva regla `semantic_check` en gates (#54)
+    - `src/fba/gate.py`: `_check_semantic()` empaqueta datos para evaluacion LLM con `requires_agent: true`
+    - `RuleResult.requires_agent` y `GateResult.pending_agent_checks` para detectar reglas que requieren agente
+    - `state.schema.json`: nuevo tipo `semantic_check` con `source_path`, `target_path`, `dimensions`
+    - CLI `fba gate`: output con `⏳` para reglas pending y contador de `pending agent evaluation(s)`
+    - Agente `validador_semantico.md`: evalua 5 dimensiones (dominio, objetivos, terminologia, stakeholders, requisitos)
+    - Slash command `/fba:semantic-check` con ciclo de correccion en sesiones nuevas
+    - Orquestador y Revisor de Artefactos detectan `pending_agent_checks` y delegan al validador
+    - Correcciones delegadas al agente dueno en sesion fresca sin task_id
+  - Total: 231 tests
 
 ---
 
