@@ -85,7 +85,7 @@ After successful validation:
    fba transition documentation
    ```
 
-### 6. Report Summary
+### 6. Report Summary and Ask to Proceed
 Display a summary of the generated PRD:
 - Module name / vision
 - Number of functional requirements
@@ -93,12 +93,17 @@ Display a summary of the generated PRD:
 - Number of acceptance criteria
 - Validation status: passed
 
+Then follow the **Phase Progression Protocol** from the orchestrator agent
+definition. If the user approves progression, invoke the planificador
+sub-agent using the `task` tool with the instructions from
+`.opencode/commands/fba:plan.md`.
+
 ## Post-conditions
 - `.factory/prd.json` exists and passes schema validation.
 - `.factory/prd.md` exists with human-readable PRD.
 - `.factory/state.json` has `current_phase: "documentation"`.
 - `.factory/events.jsonl` contains the `specification_complete` event.
-- Ready for `/fba:plan`.
+- Ready for the next phase: planning.
 
 ## Example Output
 
@@ -118,5 +123,10 @@ Resumen:
 
 Fase actual: documentation
 
-Siguiente paso: /fba:plan para generar SDD y plan tecnico
+> [Uses question tool]
+> Header: "Fase completada: documentation"
+> Q: "¿Como procedemos?"
+> - A) Continuar a la siguiente fase (planning)
+> - B) Quiero revisar los artefactos generados primero
+> - C) Quiero hacer cambios en esta fase
 ```
