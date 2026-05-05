@@ -286,6 +286,11 @@ def validate(artifact, project_dir):
             schema = json.loads(schema_path.read_text())
             jsonschema.validate(artifact_data, schema)
             click.echo(f"✅ {art_name}: valid")
+
+            if art_name == "sdd":
+                if not _check_traceability(target, artifact_data):
+                    all_valid = False
+
         except jsonschema.ValidationError as e:
             click.echo(f"❌ {art_name}: validation failed - {e.message}")
             all_valid = False
@@ -295,6 +300,48 @@ def validate(artifact, project_dir):
 
     if not all_valid:
         raise SystemExit(1)
+
+
+def _check_traceability(target: Path, sdd: dict) -> bool:
+    """Verify PRD→SDD traceability completeness.
+
+    Returns True if all PRD requirements are mapped in the SDD.
+    """
+    prd_path = target / ".factory" / "prd.json"
+    if not prd_path.exists():
+        click.echo("ℹ️  prd.json not found, skipping traceability check")
+        return True
+
+    try:
+        prd = json.loads(prd_path.read_text())
+    except json.JSONDecodeError:
+        click.echo("⚠️  prd.json is invalid JSON, skipping traceability check")
+        return True
+
+    prd_rfs = {rf["id"] for rf in prd.get("functional_requirements", [])}
+    prd_rnfs = {rnf["id"] for rnf in prd.get("non_functional_requirements", [])}
+    all_requirements = prd_rfs | prd_rnfs
+
+    if not all_requirements:
+        click.echo("ℹ️  No requirements found in PRD, skipping traceability check")
+        return True
+
+    mappings = sdd.get("traceability_matrix", {}).get("mappings", [])
+    mapped_requirements = set()
+    for mapping in mappings:
+        req = mapping.get("requirement", "")
+        if req:
+            mapped_requirements.add(req)
+
+    unmapped = all_requirements - mapped_requirements
+    if unmapped:
+        for req in sorted(unmapped):
+            click.echo(f"❌ traceability: PRD requirement '{req}' not mapped to any SDD component")
+        click.echo(f"   {len(unmapped)} unmapped requirement(s)")
+        return False
+
+    click.echo(f"✅ traceability: {len(all_requirements)} requirements mapped to SDD components")
+    return True
 
 
 def _list_schemas(target: Path) -> list:
