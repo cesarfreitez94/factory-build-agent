@@ -87,8 +87,16 @@ Check that the traceability matrix is complete:
 - Every RNF from the PRD must appear in at least one mapping
 - All SDD components must have traceability tags
 
-### 6. Update State and Record Events
-After successful validation:
+### 6. Run Gate Validation
+Verify that the planning phase gate passes:
+```bash
+fba gate planning
+```
+
+If the gate fails, fix the identified issues before proceeding.
+
+### 7. Update State and Record Events
+After successful gate validation:
 1. Record the event:
    ```bash
    fba record plan_complete \
@@ -103,7 +111,7 @@ After successful validation:
    fba transition planning
    ```
 
-### 7. Report Summary and Ask to Proceed
+### 8. Report Summary and Ask to Proceed
 Display a summary of the generated SDD:
 - Module name
 - Number of models designed

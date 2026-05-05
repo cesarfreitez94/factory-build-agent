@@ -69,8 +69,16 @@ If validation fails:
 - Re-run `fba validate prd`
 - Repeat until validation passes
 
-### 5. Update State and Record Events
-After successful validation:
+### 5. Run Gate Validation
+Verify that the documentation phase gate passes:
+```bash
+fba gate documentation
+```
+
+If the gate fails, fix the identified issues before proceeding.
+
+### 6. Update State and Record Events
+After successful gate validation:
 1. Record the event:
    ```bash
    fba record specification_complete \
@@ -85,7 +93,7 @@ After successful validation:
    fba transition documentation
    ```
 
-### 6. Report Summary and Ask to Proceed
+### 7. Report Summary and Ask to Proceed
 Display a summary of the generated PRD:
 - Module name / vision
 - Number of functional requirements
