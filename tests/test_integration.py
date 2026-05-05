@@ -259,6 +259,256 @@ class TestFullElicitationFlow:
         assert result.exit_code == 1
         assert "validation failed" in result.output
 
+    def test_sdd_validation_via_cli(self, runner, project):
+        """Validate an SDD artifact via fba validate sdd."""
+        runner.invoke(main, ["init", "-d", str(project)])
+
+        sdd = {
+            "module_name": "vehicle_registry",
+            "module_display_name": "Vehicle Registry",
+            "version": "18.0.1.0.0",
+            "summary": "Vehicle management module for Odoo v18",
+            "architecture": {
+                "description": "Simple module with one model, basic views, and security for vehicle management"
+            },
+            "models": [
+                {
+                    "name": "vehicle.registry",
+                    "display_name": "Vehicle",
+                    "description": "Main vehicle registry model for storing vehicle data",
+                    "fields": [
+                        {
+                            "name": "plate",
+                            "type": "char",
+                            "display_name": "License Plate",
+                            "required": True,
+                            "unique": True,
+                            "size": 20,
+                            "description": "Unique vehicle license plate number",
+                            "traceability": ["RF-01"]
+                        }
+                    ],
+                    "traceability": ["RF-01"]
+                }
+            ],
+            "views": [
+                {
+                    "model": "vehicle.registry",
+                    "type": "form",
+                    "name": "vehicle.registry.form",
+                    "description": "Main vehicle form view",
+                    "fields": ["plate"],
+                    "traceability": ["RF-01"]
+                }
+            ],
+            "security": {
+                "groups": [
+                    {
+                        "name": "vehicle_user",
+                        "display_name": "Vehicle User",
+                        "description": "Can view and create vehicles"
+                    }
+                ],
+                "access_rights": [
+                    {
+                        "model": "vehicle.registry",
+                        "group": "vehicle_user",
+                        "perm_read": True,
+                        "perm_write": True,
+                        "perm_create": True,
+                        "perm_unlink": False
+                    }
+                ]
+            },
+            "dependencies": {
+                "required": ["base"],
+                "reason": "base module is required for all Odoo addons"
+            },
+            "file_structure": {
+                "module": "vehicle_registry",
+                "files": ["__manifest__.py", "__init__.py", "models/vehicle_registry.py"]
+            },
+            "traceability_matrix": {
+                "mappings": [
+                    {
+                        "requirement": "RF-01",
+                        "sdD_components": ["vehicle.registry model", "vehicle.registry.form view"],
+                        "description": "CRUD operations for vehicle records"
+                    }
+                ]
+            }
+        }
+        (project / ".factory" / "sdd.json").write_text(
+            json.dumps(sdd, indent=2, ensure_ascii=False)
+        )
+
+        result = runner.invoke(main, ["validate", "sdd", "-d", str(project)])
+        assert result.exit_code == 0
+        assert "valid" in result.output
+
+    def test_sdd_traceability_verification_passes(self, runner, project):
+        """Validate SDD with complete PRD→SDD traceability passes."""
+        runner.invoke(main, ["init", "-d", str(project)])
+
+        prd = {
+            "vision": "Vehicle management module for Odoo v18.",
+            "stakeholders": [
+                {"name": "Admin", "role": "Manager", "interest": "Vehicle tracking"}
+            ],
+            "objectives": ["Track vehicles"],
+            "functional_requirements": [
+                {"id": "RF-01", "description": "CRUD vehicle records", "priority": "high"},
+                {"id": "RF-02", "description": "Search by plate", "priority": "medium"},
+            ],
+            "non_functional_requirements": [
+                {"id": "RNF-01", "description": "Search under 2 seconds", "category": "performance", "priority": "high"},
+            ],
+            "acceptance_criteria": [
+                {"id": "CA-01", "criterion": "User creates vehicle in under 1 minute", "related_requirements": ["RF-01"]}
+            ],
+            "glossary": [{"term": "CRUD", "definition": "Create Read Update Delete"}]
+        }
+        (project / ".factory" / "prd.json").write_text(json.dumps(prd, indent=2))
+
+        sdd = {
+            "module_name": "vehicle_registry",
+            "module_display_name": "Vehicle Registry",
+            "version": "18.0.1.0.0",
+            "architecture": {"description": "Simple vehicle management module"},
+            "models": [{
+                "name": "vehicle.registry",
+                "display_name": "Vehicle",
+                "description": "Main vehicle model",
+                "fields": [{
+                    "name": "plate", "type": "char", "display_name": "Plate",
+                    "description": "License plate number",
+                    "traceability": ["RF-01"]
+                }],
+                "traceability": ["RF-01", "RF-02"]
+            }],
+            "views": [{
+                "model": "vehicle.registry", "type": "form", "name": "vehicle.form",
+                "description": "Vehicle form view", "fields": ["plate"],
+                "traceability": ["RF-01"]
+            }],
+            "security": {
+                "groups": [{
+                    "name": "vehicle_user", "display_name": "Vehicle User",
+                    "description": "Basic vehicle access"
+                }],
+                "access_rights": [{
+                    "model": "vehicle.registry", "group": "vehicle_user",
+                    "perm_read": True, "perm_write": True,
+                    "perm_create": True, "perm_unlink": False
+                }]
+            },
+            "dependencies": {"required": ["base"]},
+            "file_structure": {
+                "module": "vehicle_registry",
+                "files": ["__manifest__.py"]
+            },
+            "traceability_matrix": {
+                "mappings": [
+                    {
+                        "requirement": "RF-01",
+                        "sdD_components": ["vehicle.registry model", "vehicle.form view"],
+                        "description": "CRUD vehicle records"
+                    },
+                    {
+                        "requirement": "RF-02",
+                        "sdD_components": ["vehicle.registry model"],
+                        "description": "Search by plate"
+                    },
+                    {
+                        "requirement": "RNF-01",
+                        "sdD_components": ["security section"],
+                        "description": "Performance requirement"
+                    }
+                ]
+            }
+        }
+        (project / ".factory" / "sdd.json").write_text(json.dumps(sdd, indent=2))
+
+        result = runner.invoke(main, ["validate", "sdd", "-d", str(project)])
+        assert result.exit_code == 0
+        assert "3 requirements mapped" in result.output
+
+    def test_sdd_traceability_verification_fails_on_unmapped(self, runner, project):
+        """Validate SDD fails traceability check when requirements not mapped."""
+        runner.invoke(main, ["init", "-d", str(project)])
+
+        prd = {
+            "vision": "Vehicle management module for Odoo v18.",
+            "stakeholders": [
+                {"name": "Admin", "role": "Manager", "interest": "Vehicle tracking"}
+            ],
+            "objectives": ["Track vehicles"],
+            "functional_requirements": [
+                {"id": "RF-01", "description": "CRUD vehicle records", "priority": "high"},
+                {"id": "RF-02", "description": "Search by plate", "priority": "medium"},
+            ],
+            "non_functional_requirements": [],
+            "acceptance_criteria": [
+                {"id": "CA-01", "criterion": "User creates vehicle", "related_requirements": ["RF-01"]}
+            ],
+            "glossary": [{"term": "CRUD", "definition": "Create Read Update Delete"}]
+        }
+        (project / ".factory" / "prd.json").write_text(json.dumps(prd, indent=2))
+
+        sdd = {
+            "module_name": "vehicle_registry",
+            "module_display_name": "Vehicle Registry",
+            "version": "18.0.1.0.0",
+            "architecture": {"description": "Simple vehicle management module"},
+            "models": [{
+                "name": "vehicle.registry",
+                "display_name": "Vehicle",
+                "description": "Main vehicle model",
+                "fields": [{
+                    "name": "plate", "type": "char", "display_name": "Plate",
+                    "description": "License plate number",
+                    "traceability": ["RF-01"]
+                }],
+                "traceability": ["RF-01"]
+            }],
+            "views": [{
+                "model": "vehicle.registry", "type": "form", "name": "vehicle.form",
+                "description": "Vehicle form view", "fields": ["plate"],
+                "traceability": ["RF-01"]
+            }],
+            "security": {
+                "groups": [{
+                    "name": "vehicle_user", "display_name": "Vehicle User",
+                    "description": "Basic vehicle access"
+                }],
+                "access_rights": [{
+                    "model": "vehicle.registry", "group": "vehicle_user",
+                    "perm_read": True, "perm_write": True,
+                    "perm_create": True, "perm_unlink": False
+                }]
+            },
+            "dependencies": {"required": ["base"]},
+            "file_structure": {
+                "module": "vehicle_registry",
+                "files": ["__manifest__.py"]
+            },
+            "traceability_matrix": {
+                "mappings": [
+                    {
+                        "requirement": "RF-01",
+                        "sdD_components": ["vehicle.registry model"],
+                        "description": "CRUD vehicle records"
+                    }
+                ]
+            }
+        }
+        (project / ".factory" / "sdd.json").write_text(json.dumps(sdd, indent=2))
+
+        result = runner.invoke(main, ["validate", "sdd", "-d", str(project)])
+        assert result.exit_code == 1
+        assert "not mapped" in result.output
+        assert "RF-02" in result.output
+
     def test_complete_m1_flow(self, runner, project):
         """End-to-end simulation of the M1 flow: elicit -> specify."""
         _create_elicitation_context(project)

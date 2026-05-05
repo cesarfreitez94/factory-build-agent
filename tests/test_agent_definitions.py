@@ -35,7 +35,7 @@ def _load_all_agents():
     return agents
 
 
-EXPECTED_AGENTS = {"elicitador", "documentador", "orchestrator"}
+EXPECTED_AGENTS = {"elicitador", "documentador", "orchestrator", "planificador"}
 
 
 class TestAgentDefinitionsExist:
@@ -54,6 +54,9 @@ class TestAgentDefinitionsExist:
 
     def test_documentador_md_exists(self):
         assert (AGENTS_DIR / "documentador.md").is_file()
+
+    def test_planificador_md_exists(self):
+        assert (AGENTS_DIR / "planificador.md").is_file()
 
     def test_only_expected_agents_exist(self):
         found = {f.stem for f in AGENTS_DIR.glob("*.md")}
@@ -145,6 +148,44 @@ class TestDocumentadorAgent:
     def test_documentador_mentions_transition(self):
         _, body = _load_agent_md(AGENTS_DIR / "documentador.md")
         assert "fba transition documentation" in body
+
+
+class TestPlanificadorAgent:
+    def test_planificador_has_sdd_prompt(self):
+        _, body = _load_agent_md(AGENTS_DIR / "planificador.md")
+        assert "sdd.json" in body
+        assert "sdd.md" in body
+        assert "plan.md" in body
+        assert "Odoo v18" in body
+        assert "traceability" in body.lower()
+
+    def test_planificador_mentions_sdd_json(self):
+        _, body = _load_agent_md(AGENTS_DIR / "planificador.md")
+        assert ".factory/sdd.json" in body
+
+    def test_planificador_mentions_validate(self):
+        _, body = _load_agent_md(AGENTS_DIR / "planificador.md")
+        assert "fba validate sdd" in body
+
+    def test_planificador_mentions_transition(self):
+        _, body = _load_agent_md(AGENTS_DIR / "planificador.md")
+        assert "fba transition planning" in body
+
+    def test_planificador_has_odoo_conventions(self):
+        _, body = _load_agent_md(AGENTS_DIR / "planificador.md")
+        assert "models" in body.lower()
+        assert "views" in body.lower()
+        assert "security" in body.lower()
+        assert "dependencies" in body.lower()
+
+    def test_planificador_has_traceability_rules(self):
+        _, body = _load_agent_md(AGENTS_DIR / "planificador.md")
+        assert "traceability_matrix" in body
+        assert "PRD requirement" in body
+
+    def test_planificador_mentions_prd_input(self):
+        _, body = _load_agent_md(AGENTS_DIR / "planificador.md")
+        assert ".factory/prd.json" in body
 
 
 class TestOrchestratorAgent:

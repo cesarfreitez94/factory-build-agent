@@ -7,6 +7,34 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.4.0] - Pendiente
+
+### Agregado
+
+- M4: Sistema de Gates con Agente Revisor de Artefactos (planificado)
+  - `src/fba/gate.py`: GateRunner con validaciones declarativas por fase
+  - Integracion de gates en `StateManager.transition_to()`: bloquea transiciones invalidas
+  - Comando `fba gate` para diagnostico manual
+  - Agente Revisor de Artefactos: validacion cross-artifact (schema + trazabilidad + coherencia)
+  - Slash command `/fba:gate`
+  - Gates definidos en `state.json`, extensibles sin modificar codigo
+
+---
+
+## [0.3.0] - 2026-05-04
+
+### Agregado
+
+- M2: Planificacion + SDD (completado)
+- Sub-agente Planificador (`planificador.md`) con diseno Odoo v18: modelos, vistas, seguridad, dependencias, workflows, file structure (#34)
+- Slash command `/fba:plan` con flujo completo de planificacion y Phase Progression Protocol (#35)
+- Schema SDD (`sdd.schema.json`) con validacion completa de 12 componentes (41 tests) (#37)
+- Verificacion de trazabilidad PRD -> SDD en `fba validate sdd`: detecta requisitos no mapeados (#38)
+- `docs/testing/m2-planificacion.md` con 10 pasos de verificacion manual (#39)
+- Total: 171 tests
+
+---
+
 ## [0.2.2] - 2026-05-04
 
 ### Corregido

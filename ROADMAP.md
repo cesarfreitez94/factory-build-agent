@@ -10,7 +10,8 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 |-----------|--------|--------|
 | M0: Fundacion | ✅ Completado | 2026-05-02 / 2026-05-02 |
 | M1: Elicitacion + Documentacion | ✅ Completado | 2026-05-03 / 2026-05-03 |
-| M2: Planificacion + SDD | ⬜ Pendiente | - |
+| M2: Planificacion + SDD | ✅ Completado | 2026-05-04 / 2026-05-04 |
+| M4: Sistema de Gates | ⬜ Pendiente | - |
 | M3: Construccion + MVP | ⬜ Pendiente | - |
 
 ---
@@ -88,13 +89,13 @@ especifico para Odoo v18 con trazabilidad completa.
 
 ### Tareas
 
-- [ ] Sub-agente Planificador (arquitectura Odoo v18)
-- [ ] Slash command `/fba:plan`
-- [ ] Template SDD.md (Arquitectura, Modelos, Vistas, Seguridad, Dependencias, API)
-- [ ] Template plan.md (Stack, Fases, Riesgos, Estimaciones)
-- [ ] Schema JSON para validar SDD
-- [ ] Trazabilidad PRD -> SDD (cada requisito mapeado a componente de diseno)
-- [ ] Tests
+- [x] Sub-agente Planificador (arquitectura Odoo v18)
+- [x] Slash command `/fba:plan`
+- [x] Template SDD.md (Arquitectura, Modelos, Vistas, Seguridad, Dependencias, API)
+- [x] Template plan.md (Stack, Fases, Riesgos, Estimaciones)
+- [x] Schema JSON para validar SDD
+- [x] Trazabilidad PRD -> SDD (cada requisito mapeado a componente de diseno)
+- [x] Tests
 
 ### Verificacion
 
@@ -148,6 +149,56 @@ fba init
 
 ---
 
+## M4: Sistema de Gates con Agente Revisor de Artefactos
+
+**Objetivo**: Implementar un sistema de gates que bloquee automaticamente
+cualquier transicion de fase si los artefactos de la fase actual no pasan
+validacion. Ninguna fase avanza sin artefactos validados.
+
+**Alcance**: El `StateManager` ejecuta validaciones forzosas antes de cada
+transicion. Si un artefacto no pasa, la transicion se rechaza. Un nuevo agente
+Revisor de Artefactos diagnostica fallos y orquesta el ciclo de correccion.
+El sistema de gates es declarativo: las reglas de validacion se definen en
+`state.json` y son extensibles sin modificar codigo.
+
+### Tareas
+
+- [ ] Modulo `src/fba/gate.py`: GateRunner con definiciones de gates declarativas
+  - Gate por fase: schema, content, traceability, cross-artifact
+  - Resultado estructurado con mensajes de error descriptivos
+  - Carga de reglas desde `state.json`
+- [ ] Integrar gates en `StateManager.transition_to()`: bloquea transicion si gate falla
+- [ ] Comando CLI `fba gate`: validacion manual de gates para diagnostico
+- [ ] Sub-agente Revisor de Artefactos (`revisor_artefactos.md`)
+  - Valida artefactos contra sus schemas
+  - Verifica coherencia cross-artifact (ej. trazabilidad PRD→SDD)
+  - Genera reporte de validacion
+  - Soporta ciclo: generar → validar → fallo → corregir → revalidar
+- [ ] Slash command `/fba:gate`
+- [ ] Actualizar orquestador: flujo incluye validacion de gates en cada transicion
+- [ ] Actualizar slash commands existentes: cada comando ejecuta `fba validate` + gate check
+- [ ] Actualizar `state.schema.json` con seccion `gates`
+- [ ] Tests unitarios + integracion de gates
+- [ ] Guia de testing: `docs/testing/m4-gates.md`
+
+### Verificacion
+
+```bash
+# Gates bloquean transiciones invalidas
+fba transition planning   # sin PRD valido → ERROR: gate documentation failed
+fba gate                   # diagnostica que gate falla y por que
+
+# Flujo con gates
+/fba:specify               # genera PRD
+fba gate                   # ✅ PRD valid
+fba transition planning    # ✅ gate documentation passed, transicion ok
+/fba:plan                  # genera SDD
+fba gate                   # ✅ SDD valid + traceability
+fba transition tasks       # ✅ gate planning passed, transicion ok
+```
+
+---
+
 ## Arquitectura de Agentes
 
 ```
@@ -155,6 +206,7 @@ Orquestador (fase actual, validacion, transiciones)
 ├── Elicitador (BABOK)
 ├── Documentador (PRD + SDD)
 ├── Planificador (arquitectura Odoo)
+├── Revisor de Artefactos (gates + validacion cross-artifact)
 ├── Constructor (generacion de codigo)
 ├── Tester/QA (pruebas)
 ├── Revisor de Codigo (calidad + seguridad)

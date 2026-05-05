@@ -148,6 +148,36 @@ def test_init_creates_project_agents_md(runner, temp_project):
     assert "/fba:build" in content
 
 
+def test_plan_command_has_frontmatter_and_body(runner, temp_project):
+    """Verify the fba:plan.md command has proper frontmatter and detailed body."""
+    import yaml
+
+    plan_cmd_path = (
+        Path(__file__).resolve().parent.parent
+        / "templates" / ".opencode" / "commands" / "fba:plan.md"
+    )
+    text = plan_cmd_path.read_text()
+    parts = text.split("---", 2)
+
+    assert len(parts) >= 3
+    frontmatter = yaml.safe_load(parts[1])
+    body = parts[2].strip()
+
+    assert frontmatter.get("agent") == "planificador"
+    assert "Generate" in frontmatter.get("description", "")
+
+    assert "# fba:plan" in body
+    assert "Pre-conditions" in body
+    assert "documentation" in body
+    assert ".factory/prd.json" in body
+    assert "sdd.json" in body
+    assert "sdd.md" in body
+    assert "plan.md" in body
+    assert "traceability" in body.lower()
+    assert "fba validate sdd" in body
+    assert "fba transition planning" in body
+
+
 def test_init_fails_if_factory_exists(runner, temp_project):
     """Verify init fails if .factory/ already exists."""
     (temp_project / ".factory").mkdir()
@@ -180,8 +210,9 @@ def test_init_creates_schemas(runner, temp_project):
     schemas_dir = temp_project / ".factory" / "schemas"
     assert schemas_dir.is_dir()
     schema_files = list(schemas_dir.glob("*.schema.json"))
-    assert len(schema_files) >= 1
+    assert len(schema_files) >= 2
     assert (schemas_dir / "prd.schema.json").is_file()
+    assert (schemas_dir / "sdd.schema.json").is_file()
 
 
 class TestStatusCommand:
