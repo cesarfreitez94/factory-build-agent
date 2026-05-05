@@ -34,7 +34,7 @@ class StateManager:
         self._factory_dir.mkdir(parents=True, exist_ok=True)
         self.state_path.write_text(json.dumps(state, indent=2, ensure_ascii=False))
 
-    def transition_to(self, phase: str) -> dict:
+    def transition_to(self, phase: str, skip_gates: bool = False) -> dict:
         state = self.load()
         current = state["current_phase"]
         valid = self._get_valid_transitions()
@@ -47,6 +47,14 @@ class StateManager:
                 f"Invalid transition: '{current}' -> '{phase}'."
                 f" Allowed: {allowed}"
             )
+
+        if not skip_gates:
+            from fba.gate import GateError, GateRunner
+
+            runner = GateRunner(self.project_dir)
+            gate_result = runner.check_phase(current)
+            if not gate_result.passed:
+                raise GateError(gate_result)
 
         if current in state["phases"]:
             state["phases"][current]["status"] = "complete"
@@ -62,6 +70,15 @@ class StateManager:
         )
 
         return state
+
+    def has_gate_passed(self, phase: str = None) -> bool:
+        if phase is None:
+            phase = self.current_phase
+        from fba.gate import GateRunner
+
+        runner = GateRunner(self.project_dir)
+        result = runner.check_phase(phase)
+        return result.passed
 
     def record_event(self, event_type: str, data: dict = None) -> None:
         event = {
