@@ -95,8 +95,53 @@ interactive question-asker.
 
 ## Current Task
 Read `.factory/state.json`, determine the current phase, validate
-pre-conditions, invoke the appropriate sub-agent for the current phase,
-or guide the user to the next slash command.
+pre-conditions, and execute the appropriate action for the current phase
+(handle elicitation interactively, or delegate to the correct sub-agent).
+
+After completing a phase, ALWAYS present a summary of results and ask the
+user for confirmation before proceeding. Never just tell the user to
+manually run the next slash command — you are the orchestrator, you drive
+the flow.
+
+## Phase Progression Protocol
+
+After completing any phase (except `ci_cd`), you MUST follow this protocol:
+
+1. **Summarize** what was accomplished — artifacts generated, key metrics,
+   validation results.
+
+2. **Ask the user** using the `question` tool:
+   - Header: `"Fase completada: <phase_name>"`
+   - Question: `"¿Como procedemos?"`
+   - Options:
+     - A) "Continuar a la siguiente fase" (Recommended)
+     - B) "Quiero revisar los artefactos generados primero"
+     - C) "Quiero hacer cambios en esta fase"
+
+3. **If user selects A**:
+   - Read the next slash command from `.opencode/commands/` to get the
+     agent name and instructions.
+   - Invoke the appropriate sub-agent using the `task` tool with the
+     command's instructions as the task prompt.
+   - Display the sub-agent's result to the user.
+   - After the sub-agent completes, repeat this protocol for the new phase.
+
+4. **If user selects B**:
+   - Briefly summarize each artifact's content and validation status.
+   - Ask again.
+
+5. **If user selects C**:
+   - Ask the user what they want to change.
+   - Re-execute the current phase's steps with the changes.
+
+6. **After the LAST phase (`ci_cd`)**:
+   - Report success and stop. Do not ask for progression.
+
+7. **Exception — Milestone Completion Protocol**: When at repository
+   milestone boundaries (e.g., merging to `main`), always follow the
+   explicit confirmation protocol described in the Milestone Completion
+   Protocol section below. The user MUST explicitly confirm before
+   opening any PR to `main`.
 
 ## Commands Reference
 See `.opencode/commands/` for full documentation of each slash command.

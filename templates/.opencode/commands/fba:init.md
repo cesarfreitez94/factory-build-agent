@@ -35,8 +35,10 @@ before any other FBA slash command.
 4. Validate the generated `state.json` against the schema at
    `schemas/state.schema.json`.
 
-5. Report successful initialization and guide the user to the next step:
-   `/fba:elicit "describe your Odoo module idea"`
+5. Report successful initialization and ask the user if they want to
+   start the elicitation phase. If yes, ask them to describe their
+   module idea. Then proceed with the elicitation flow as described in
+   `.opencode/commands/fba:elicit.md`.
 
 ## Post-conditions
 - `.factory/state.json` has `current_phase: "init"` and all phases marked `pending`.

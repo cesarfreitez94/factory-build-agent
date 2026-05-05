@@ -90,7 +90,7 @@ After saving `elicitation.json`:
    fba transition elicitation
    ```
 
-### 7. Report Results
+### 7. Report Results and Ask to Proceed
 Summarize what was elicited:
 - Number of stakeholders identified
 - Number of functional requirements (RF)
@@ -98,11 +98,16 @@ Summarize what was elicited:
 - Number of acceptance criteria (CA)
 - Key constraints and dependencies
 
+Then follow the **Phase Progression Protocol** from the orchestrator agent
+definition. If the user approves progression, invoke the documentador
+sub-agent using the `task` tool with the instructions from
+`.opencode/commands/fba:specify.md`.
+
 ## Post-conditions
 - `.factory/context/elicitation.json` exists with structured requirements.
 - `.factory/state.json` has `current_phase: "elicitation"`, phases.elicitation.status: "in_progress".
 - `.factory/events.jsonl` contains the `elicitation_complete` event.
-- Ready for `/fba:specify`.
+- Ready for the next phase: documentation.
 
 ## Example Interaction
 
@@ -147,6 +152,19 @@ Agent:
 >
 > El contexto se guardo en .factory/context/elicitation.json
 > Fase actual: elicitation
->
-> Siguiente paso: /fba:specify para generar el PRD.md
+
+Agent:
+> [Uses question tool]
+> Header: "Fase completada: elicitation"
+> Q: "¿Como procedemos?"
+> - A) Continuar a la siguiente fase (documentation)
+> - B) Quiero revisar los artefactos generados primero
+> - C) Quiero hacer cambios en esta fase
+
+User selects option A
+
+Agent:
+> [Invoca al documentador via task tool con las instrucciones de fba:specify.md]
+> ...
+> ✅ PRD generado y validado
 ```
