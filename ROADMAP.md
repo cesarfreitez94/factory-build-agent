@@ -11,7 +11,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M0: Fundacion | ✅ Completado | 2026-05-02 / 2026-05-02 |
 | M1: Elicitacion + Documentacion | ✅ Completado | 2026-05-03 / 2026-05-03 |
 | M2: Planificacion + SDD | ✅ Completado | 2026-05-04 / 2026-05-04 |
-| M4: Sistema de Gates | ⬜ Pendiente | - |
+| M4: Sistema de Gates | ✅ Completado | 2026-05-05 / 2026-05-05 |
 | M3: Construccion + MVP | ⬜ Pendiente | - |
 
 ---
@@ -163,23 +163,23 @@ El sistema de gates es declarativo: las reglas de validacion se definen en
 
 ### Tareas
 
-- [ ] Modulo `src/fba/gate.py`: GateRunner con definiciones de gates declarativas
+- [x] Modulo `src/fba/gate.py`: GateRunner con definiciones de gates declarativas
   - Gate por fase: schema, content, traceability, cross-artifact
   - Resultado estructurado con mensajes de error descriptivos
   - Carga de reglas desde `state.json`
-- [ ] Integrar gates en `StateManager.transition_to()`: bloquea transicion si gate falla
-- [ ] Comando CLI `fba gate`: validacion manual de gates para diagnostico
-- [ ] Sub-agente Revisor de Artefactos (`revisor_artefactos.md`)
+- [x] Integrar gates en `StateManager.transition_to()`: bloquea transicion si gate falla
+- [x] Comando CLI `fba gate`: validacion manual de gates para diagnostico
+- [x] Sub-agente Revisor de Artefactos (`revisor_artefactos.md`)
   - Valida artefactos contra sus schemas
   - Verifica coherencia cross-artifact (ej. trazabilidad PRD→SDD)
   - Genera reporte de validacion
   - Soporta ciclo: generar → validar → fallo → corregir → revalidar
-- [ ] Slash command `/fba:gate`
-- [ ] Actualizar orquestador: flujo incluye validacion de gates en cada transicion
-- [ ] Actualizar slash commands existentes: cada comando ejecuta `fba validate` + gate check
-- [ ] Actualizar `state.schema.json` con seccion `gates`
-- [ ] Tests unitarios + integracion de gates
-- [ ] Guia de testing: `docs/testing/m4-gates.md`
+- [x] Slash command `/fba:gate`
+- [x] Actualizar orquestador: flujo incluye validacion de gates en cada transicion
+- [x] Actualizar slash commands existentes: cada comando ejecuta `fba validate` + gate check
+- [x] Actualizar `state.schema.json` con seccion `gates`
+- [x] Tests unitarios + integracion de gates
+- [x] Guia de testing: `docs/testing/m4-gates.md`
 
 ### Verificacion
 
