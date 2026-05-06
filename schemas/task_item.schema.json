@@ -1,0 +1,219 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://opencode.ai/fba/schemas/task_item.schema.json",
+  "title": "Task Item",
+  "description": "Schema for an individual implementation task file (tasks/T*.json). Defines what code to generate for a single task.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "description",
+    "components",
+    "files_to_generate",
+    "dependencies"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^T\\d{3,}$",
+      "description": "Task identifier matching the index entry (e.g., T001)."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Short human-readable task name."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Detailed description of what this task implements."
+    },
+    "components": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Software components to implement in this task.",
+      "items": {
+        "type": "object",
+        "required": ["type", "name", "description", "sdd_reference"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["model", "view", "security_group", "access_right", "record_rule", "data", "report", "workflow", "wizard", "controller"],
+            "description": "Type of Odoo component."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Technical name of the component (e.g., vehicle.vehicle)."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 5,
+            "description": "Description of the component."
+          },
+          "fields": {
+            "type": "array",
+            "description": "Fields to implement (for models).",
+            "items": {
+              "type": "object",
+              "required": ["name", "type", "label"],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[a-z][a-z0-9_]*$",
+                  "description": "Field technical name."
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["Char", "Text", "Integer", "Float", "Boolean", "Date", "Datetime", "Binary", "Selection", "Many2one", "One2many", "Many2many", "Html", "Monetary"],
+                  "description": "Odoo field type."
+                },
+                "label": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Human-readable field label."
+                },
+                "required": {
+                  "type": "boolean",
+                  "description": "Whether this field is required."
+                },
+                "unique": {
+                  "type": "boolean",
+                  "description": "Whether this field must be unique."
+                },
+                "size": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Max size for char fields."
+                },
+                "selection": {
+                  "type": "array",
+                  "description": "Selection options for Selection fields.",
+                  "items": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {"type": "string"}
+                  }
+                },
+                "relation": {
+                  "type": "string",
+                  "description": "Related model for relational fields."
+                },
+                "compute": {
+                  "type": "string",
+                  "description": "Compute method name for computed fields."
+                },
+                "invisible": {
+                  "type": "string",
+                  "description": "Odoo v18 invisible condition."
+                },
+                "widget": {
+                  "type": "string",
+                  "description": "Odoo widget name (e.g., many2many_tags)."
+                },
+                "groups": {
+                  "type": "string",
+                  "description": "Security groups for field visibility."
+                },
+                "tracking": {
+                  "type": "boolean",
+                  "description": "Mail tracking for field changes."
+                },
+                "readonly": {
+                  "type": "boolean",
+                  "description": "Whether this field is readonly."
+                },
+                "states": {
+                  "type": "object",
+                  "description": "State-dependent attributes."
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "view_type": {
+            "type": "string",
+            "enum": ["form", "list", "search", "kanban", "calendar", "graph", "pivot", "activity"],
+            "description": "Odoo view type (for view components)."
+          },
+          "model": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Target model (for views, security, data)."
+          },
+          "view_fields": {
+            "type": "array",
+            "description": "Fields to display in the view.",
+            "items": {"type": "string", "minLength": 1}
+          },
+          "permissions": {
+            "type": "object",
+            "description": "CRUD permissions (for access rights).",
+            "properties": {
+              "read": {"type": "boolean"},
+              "write": {"type": "boolean"},
+              "create": {"type": "boolean"},
+              "unlink": {"type": "boolean"}
+            },
+            "additionalProperties": false
+          },
+          "domain": {
+            "type": "string",
+            "description": "Domain expression for record rules (Odoo domain syntax, e.g., \"[('user_id', '=', user.id)]\")."
+          },
+          "display_name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Human-readable display name (for security groups, views, etc.)."
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Security category display name (for security groups)."
+          },
+          "groups": {
+            "type": "array",
+            "description": "Security groups this record rule applies to.",
+            "items": {"type": "string"}
+          },
+          "format": {
+            "type": "string",
+            "enum": ["csv", "xml", "json"],
+            "description": "Data file format (for data components). Defaults to xml."
+          },
+          "noupdate": {
+            "type": "boolean",
+            "description": "noupdate flag for data records."
+          },
+          "sdd_reference": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Reference to the SDD component this implements (e.g., models.vehicle)."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "files_to_generate": {
+      "type": "array",
+      "minItems": 1,
+      "description": "File paths (relative to module root) to generate in this task.",
+      "items": {
+        "type": "string",
+        "minLength": 3,
+        "pattern": "^[a-zA-Z0-9_/.]+$"
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "Task IDs this task depends on (same as in index.json).",
+      "items": {
+        "type": "string",
+        "pattern": "^T\\d{3,}$"
+      }
+    }
+  },
+  "additionalProperties": false
+}

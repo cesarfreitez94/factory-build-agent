@@ -35,7 +35,7 @@ def _load_all_agents():
     return agents
 
 
-EXPECTED_AGENTS = {"elicitador", "documentador", "orchestrator", "planificador", "revisor_artefactos", "validador_semantico"}
+EXPECTED_AGENTS = {"elicitador", "documentador", "orchestrator", "planificador", "revisor_artefactos", "validador_semantico", "constructor", "tester_qa", "revisor_codigo", "ci_cd_manager"}
 
 
 class TestAgentDefinitionsExist:
@@ -57,6 +57,12 @@ class TestAgentDefinitionsExist:
 
     def test_planificador_md_exists(self):
         assert (AGENTS_DIR / "planificador.md").is_file()
+
+    def test_tester_qa_md_exists(self):
+        assert (AGENTS_DIR / "tester_qa.md").is_file()
+
+    def test_revisor_codigo_md_exists(self):
+        assert (AGENTS_DIR / "revisor_codigo.md").is_file()
 
     def test_only_expected_agents_exist(self):
         found = {f.stem for f in AGENTS_DIR.glob("*.md")}
@@ -204,3 +210,112 @@ class TestOrchestratorAgent:
     def test_orchestrator_mentions_state_json(self):
         _, body = _load_agent_md(AGENTS_DIR / "orchestrator.md")
         assert ".factory/state.json" in body
+
+
+class TestTesterQAAgent:
+    def test_tester_qa_has_test_prompt(self):
+        _, body = _load_agent_md(AGENTS_DIR / "tester_qa.md")
+        assert "schema.json" in body
+        assert "TestCase" in body
+        assert "test_report.json" in body
+        assert "test_report.md" in body
+        assert "test_models.py" in body
+        assert "test_views.py" in body
+        assert "test_security.py" in body
+        assert "test_integration.py" in body
+
+    def test_tester_qa_mentions_test_report_json(self):
+        _, body = _load_agent_md(AGENTS_DIR / "tester_qa.md")
+        assert ".factory/test_report.json" in body
+
+    def test_tester_qa_mentions_state_update(self):
+        _, body = _load_agent_md(AGENTS_DIR / "tester_qa.md")
+        assert "testing" in body
+
+    def test_tester_qa_mentions_events(self):
+        _, body = _load_agent_md(AGENTS_DIR / "tester_qa.md")
+        assert "test_complete" in body
+
+    def test_tester_qa_has_odoo_conventions(self):
+        _, body = _load_agent_md(AGENTS_DIR / "tester_qa.md")
+        assert "TransactionCase" in body
+        assert "setUp" in body
+        assert "sudo" in body
+        assert "with_user" in body
+
+
+class TestRevisorCodigoAgent:
+    def test_revisor_codigo_has_review_prompt(self):
+        _, body = _load_agent_md(AGENTS_DIR / "revisor_codigo.md")
+        assert "schema.json" in body
+        assert "prd.json" in body
+        assert "sdd.json" in body
+        assert "review_report.json" in body
+        assert "review_report.md" in body
+        assert "quality" in body.lower()
+        assert "security" in body.lower()
+        assert "spec" in body.lower()
+
+    def test_revisor_codigo_mentions_review_report_json(self):
+        _, body = _load_agent_md(AGENTS_DIR / "revisor_codigo.md")
+        assert ".factory/review_report.json" in body
+
+    def test_revisor_codigo_mentions_odoo_v18_conventions(self):
+        _, body = _load_agent_md(AGENTS_DIR / "revisor_codigo.md")
+        assert "Odoo v18" in body
+        assert "PEP8" in body
+        assert "list" in body
+        assert "ACL" in body
+
+    def test_revisor_codigo_has_severity_classification(self):
+        _, body = _load_agent_md(AGENTS_DIR / "revisor_codigo.md")
+        assert "critical" in body.lower()
+        assert "warning" in body.lower()
+
+    def test_revisor_codigo_mentions_events(self):
+        _, body = _load_agent_md(AGENTS_DIR / "revisor_codigo.md")
+        assert "review_complete" in body
+
+    def test_revisor_codigo_has_prohibited_patterns(self):
+        _, body = _load_agent_md(AGENTS_DIR / "revisor_codigo.md")
+        assert "<tree>" in body.replace("</tree>", "") or "tree" in body.lower()
+        assert "attrs=" in body
+
+    def test_revisor_codigo_mentions_state_update(self):
+        _, body = _load_agent_md(AGENTS_DIR / "revisor_codigo.md")
+        assert "review" in body.lower() and "phases" in body
+
+
+class TestCicdManagerAgent:
+    def test_cicd_manager_md_exists(self):
+        assert (AGENTS_DIR / "ci_cd_manager.md").is_file()
+
+    def test_cicd_manager_has_ship_prompt(self):
+        _, body = _load_agent_md(AGENTS_DIR / "ci_cd_manager.md")
+        assert "GitHub Actions" in body
+        assert "factory-ci.yml" in body
+        assert "ship_report.json" in body
+        assert "ship_report.md" in body
+
+    def test_cicd_manager_mentions_ship_report_json(self):
+        _, body = _load_agent_md(AGENTS_DIR / "ci_cd_manager.md")
+        assert ".factory/ship_report.json" in body
+
+    def test_cicd_manager_mentions_workflow(self):
+        _, body = _load_agent_md(AGENTS_DIR / "ci_cd_manager.md")
+        assert ".github/workflows/factory-ci.yml" in body
+
+    def test_cicd_manager_mentions_complete(self):
+        _, body = _load_agent_md(AGENTS_DIR / "ci_cd_manager.md")
+        assert "complete" in body.lower()
+        assert "current_phase" in body
+
+    def test_cicd_manager_has_release_readiness_check(self):
+        _, body = _load_agent_md(AGENTS_DIR / "ci_cd_manager.md")
+        assert "release readiness" in body.lower() or "release ready" in body.lower()
+        assert "test_report.json" in body
+        assert "review_report.json" in body
+
+    def test_cicd_manager_mentions_events(self):
+        _, body = _load_agent_md(AGENTS_DIR / "ci_cd_manager.md")
+        assert "ship_complete" in body

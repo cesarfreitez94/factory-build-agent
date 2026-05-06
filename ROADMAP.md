@@ -12,7 +12,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M1: Elicitacion + Documentacion | ✅ Completado | 2026-05-03 / 2026-05-03 |
 | M2: Planificacion + SDD | ✅ Completado | 2026-05-04 / 2026-05-04 |
 | M4: Sistema de Gates | ✅ Completado | 2026-05-05 / 2026-05-05 |
-| M3: Construccion + MVP | ⬜ Pendiente | - |
+| M3: Construccion + MVP | ✅ Completado | 2026-05-05 / 2026-05-06 |
 
 ---
 
@@ -112,26 +112,142 @@ especifico para Odoo v18 con trazabilidad completa.
 construccion -> pruebas -> revision -> CI/CD, produciendo un modulo Odoo v18
 instalable y funcional de "Registro de Vehiculos" (CRUD con modelo + vistas).
 
-### Tareas
+M3 se divide en 5 sub-milestones secuenciales para facilitar la implementacion
+incremental. Cada sub-milestone es un deliverable independiente y demostrable.
 
-- [ ] Sub-agente Constructor: genera codigo Odoo v18
-  - `__manifest__.py`
-  - Modelos (`models/`)
-  - Vistas (`views/`)
-  - Seguridad (`security/ir.model.access.csv`)
-  - Datos demo (`data/`)
-- [ ] Slash command `/fba:build`
-- [ ] Sub-agente Tester/QA: genera tests Odoo (Odoo TestCase)
-- [ ] Slash command `/fba:test`
-- [ ] Sub-agente Revisor de Codigo: calidad, seguridad, adherencia a specs
-- [ ] Slash command `/fba:review`
-- [ ] Sub-agente CI/CD Manager: genera workflow GitHub Actions
-- [ ] Slash command `/fba:ship`
-- [ ] Prueba E2E: modulo CRUD "Registro de Vehiculos"
-- [ ] Tests E2E del framework
-- [ ] Documentacion de usuario final
+### Branching
 
-### Verificacion
+```
+main
+  └── milestone/3.0-construccion-mvp        ← creado desde main
+        ├── feat/3.0a-task-files            ← desde milestone/3.0 (sistema de tasks rediseñado)
+        ├── feat/3.1-constructor-core        ← desde milestone/3.0
+        ├── feat/3.2-constructor-completo    ← desde milestone/3.0 (mergea M3.1 a M3.0 primero)
+        ├── feat/3.3-tester-reviewer         ← desde milestone/3.0 (mergea M3.2 a M3.0 primero)
+        └── feat/3.4-cicd-e2e               ← desde milestone/3.0 (mergea M3.3 a M3.0 primero)
+```
+
+Flujo: `feat/3.0a → PR → merge a milestone/3.0 → feat/3.1 → PR → merge a milestone/3.0 → ...`
+
+---
+
+### M3.0a: Task System Redesign — Archivos por Task
+**Objetivo**: Rediseñar el sistema de tasks para generar un archivo por task
+en lugar de un solo `tasks.md`, permitiendo construccion iterativa con commits
+por task.
+
+**Entregables**:
+- [x] Schema `task_index.schema.json` y `task_item.schema.json`
+- [x] Gate `tasks` con rule type `task_files_exist`
+- [x] Comando `/fba:tasks` actualizado: genera `index.json` + `T*.json`
+- [x] Comando `/fba:build` rediseñado: flujo iterativo task-por-task con sesiones frescas
+- [x] Orquestador actualizado con nueva tabla de fases
+- [x] Tests unitarios del nuevo sistema de tasks
+- [x] Documentacion de testing: `docs/testing/m3-tasks-files.md`
+
+**Depende de**: M2 (SDD + plan)
+
+---
+
+### M3.1: Constructor Core — Schema Manager + Modulo Skeleton + Modelos
+**Objetivo**: Introducir el Schema Manager como capa de determinismo entre tasks
+y codigo. Producir `schema.json` (SSOT) y generar `__manifest__.py`, `__init__.py`,
+y modelos Odoo v18 funcionales.
+
+**Arquitectura interna del constructor**:
+```
+tasks/index.json + T*.json + SDD.md + module_registry.json
+        │
+        ▼
+  Schema Manager (assembly + normalization + registry lookup)
+        │
+        ▼
+  schema.json (SSOT — single source of truth)
+        │
+        ▼
+  Code Renderer (iterative per task, zero interpretation)
+        │
+        ▼
+  odoo_module/
+```
+
+**Entregables**:
+- [ ] Agente `constructor.md` con Schema Manager + Code Renderer
+- [ ] Schema `schema.schema.json` para validar el SSOT deterministico
+- [ ] Module Registry (`module_registry.json`) con modulos core de Odoo v18
+- [ ] Normalizacion de nombres: many2one → `*_id`, many2many → `*_ids`, etc.
+- [ ] Comando `/fba:build` con flujo: assembly schema → validate → render iterativo
+- [ ] Gate `schema` validando schema.json contra schema.schema.json
+- [ ] Gate `construction` extendido con validacion de consistencia schema ↔ codigo
+- [ ] Builder contract: code renderer no interpreta, no renombra, no reestructura
+- [ ] Tests unitarios del Schema Manager, Module Registry, y Code Renderer
+- [ ] Prueba manual: modulo minimo instalable en Odoo v18
+
+**Depende de**: SDD valido + tasks/index.json (fase `tasks`)
+
+---
+
+### M3.2: Constructor Completo — Vistas, Seguridad, Datos
+**Objetivo**: Constructor completo genera todo el modulo Odoo v18 (vistas,
+seguridad, datos demo).
+
+**Entregables**:
+- [x] Constructor extendido para generar vistas (form, list, search, kanban)
+- [x] Constructor extendido para generar seguridad (grupos, ACL, record rules)
+- [x] Constructor extendido para generar datos demo
+- [x] Gate `construction` extendido con validacion de vistas y seguridad (view_coverage, view_field_check, acl_coverage)
+- [x] Esquemas actualizados a Odoo v18: `tree` → `list`, `attrs` deprecado, atributos directos (`invisible`, `widget`, `groups`, `tracking`, `states`)
+- [x] Schema.schema.json extendido con `mail_thread`, `mail_activity`, `manifest.data`, `manifest.demo`, `noupdate`, `category_id`
+- [x] Bugs corregidos: security group assembly, record rule domain, data type hardcodeado, field type case normalization
+- [x] Tests del constructor completo (15 nuevos, 386 total)
+- [x] Documentacion de testing: `docs/testing/m3.2-constructor-completo.md`
+
+**Depende de**: M3.1 (constructor core)
+
+---
+
+### M3.3: Tester QA + Code Reviewer
+**Objetivo**: El framework puede probar y revisar el modulo generado automaticamente.
+
+**Entregables**:
+- [ ] Agente `tester_qa.md` + comando `/fba:test`
+  - Genera tests Odoo TestCase: modelos, vistas, seguridad
+  - Ejecuta tests y genera `test_report.md`
+  - Gate `testing`
+- [ ] Agente `revisor_codigo.md` + comando `/fba:review`
+  - Revisa calidad (PEP8, Odoo conventions)
+  - Revisa seguridad (ACL, validacion, datos sensibles)
+  - Revisa adherencia a specs (PRD/SDD)
+  - Genera `review_report.md`
+  - Gate `review`
+- [ ] Tests de los agentes tester y revisor
+- [ ] Integracion con el orquestador
+
+**Depende de**: M3.2 (constructor completo — necesita codigo generado)
+
+---
+
+### M3.4: CI/CD Manager + Integracion E2E + Docs
+**Objetivo**: Framework completo E2E funcionando, probado y documentado.
+
+**Entregables**:
+- [x] Agente `ci_cd_manager.md` + comando `/fba:ship`
+  - Genera GitHub Actions workflow para el modulo Odoo
+  - Gate `ci_cd`
+- [x] Flujo E2E completo con modulo "Registro de Vehiculos":
+  ```
+  fba init → /fba:elicit → /fba:specify → /fba:plan → /fba:tasks
+  → /fba:build → /fba:test → /fba:review → /fba:ship
+  ```
+- [x] Tests E2E del framework completo
+- [x] Documentacion de usuario final: `docs/testing/m3-construccion.md`
+- [x] Actualizacion de ROADMAP, CHANGELOG, version (bump a 0.5.0)
+
+**Depende de**: M3.3 (tester y revisor completos)
+
+---
+
+### Verificacion Final
 
 ```bash
 # Flujo completo desde cero

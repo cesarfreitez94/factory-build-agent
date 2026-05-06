@@ -7,6 +7,7 @@ import click
 
 from fba import __version__
 from fba.gate import GateError
+from fba.schema_manager import SchemaManager
 from fba.state import StateManager
 
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent.parent / "templates"
@@ -50,6 +51,7 @@ def init(project_dir):
 
     _copy_templates(target)
     _copy_schemas(target)
+    _copy_registry(target)
     _init_factory_state(target)
     _init_events_log(target)
 
@@ -75,6 +77,7 @@ def update(project_dir):
     click.echo(f"Updating Factory Build Agent templates in {target}...")
 
     _copy_templates(target)
+    _copy_registry(target)
     _cleanup_obsolete(target)
 
     click.echo(f"✅ Factory Build Agent templates updated in {target}")
@@ -116,6 +119,16 @@ def _copy_schemas(target: Path):
             shutil.copy2(schema_file, dest)
 
 
+def _copy_registry(target: Path):
+    registry_src = TEMPLATES_DIR / ".factory" / "module_registry.json"
+    if not registry_src.exists():
+        return
+    factory_dir = target / ".factory"
+    factory_dir.mkdir(parents=True, exist_ok=True)
+    dest = factory_dir / "module_registry.json"
+    shutil.copy2(registry_src, dest)
+
+
 def _init_factory_state(target: Path):
     factory_dir = target / ".factory"
     factory_dir.mkdir(parents=True, exist_ok=True)
@@ -133,8 +146,8 @@ def _init_factory_state(target: Path):
             "planning": {"status": "pending", "agent": "planificador"},
             "tasks": {"status": "pending", "agent": "planificador"},
             "construction": {"status": "pending", "agent": "constructor"},
-            "testing": {"status": "pending", "agent": "tester"},
-            "review": {"status": "pending", "agent": "revisor"},
+            "testing": {"status": "pending", "agent": "tester_qa"},
+            "review": {"status": "pending", "agent": "revisor_codigo"},
             "ci_cd": {"status": "pending", "agent": "cicd_manager"},
         },
         "valid_transitions": {
@@ -244,6 +257,144 @@ def _init_factory_state(target: Path):
                             "stakeholder_relevance",
                             "requirement_relevance",
                         ],
+                    },
+                ],
+            },
+            "tasks": {
+                "description": "Validates task index and individual task files",
+                "owner_agent": "planificador",
+                "rules": [
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "task_index_exists",
+                        "path": ".factory/tasks/index.json",
+                    },
+                    {
+                        "type": "schema",
+                        "rule_name": "task_index_schema_valid",
+                        "schema": "task_index.schema.json",
+                        "path": ".factory/tasks/index.json",
+                    },
+                    {
+                        "type": "content_check",
+                        "rule_name": "task_index_content_minimum",
+                        "path": ".factory/tasks/index.json",
+                        "checks": {"min_tasks": 1},
+                    },
+                    {
+                        "type": "task_files_exist",
+                        "rule_name": "all_task_files_exist",
+                        "index_path": ".factory/tasks/index.json",
+                    },
+                ],
+            },
+            "schema": {
+                "description": "Validates schema.json SSOT before code generation",
+                "owner_agent": "constructor",
+                "rules": [
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "schema_json_exists",
+                        "path": ".factory/schema.json",
+                    },
+                    {
+                        "type": "schema",
+                        "rule_name": "schema_json_valid",
+                        "schema": "schema.schema.json",
+                        "path": ".factory/schema.json",
+                    },
+                    {
+                        "type": "content_check",
+                        "rule_name": "schema_has_models",
+                        "path": ".factory/schema.json",
+                        "checks": {"min_models": 1},
+                    },
+                ],
+            },
+            "construction": {
+                "description": "Validates generated Odoo module structure matches schema.json",
+                "owner_agent": "constructor",
+                "rules": [
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "schema_json_exists_for_construction",
+                        "path": ".factory/schema.json",
+                    },
+                    {
+                        "type": "content_check",
+                        "rule_name": "construction_min_tasks_built",
+                        "path": ".factory/state.json",
+                        "checks": {},
+                    },
+                    {
+                        "type": "view_coverage",
+                        "rule_name": "construction_view_coverage",
+                        "path": ".factory/schema.json",
+                        "require_form": True,
+                        "require_list": True,
+                    },
+                    {
+                        "type": "view_field_check",
+                        "rule_name": "construction_view_fields",
+                        "path": ".factory/schema.json",
+                    },
+                    {
+                        "type": "acl_coverage",
+                        "rule_name": "construction_acl_coverage",
+                        "path": ".factory/schema.json",
+                    },
+                ],
+            },
+            "testing": {
+                "description": "Validates that Odoo tests were generated and a test report exists",
+                "owner_agent": "tester_qa",
+                "rules": [
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "test_report_json_exists",
+                        "path": ".factory/test_report.json",
+                    },
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "test_report_md_exists",
+                        "path": ".factory/test_report.md",
+                    },
+                ],
+            },
+            "review": {
+                "description": "Validates that code review completed with no critical issues",
+                "owner_agent": "revisor_codigo",
+                "rules": [
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "review_report_json_exists",
+                        "path": ".factory/review_report.json",
+                    },
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "review_report_md_exists",
+                        "path": ".factory/review_report.md",
+                    },
+                ],
+            },
+            "ci_cd": {
+                "description": "Validates CI/CD workflow exists and project is ready for release",
+                "owner_agent": "cicd_manager",
+                "rules": [
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "ci_workflow_exists",
+                        "path": ".github/workflows/factory-ci.yml",
+                    },
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "ship_report_json_exists",
+                        "path": ".factory/ship_report.json",
+                    },
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "ship_report_md_exists",
+                        "path": ".factory/ship_report.md",
                     },
                 ],
             },
@@ -469,6 +620,54 @@ def validate(artifact, project_dir):
         raise SystemExit(1)
 
 
+_schema_group = click.group("schema")(lambda: None)
+_schema_group.help = "Schema assembly and validation commands (SSOT)."
+
+
+@_schema_group.command("assemble")
+@PROJECT_DIR_OPTION
+@click.option("--output", "-o", default=None, help="Output path for schema.json (default: .factory/schema.json)")
+def schema_assemble(project_dir, output):
+    """Assemble schema.json (SSOT) from task files, SDD, and module registry.
+
+    Runs the deterministic Schema Manager: loads task index + individual task
+    files, extracts components, merges models, normalizes field names, resolves
+    relations, and produces a single schema.json that serves as the single
+    source of truth for downstream code rendering.
+    """
+    target = _resolve_project_dir(project_dir)
+    output_path = Path(output) if output else (target / ".factory" / "schema.json")
+
+    click.echo("Assembling schema.json (SSOT)...")
+
+    manager = SchemaManager(target)
+    result = manager.assemble(output_path=output_path)
+
+    if result.warnings:
+        click.echo("")
+        click.echo(f"Warnings ({len(result.warnings)}):")
+        for w in result.warnings:
+            click.echo(f"  ⚠  {w.message}")
+            if w.detail:
+                click.echo(f"      {w.detail}")
+
+    if result.errors:
+        click.echo("")
+        click.echo(f"Errors ({len(result.errors)}):")
+        for e in result.errors:
+            click.echo(f"  ❌ {e.message}")
+            if e.detail:
+                click.echo(f"      {e.detail}")
+        raise SystemExit(1)
+
+    click.echo("")
+    click.echo(f"✅ schema.json assembled at {output_path}")
+    click.echo(f"   Models: {len(result.schema.get('models', []))}")
+    click.echo(f"   Views:  {len(result.schema.get('views', []))}")
+    click.echo(f"   Groups: {len(result.schema.get('security', {}).get('groups', []))}")
+    click.echo(f"   ACLs:   {len(result.schema.get('security', {}).get('access_rights', []))}")
+
+
 def _check_traceability(target: Path, sdd: dict) -> bool:
     """Verify PRD→SDD traceability completeness.
 
@@ -533,3 +732,6 @@ def _find_schema(target: Path, schema_name: str) -> Path | None:
     if framework_schema.exists():
         return framework_schema
     return None
+
+
+main.add_command(_schema_group)

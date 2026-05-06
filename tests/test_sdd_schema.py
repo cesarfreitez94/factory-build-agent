@@ -72,8 +72,8 @@ def _valid_sdd():
             },
             {
                 "model": "vehicle.registry",
-                "type": "tree",
-                "name": "vehicle.registry.tree",
+                "type": "list",
+                "name": "vehicle.registry.list",
                 "description": "Vehicle list view",
                 "fields": ["plate", "brand"],
                 "traceability": ["RF-01"]

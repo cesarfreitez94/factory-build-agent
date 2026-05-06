@@ -208,7 +208,7 @@
           },
           "type": {
             "type": "string",
-            "enum": ["form", "tree", "search", "kanban", "calendar", "graph", "pivot", "activity", "qweb"],
+            "enum": ["form", "list", "search", "kanban", "calendar", "graph", "pivot", "activity", "qweb"],
             "description": "Odoo view type."
           },
           "name": {

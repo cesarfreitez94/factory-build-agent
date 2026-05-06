@@ -7,6 +7,40 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.5.0] - 2026-05-06
+
+### Agregado
+
+- M3: Construccion + MVP (completado) (#59)
+  - M3.0a: Task System Redesign — archivos por task (#64)
+  - M3.1: Constructor Core — Schema Manager + Modulo Skeleton + Modelos (#60)
+    - Schema Manager: capa de determinismo entre tasks y codigo
+    - `schema.json`: SSOT (single source of truth) para estructura del modulo
+    - `module_registry.json`: registry de modulos core Odoo v18
+    - Normalizacion de nombres (many2one → *_id, etc.)
+    - Code Renderer: generacion iterativa desde schema (zero interpretation)
+    - Gate `schema` validando schema.json
+  - M3.2: Constructor Completo — Vistas, Seguridad, Datos (#61)
+    - Constructor extendido: vistas (form, list, search, kanban), seguridad (grupos XML, ACL CSV, record rules), datos demo
+    - Odoo v18 corrections: `tree` → `list`, `attrs` deprecado, atributos directos (`invisible`, `widget`, `groups`, `tracking`, `states`)
+    - Schema extendido: `mail_thread`, `mail_activity`, `manifest.data`, `manifest.demo`, `noupdate`, `category_id`
+    - Bugs corregidos: security group assembly, record rule domain, data type, field type case normalization
+    - `constructor.md`: instrucciones completas de rendering Odoo v18 con ejemplos
+    - Gate `construction` con nuevas reglas: `view_coverage`, `view_field_check`, `acl_coverage`
+    - Tests: 15 nuevos (test_construction_gate.py + extendidos en test_schema_manager.py), 386 total
+    - Guia de testing: `docs/testing/m3.2-constructor-completo.md`
+  - M3.3: Tester QA + Code Reviewer (#62)
+  - M3.4: CI/CD Manager + Integracion E2E + Docs (#63)
+    - Agente `ci_cd_manager.md`: genera GitHub Actions workflow, valida release readiness, produce ship_report.json/md
+    - Comando `/fba:ship` expandido con flujo completo: precondiciones, generacion CI, ship reports, state update
+    - Gate `ci_cd`: valida factory-ci.yml, ship_report.json, ship_report.md
+    - Fase `ci_cd` integrada en el sistema de fases y transiciones (review → ci_cd → complete)
+    - Tests: 8 nuevos (TestCicdManagerAgent + gate ci_cd), ~430 total
+    - Documentacion E2E: `docs/testing/m3-construccion.md` con paso 11 (verificacion M3.4)
+    - Version bump: 0.4.0 → 0.5.0
+
+---
+
 ## [0.4.0] - 2026-05-05
 
 ### Agregado

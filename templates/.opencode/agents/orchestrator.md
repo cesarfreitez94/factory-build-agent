@@ -30,8 +30,17 @@ the development lifecycle of an Odoo v18 module.
 /fba:plan --> /fba:gate --> /fba:semantic-check --> /fba:tasks --> /fba:gate
                                                                               |
                                                                               v
-/fba:build --> /fba:gate --> /fba:test --> /fba:review --> /fba:ship
+/fba:build (schema assembly → gate schema → code renderer) --> /fba:gate
+                                                                              |
+                                                                              v
+/fba:test --> /fba:review --> /fba:ship
 ```
+
+The `/fba:build` phase is internally structured as:
+1. Schema Manager assembles `schema.json` (SSOT) from tasks + SDD + module registry
+2. `fba gate schema` validates schema.json
+3. Code Renderer generates code iteratively from schema.json only
+4. `fba gate construction` validates generated code against schema
 
 Each phase transition is gated: artifacts must pass `fba gate` before the
 next phase can begin. For phases that produce semantic content (documentation,
@@ -48,8 +57,8 @@ by the validador_semantico agent.
 | planning | planificador | /fba:plan | prd.md | sdd.md, plan.md | planning |
 | gate | revisor_artefactos | /fba:gate | current artifacts | gate_report.json | - |
 | semantic | validador_semantico | /fba:semantic-check | elicitation.json, prd.json or sdd.json | semantic_report.json | - |
-| tasks | planificador | /fba:tasks | sdd.md, plan.md | tasks.md | tasks |
-| construction | constructor | /fba:build | sdd.md, tasks.md | odoo_module/ | construction |
+| tasks | planificador | /fba:tasks | sdd.md, plan.md | tasks/index.json, tasks/T*.json | tasks |
+| construction | constructor | /fba:build | sdd.md, tasks/index.json, tasks/T*.json, module_registry.json | schema.json (SSOT), odoo_module/ | schema + construction |
 | testing | tester | /fba:test | odoo_module/ | test_report.md | testing |
 | review | revisor_codigo | /fba:review | odoo_module/, prd.md, sdd.md | review_report.md | review |
 | ci_cd | cicd_manager | /fba:ship | odoo_module/ | ci_workflow.yml | ci_cd |
@@ -104,17 +113,25 @@ interactive question-asker.
 - If any gate fails, the transition is blocked. Use `fba transition --force`
   only when explicitly authorized by the user.
 - Schemas are in `.factory/schemas/`.
-- **Elicitation gate**: context/elicitation.json exists, ≥1 stakeholder,
+- **Elicitation gate**: context/elicitation.json exists, >=1 stakeholder,
   1 RF, 1 RNF, 1 acceptance criterion.
 - **Documentation gate**: prd.json exists, prd.md exists, prd.json passes
   schema validation.
 - **Planning gate**: sdd.json exists, plan.md exists, sdd.json passes
   schema validation, all PRD requirements mapped in SDD traceability.
+- **Schema gate** (internal to construction): schema.json passes schema.schema.json
+  validation, naming conventions enforced, no core model duplication, all
+  relations resolve.
+- **Construction gate**: odoo_module/ exists with valid structure, all code
+  matches schema.json (field names, model structure).
 
 ## Context Injection
 - When invoking a sub-agent, include relevant context from current artifacts.
 - Include PRD when moving to planning.
-- Include SDD and tasks when moving to construction.
+- Include SDD, tasks/index.json, and module_registry.json when moving to construction.
+- The constructor internally produces schema.json (SSOT) from these inputs before
+  generating code. Downstream phases (test, review, ship) receive schema.json as
+  the authoritative module structure reference.
 
 ## Current Task
 Read `.factory/state.json`, determine the current phase, validate
