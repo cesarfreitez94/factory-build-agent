@@ -149,16 +149,38 @@ por task.
 
 ---
 
-### M3.1: Constructor Core — Modulo Skeleton y Modelos
-**Objetivo**: El constructor genera `__manifest__.py`, `__init__.py`, y modelos
-Odoo v18 funcionales con campos y relaciones.
+### M3.1: Constructor Core — Schema Manager + Modulo Skeleton + Modelos
+**Objetivo**: Introducir el Schema Manager como capa de determinismo entre tasks
+y codigo. Producir `schema.json` (SSOT) y generar `__manifest__.py`, `__init__.py`,
+y modelos Odoo v18 funcionales.
+
+**Arquitectura interna del constructor**:
+```
+tasks/index.json + T*.json + SDD.md + module_registry.json
+        │
+        ▼
+  Schema Manager (assembly + normalization + registry lookup)
+        │
+        ▼
+  schema.json (SSOT — single source of truth)
+        │
+        ▼
+  Code Renderer (iterative per task, zero interpretation)
+        │
+        ▼
+  odoo_module/
+```
 
 **Entregables**:
-- [ ] Agente `constructor.md` con instrucciones de generacion de codigo Odoo v18
-- [ ] Comando `/fba:build` completo (modelos + manifest)
-- [ ] Genera: `__manifest__.py`, `models/__init__.py`, modelos con campos y relaciones
-- [ ] Gate `construction` validando que los archivos existen y la estructura es correcta
-- [ ] Tests unitarios del constructor y del gate construction
+- [ ] Agente `constructor.md` con Schema Manager + Code Renderer
+- [ ] Schema `schema.schema.json` para validar el SSOT deterministico
+- [ ] Module Registry (`module_registry.json`) con modulos core de Odoo v18
+- [ ] Normalizacion de nombres: many2one → `*_id`, many2many → `*_ids`, etc.
+- [ ] Comando `/fba:build` con flujo: assembly schema → validate → render iterativo
+- [ ] Gate `schema` validando schema.json contra schema.schema.json
+- [ ] Gate `construction` extendido con validacion de consistencia schema ↔ codigo
+- [ ] Builder contract: code renderer no interpreta, no renombra, no reestructura
+- [ ] Tests unitarios del Schema Manager, Module Registry, y Code Renderer
 - [ ] Prueba manual: modulo minimo instalable en Odoo v18
 
 **Depende de**: SDD valido + tasks/index.json (fase `tasks`)
