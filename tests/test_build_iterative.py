@@ -28,7 +28,7 @@ class TestBuildCommandFrontmatter:
         assert len(parts) >= 3
         frontmatter = yaml.safe_load(parts[1])
         assert frontmatter.get("agent") == "constructor"
-        assert "Generate" in frontmatter.get("description", "")
+        assert "generate" in frontmatter.get("description", "").lower()
 
     def test_build_command_body_has_iterative_content(self):
         cmd_path = TEMPLATES_DIR / ".opencode" / "commands" / "fba:build.md"

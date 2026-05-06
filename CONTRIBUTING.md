@@ -22,6 +22,12 @@
 10. **PR de milestone a `main` requiere validacion manual del usuario.**
     El agente debe solicitar confirmacion explicita al usuario antes de abrir el PR.
     Sin esta confirmacion, el PR a `main` no se abre.
+11. **Cambios de alcance o arquitectura requieren actualizar documentacion.**
+    Si un feature agrega, modifica o elimina: agentes, fases del pipeline,
+    artefactos, schemas, o componentes arquitectonicos — se DEBE actualizar
+    AGENTS.md (seccion Architecture), ROADMAP.md (descripcion del milestone),
+    CHANGELOG.md, y los archivos de templates/docs/testing/ afectados.
+    Esto es parte del feature, no un afterthought.
 
 ---
 
@@ -131,7 +137,7 @@ Antes de abrir un Pull Request, verificar:
 
 - [ ] Todos los tests pasan: `pytest`
 - [ ] El codigo nuevo tiene tests (si aplica)
-- [ ] La documentacion esta actualizada (docs/testing/ si es milestone)
+- [ ] La documentacion esta actualizada (AGENTS.md, ROADMAP.md, CHANGELOG.md, docs/testing/ si aplica)
 - [ ] El PR referencia el Issue que cierra (`Closes #XX`)
 - [ ] Los commits siguen conventional commits con referencia al issue
 - [ ] El branch esta al dia con su parent (milestone o main)

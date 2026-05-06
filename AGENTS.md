@@ -35,12 +35,28 @@ of this framework is Odoo addons; the framework itself is a development tool.
 - **Elicitador** — Requirements elicitation using BABOK methodology.
 - **Documentador** — Generates PRD.md and SDD.md documentation.
 - **Planificador** — Generates technical plan and Odoo v18 architecture.
-- **Constructor** — Generates Odoo v18 module code.
+- **Constructor** — Generates Odoo v18 module code. Internally operates as:
+  - Schema Manager — Assembles deterministic `schema.json` (SSOT) from tasks + SDD + module registry.
+  - Code Renderer — Generates code files from `schema.json` with zero interpretation.
 - **Tester/QA** — Generates and runs tests for the generated Odoo modules.
 - **Revisor de Codigo** — Code quality, security, and spec-adherence review.
 - **CI/CD Manager** — Generates GitHub Actions workflows and manages releases.
 
 The agent system is extensible: adding a new sub-agent = adding a Markdown definition + a slash command.
+
+### Pipeline (tasks → construction)
+
+```
+planner → tasks/index.json + T*.json → constructor
+                                          ├── Schema Manager: assembly + normalization + registry lookup
+                                          │   → produces schema.json (SSOT)
+                                          └── Code Renderer: iterative generation per task
+                                              → produces odoo_module/
+```
+
+The Schema Manager eliminates ambiguity before code generation. Downstream agents
+(code renderer, view generator, security generator) consume ONLY `schema.json`,
+never reinterpret structure independently.
 
 ## Development Workflow
 
@@ -57,6 +73,12 @@ The agent system is extensible: adding a new sub-agent = adding a Markdown defin
 6. **Un feat branch por sub-tarea**. Secuencial: no empezar feat/X.Y+1 hasta que feat/X.Y este mergeado.
 7. **Si un feat ya mergeado necesita fix**: crear `feat/X.Y.Z` donde Z es fix/mejora.
 8. **Todos los PRs requieren 1 aprobacion** antes de merge.
+9. **Cada milestone incluye `docs/testing/`** con instrucciones para el usuario.
+10. **PR de milestone a `main` requiere validacion manual del usuario.**
+    Sin confirmacion explicita del usuario, el PR a `main` no se abre.
+11. **Cambios de alcance o arquitectura requieren actualizar documentacion.**
+    Agentes nuevos, fases, artefactos, schemas, o componentes arquitectonicos
+    → actualizar AGENTS.md, ROADMAP.md, CHANGELOG.md, y templates/docs/testing/.
 
 ### Ciclo de Vida de un Milestone
 
@@ -120,6 +142,7 @@ main (PROTEGIDO - solo PR merge)
 | CI/CD | GitHub Actions | Native GitHub integration |
 | OpenSpec/SpecKit | Native compatibility | Artifact format compatibility, no hard dependencies |
 | Extensibility | Markdown declarative | Add agents/methodologies without modifying core code |
+| SSOT | schema.json | Single source of truth for module structure, eliminates ambiguity between tasks and code |
 
 ## Development Phases
 

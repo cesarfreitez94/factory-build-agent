@@ -12,7 +12,14 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 ### Agregado
 
 - M3: Construccion + MVP (en progreso) (#59)
-  - M3.1: Constructor Core — Modulo Skeleton y Modelos (#60)
+  - M3.0a: Task System Redesign — archivos por task (#64)
+  - M3.1: Constructor Core — Schema Manager + Modulo Skeleton + Modelos (#60)
+    - Schema Manager: capa de determinismo entre tasks y codigo
+    - `schema.json`: SSOT (single source of truth) para estructura del modulo
+    - `module_registry.json`: registry de modulos core Odoo v18
+    - Normalizacion de nombres (many2one → *_id, etc.)
+    - Code Renderer: generacion iterativa desde schema (zero interpretation)
+    - Gate `schema` validando schema.json
   - M3.2: Constructor Completo — Vistas, Seguridad, Datos (#61)
   - M3.3: Tester QA + Code Reviewer (#62)
   - M3.4: CI/CD Manager + Integracion E2E + Docs (#63)
