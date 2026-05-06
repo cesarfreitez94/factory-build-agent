@@ -48,8 +48,8 @@ by the validador_semantico agent.
 | planning | planificador | /fba:plan | prd.md | sdd.md, plan.md | planning |
 | gate | revisor_artefactos | /fba:gate | current artifacts | gate_report.json | - |
 | semantic | validador_semantico | /fba:semantic-check | elicitation.json, prd.json or sdd.json | semantic_report.json | - |
-| tasks | planificador | /fba:tasks | sdd.md, plan.md | tasks.md | tasks |
-| construction | constructor | /fba:build | sdd.md, tasks.md | odoo_module/ | construction |
+| tasks | planificador | /fba:tasks | sdd.md, plan.md | tasks/index.json, tasks/T*.json | tasks |
+| construction | constructor | /fba:build | sdd.md, tasks/index.json, tasks/T*.json | odoo_module/ | construction |
 | testing | tester | /fba:test | odoo_module/ | test_report.md | testing |
 | review | revisor_codigo | /fba:review | odoo_module/, prd.md, sdd.md | review_report.md | review |
 | ci_cd | cicd_manager | /fba:ship | odoo_module/ | ci_workflow.yml | ci_cd |
@@ -114,7 +114,7 @@ interactive question-asker.
 ## Context Injection
 - When invoking a sub-agent, include relevant context from current artifacts.
 - Include PRD when moving to planning.
-- Include SDD and tasks when moving to construction.
+- Include SDD and tasks/index.json when moving to construction.
 
 ## Current Task
 Read `.factory/state.json`, determine the current phase, validate
