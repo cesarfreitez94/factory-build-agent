@@ -30,6 +30,14 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
     - Tests: 15 nuevos (test_construction_gate.py + extendidos en test_schema_manager.py), 386 total
     - Guia de testing: `docs/testing/m3.2-constructor-completo.md`
   - M3.3: Tester QA + Code Reviewer (#62)
+    - Agente `tester_qa.md`: genera tests Odoo TestCase (modelos, vistas, seguridad, integracion) desde schema.json (SSOT)
+    - Agente `revisor_codigo.md`: revisa calidad (PEP8, Odoo v18 conventions), seguridad (ACL, validacion, datos sensibles), y adherencia a specs (PRD/SDD) con clasificacion de severidad
+    - Comandos `/fba:test` y `/fba:review` expandidos con flujo completo
+    - Gates `testing` y `review`: validan existencia de `test_report.*` y `review_report.*`
+    - Actualizado orchestrator: nombres de agentes `tester_qa` y `revisor_codigo`
+    - Actualizado `state.json`: gates testing y review en `fba init`
+    - Tests: 37 nuevos (agent definitions, gates testing/review), 423 total
+    - Guia de testing: `docs/testing/m3.3-tester-reviewer.md`
   - M3.4: CI/CD Manager + Integracion E2E + Docs (#63)
 
 ---

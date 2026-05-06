@@ -210,18 +210,18 @@ seguridad, datos demo).
 **Objetivo**: El framework puede probar y revisar el modulo generado automaticamente.
 
 **Entregables**:
-- [ ] Agente `tester_qa.md` + comando `/fba:test`
+- [x] Agente `tester_qa.md` + comando `/fba:test`
   - Genera tests Odoo TestCase: modelos, vistas, seguridad
   - Ejecuta tests y genera `test_report.md`
   - Gate `testing`
-- [ ] Agente `revisor_codigo.md` + comando `/fba:review`
+- [x] Agente `revisor_codigo.md` + comando `/fba:review`
   - Revisa calidad (PEP8, Odoo conventions)
   - Revisa seguridad (ACL, validacion, datos sensibles)
   - Revisa adherencia a specs (PRD/SDD)
   - Genera `review_report.md`
   - Gate `review`
-- [ ] Tests de los agentes tester y revisor
-- [ ] Integracion con el orquestador
+- [x] Tests de los agentes tester y revisor
+- [x] Integracion con el orquestador
 
 **Depende de**: M3.2 (constructor completo — necesita codigo generado)
 

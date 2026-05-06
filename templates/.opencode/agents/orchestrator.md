@@ -59,8 +59,8 @@ by the validador_semantico agent.
 | semantic | validador_semantico | /fba:semantic-check | elicitation.json, prd.json or sdd.json | semantic_report.json | - |
 | tasks | planificador | /fba:tasks | sdd.md, plan.md | tasks/index.json, tasks/T*.json | tasks |
 | construction | constructor | /fba:build | sdd.md, tasks/index.json, tasks/T*.json, module_registry.json | schema.json (SSOT), odoo_module/ | schema + construction |
-| testing | tester | /fba:test | odoo_module/ | test_report.md | testing |
-| review | revisor_codigo | /fba:review | odoo_module/, prd.md, sdd.md | review_report.md | review |
+| testing | tester_qa | /fba:test | odoo_module/ | test_report.md, test_report.json | testing |
+| review | revisor_codigo | /fba:review | odoo_module/, prd.md, sdd.md | review_report.md, review_report.json | review |
 | ci_cd | cicd_manager | /fba:ship | odoo_module/ | ci_workflow.yml | ci_cd |
 
 ## Elicitation Phase — Interactive Questioning
@@ -124,6 +124,8 @@ interactive question-asker.
   relations resolve.
 - **Construction gate**: odoo_module/ exists with valid structure, all code
   matches schema.json (field names, model structure).
+- **Testing gate**: test_report.json and test_report.md exist and are non-empty.
+- **Review gate**: review_report.json and review_report.md exist and are non-empty.
 
 ## Context Injection
 - When invoking a sub-agent, include relevant context from current artifacts.

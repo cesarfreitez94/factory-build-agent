@@ -957,3 +957,311 @@ class TestCLIGateSemanticCheck:
             assert result.exit_code == 0
             assert "✅ Gate:" in result.output
             assert "pending" in result.output
+
+
+class TestTestingReviewGates:
+    """Tests for testing and review phase gates (M3.3)."""
+
+    @staticmethod
+    def _make_project_with_gates(tmp_path, current_phase, gates, extra_state=None):
+        factory_dir = tmp_path / ".factory"
+        factory_dir.mkdir()
+        state = {
+            "project": "test",
+            "current_phase": current_phase,
+            "methodology": "BABOK",
+            "phases": {
+                "init": {"status": "complete", "agent": "orchestrator"},
+                "elicitation": {"status": "complete", "agent": "elicitador"},
+                "documentation": {"status": "complete", "agent": "documentador"},
+                "planning": {"status": "complete", "agent": "planificador"},
+                "tasks": {"status": "complete", "agent": "planificador"},
+                "construction": {"status": "complete", "agent": "constructor"},
+                "testing": {"status": "pending", "agent": "tester_qa"},
+                "review": {"status": "pending", "agent": "revisor_codigo"},
+            },
+            "valid_transitions": {
+                "construction": ["testing"],
+                "testing": ["review"],
+                "review": ["ci_cd"],
+            },
+            "gates": gates,
+            "artifacts": {},
+            "context": {},
+        }
+        if extra_state:
+            state.update(extra_state)
+        (factory_dir / "state.json").write_text(json.dumps(state, indent=2))
+        return tmp_path
+
+    def test_testing_gate_passes_when_both_reports_exist(self, tmp_path):
+        gates = {
+            "testing": {
+                "description": "Validates test reports exist",
+                "owner_agent": "tester_qa",
+                "rules": [
+                    {"type": "artifact_exists", "rule_name": "test_report_json", "path": ".factory/test_report.json"},
+                    {"type": "artifact_exists", "rule_name": "test_report_md", "path": ".factory/test_report.md"},
+                ],
+            },
+        }
+        d = self._make_project_with_gates(tmp_path, "testing", gates)
+        (d / ".factory" / "test_report.json").write_text('{"total_tests": 10}')
+        (d / ".factory" / "test_report.md").write_text("# Test Report")
+
+        runner = GateRunner(d)
+        result = runner.check_phase("testing")
+        assert result.passed
+        assert result.error_count == 0
+
+    def test_testing_gate_fails_when_json_missing(self, tmp_path):
+        gates = {
+            "testing": {
+                "description": "Validates test reports exist",
+                "owner_agent": "tester_qa",
+                "rules": [
+                    {"type": "artifact_exists", "rule_name": "test_report_json", "path": ".factory/test_report.json"},
+                    {"type": "artifact_exists", "rule_name": "test_report_md", "path": ".factory/test_report.md"},
+                ],
+            },
+        }
+        d = self._make_project_with_gates(tmp_path, "testing", gates)
+        (d / ".factory" / "test_report.md").write_text("# Test Report")
+
+        runner = GateRunner(d)
+        result = runner.check_phase("testing")
+        assert not result.passed
+        assert result.error_count == 1
+
+    def test_testing_gate_fails_when_md_missing(self, tmp_path):
+        gates = {
+            "testing": {
+                "description": "Validates test reports exist",
+                "owner_agent": "tester_qa",
+                "rules": [
+                    {"type": "artifact_exists", "rule_name": "test_report_json", "path": ".factory/test_report.json"},
+                    {"type": "artifact_exists", "rule_name": "test_report_md", "path": ".factory/test_report.md"},
+                ],
+            },
+        }
+        d = self._make_project_with_gates(tmp_path, "testing", gates)
+        (d / ".factory" / "test_report.json").write_text('{"total_tests": 10}')
+
+        runner = GateRunner(d)
+        result = runner.check_phase("testing")
+        assert not result.passed
+        assert result.error_count == 1
+
+    def test_testing_gate_fails_when_both_missing(self, tmp_path):
+        gates = {
+            "testing": {
+                "description": "Validates test reports exist",
+                "owner_agent": "tester_qa",
+                "rules": [
+                    {"type": "artifact_exists", "rule_name": "test_report_json", "path": ".factory/test_report.json"},
+                    {"type": "artifact_exists", "rule_name": "test_report_md", "path": ".factory/test_report.md"},
+                ],
+            },
+        }
+        d = self._make_project_with_gates(tmp_path, "testing", gates)
+
+        runner = GateRunner(d)
+        result = runner.check_phase("testing")
+        assert not result.passed
+        assert result.error_count == 2
+
+    def test_review_gate_passes_when_both_reports_exist(self, tmp_path):
+        gates = {
+            "review": {
+                "description": "Validates review reports exist",
+                "owner_agent": "revisor_codigo",
+                "rules": [
+                    {"type": "artifact_exists", "rule_name": "review_report_json", "path": ".factory/review_report.json"},
+                    {"type": "artifact_exists", "rule_name": "review_report_md", "path": ".factory/review_report.md"},
+                ],
+            },
+        }
+        d = self._make_project_with_gates(tmp_path, "review", gates)
+        (d / ".factory" / "review_report.json").write_text('{"overall": "passed"}')
+        (d / ".factory" / "review_report.md").write_text("# Review Report")
+
+        runner = GateRunner(d)
+        result = runner.check_phase("review")
+        assert result.passed
+        assert result.error_count == 0
+
+    def test_review_gate_fails_when_json_missing(self, tmp_path):
+        gates = {
+            "review": {
+                "description": "Validates review reports exist",
+                "owner_agent": "revisor_codigo",
+                "rules": [
+                    {"type": "artifact_exists", "rule_name": "review_report_json", "path": ".factory/review_report.json"},
+                    {"type": "artifact_exists", "rule_name": "review_report_md", "path": ".factory/review_report.md"},
+                ],
+            },
+        }
+        d = self._make_project_with_gates(tmp_path, "review", gates)
+        (d / ".factory" / "review_report.md").write_text("# Review Report")
+
+        runner = GateRunner(d)
+        result = runner.check_phase("review")
+        assert not result.passed
+        assert result.error_count == 1
+
+    def test_review_gate_fails_when_both_missing(self, tmp_path):
+        gates = {
+            "review": {
+                "description": "Validates review reports exist",
+                "owner_agent": "revisor_codigo",
+                "rules": [
+                    {"type": "artifact_exists", "rule_name": "review_report_json", "path": ".factory/review_report.json"},
+                    {"type": "artifact_exists", "rule_name": "review_report_md", "path": ".factory/review_report.md"},
+                ],
+            },
+        }
+        d = self._make_project_with_gates(tmp_path, "review", gates)
+
+        runner = GateRunner(d)
+        result = runner.check_phase("review")
+        assert not result.passed
+        assert result.error_count == 2
+
+    def test_gate_has_owner_agent(self, tmp_path):
+        gates = {
+            "testing": {
+                "description": "Validates test reports",
+                "owner_agent": "tester_qa",
+                "rules": [
+                    {"type": "artifact_exists", "rule_name": "tr_exists", "path": ".factory/test_report.json"},
+                ],
+            },
+            "review": {
+                "description": "Validates review reports",
+                "owner_agent": "revisor_codigo",
+                "rules": [
+                    {"type": "artifact_exists", "rule_name": "rr_exists", "path": ".factory/review_report.json"},
+                ],
+            },
+        }
+        d = self._make_project_with_gates(tmp_path, "testing", gates)
+
+        runner = GateRunner(d)
+        testing_result = runner.check_phase("testing")
+        review_result = runner.check_phase("review")
+
+        assert testing_result.owner_agent == "tester_qa"
+        assert review_result.owner_agent == "revisor_codigo"
+
+    def test_cli_gate_testing_fails_without_reports(self, tmp_path):
+        gates = {
+            "testing": {
+                "description": "Validates test reports",
+                "owner_agent": "tester_qa",
+                "rules": [
+                    {"type": "artifact_exists", "rule_name": "test_report_json", "path": ".factory/test_report.json"},
+                    {"type": "artifact_exists", "rule_name": "test_report_md", "path": ".factory/test_report.md"},
+                ],
+            },
+        }
+        d = self._make_project_with_gates(tmp_path, "testing", gates)
+
+        runner = CliRunner()
+        result = runner.invoke(main, ["gate", "testing", "-d", str(d)])
+        assert result.exit_code == 1
+        assert "❌" in result.output
+
+    def test_cli_gate_testing_passes_with_reports(self, tmp_path):
+        gates = {
+            "testing": {
+                "description": "Validates test reports",
+                "owner_agent": "tester_qa",
+                "rules": [
+                    {"type": "artifact_exists", "rule_name": "test_report_json", "path": ".factory/test_report.json"},
+                    {"type": "artifact_exists", "rule_name": "test_report_md", "path": ".factory/test_report.md"},
+                ],
+            },
+        }
+        d = self._make_project_with_gates(tmp_path, "testing", gates)
+        (d / ".factory" / "test_report.json").write_text('{"total_tests": 10}')
+        (d / ".factory" / "test_report.md").write_text("# Test Report")
+
+        runner = CliRunner()
+        result = runner.invoke(main, ["gate", "testing", "-d", str(d)])
+        assert result.exit_code == 0
+        assert "✅" in result.output
+
+    def test_cli_gate_review_fails_without_reports(self, tmp_path):
+        gates = {
+            "review": {
+                "description": "Validates review reports",
+                "owner_agent": "revisor_codigo",
+                "rules": [
+                    {"type": "artifact_exists", "rule_name": "review_report_json", "path": ".factory/review_report.json"},
+                    {"type": "artifact_exists", "rule_name": "review_report_md", "path": ".factory/review_report.md"},
+                ],
+            },
+        }
+        d = self._make_project_with_gates(tmp_path, "review", gates)
+
+        runner = CliRunner()
+        result = runner.invoke(main, ["gate", "review", "-d", str(d)])
+        assert result.exit_code == 1
+        assert "❌" in result.output
+
+    def test_transition_construction_to_testing_blocked(self, tmp_path):
+        gates = {
+            "construction": {
+                "description": "Validates construction",
+                "owner_agent": "constructor",
+                "rules": [
+                    {"type": "artifact_exists", "rule_name": "schema_exists", "path": ".factory/schema.json"},
+                ],
+            },
+        }
+        d = self._make_project_with_gates(tmp_path, "construction", gates)
+
+        sm = StateManager(d)
+        with pytest.raises(GateError) as exc_info:
+            sm.transition_to("testing")
+        assert "construction" in str(exc_info.value)
+
+    def test_transition_construction_to_testing_passes_with_schema(self, tmp_path):
+        gates = {
+            "construction": {
+                "description": "Validates construction",
+                "owner_agent": "constructor",
+                "rules": [
+                    {"type": "artifact_exists", "rule_name": "schema_exists", "path": ".factory/schema.json"},
+                ],
+            },
+        }
+        d = self._make_project_with_gates(tmp_path, "construction", gates)
+        (d / ".factory" / "schema.json").write_text('{"models": [{"name": "x.y"}]}')
+
+        sm = StateManager(d)
+        state = sm.transition_to("testing")
+        assert state["current_phase"] == "testing"
+        assert state["phases"]["construction"]["status"] == "complete"
+
+    def test_init_creates_testing_and_review_gates(self, tmp_path):
+        runner = CliRunner()
+        result = runner.invoke(main, ["init", "-d", str(tmp_path)])
+        assert result.exit_code == 0
+
+        state = json.loads((tmp_path / ".factory" / "state.json").read_text())
+        assert "testing" in state["gates"]
+        assert "review" in state["gates"]
+        assert state["gates"]["testing"]["owner_agent"] == "tester_qa"
+        assert state["gates"]["review"]["owner_agent"] == "revisor_codigo"
+        assert len(state["gates"]["testing"]["rules"]) == 2
+        assert len(state["gates"]["review"]["rules"]) == 2
+
+    def test_init_sets_correct_agent_names(self, tmp_path):
+        runner = CliRunner()
+        result = runner.invoke(main, ["init", "-d", str(tmp_path)])
+        assert result.exit_code == 0
+
+        state = json.loads((tmp_path / ".factory" / "state.json").read_text())
+        assert state["phases"]["testing"]["agent"] == "tester_qa"
+        assert state["phases"]["review"]["agent"] == "revisor_codigo"
