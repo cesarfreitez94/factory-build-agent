@@ -21,6 +21,14 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
     - Code Renderer: generacion iterativa desde schema (zero interpretation)
     - Gate `schema` validando schema.json
   - M3.2: Constructor Completo — Vistas, Seguridad, Datos (#61)
+    - Constructor extendido: vistas (form, list, search, kanban), seguridad (grupos XML, ACL CSV, record rules), datos demo
+    - Odoo v18 corrections: `tree` → `list`, `attrs` deprecado, atributos directos (`invisible`, `widget`, `groups`, `tracking`, `states`)
+    - Schema extendido: `mail_thread`, `mail_activity`, `manifest.data`, `manifest.demo`, `noupdate`, `category_id`
+    - Bugs corregidos: security group assembly, record rule domain, data type, field type case normalization
+    - `constructor.md`: instrucciones completas de rendering Odoo v18 con ejemplos
+    - Gate `construction` con nuevas reglas: `view_coverage`, `view_field_check`, `acl_coverage`
+    - Tests: 15 nuevos (test_construction_gate.py + extendidos en test_schema_manager.py), 386 total
+    - Guia de testing: `docs/testing/m3.2-constructor-completo.md`
   - M3.3: Tester QA + Code Reviewer (#62)
   - M3.4: CI/CD Manager + Integracion E2E + Docs (#63)
 

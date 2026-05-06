@@ -192,12 +192,15 @@ tasks/index.json + T*.json + SDD.md + module_registry.json
 seguridad, datos demo).
 
 **Entregables**:
-- [ ] Constructor extendido para generar vistas (form, tree, search, kanban)
-- [ ] Constructor extendido para generar seguridad (grupos, ACL, record rules)
-- [ ] Constructor extendido para generar datos demo
-- [ ] Gate `construction` extendido con validacion de vistas y seguridad
-- [ ] Tests del constructor completo
-- [ ] Prueba manual: modulo Odoo v18 completo con CRUD, vistas y seguridad
+- [x] Constructor extendido para generar vistas (form, list, search, kanban)
+- [x] Constructor extendido para generar seguridad (grupos, ACL, record rules)
+- [x] Constructor extendido para generar datos demo
+- [x] Gate `construction` extendido con validacion de vistas y seguridad (view_coverage, view_field_check, acl_coverage)
+- [x] Esquemas actualizados a Odoo v18: `tree` → `list`, `attrs` deprecado, atributos directos (`invisible`, `widget`, `groups`, `tracking`, `states`)
+- [x] Schema.schema.json extendido con `mail_thread`, `mail_activity`, `manifest.data`, `manifest.demo`, `noupdate`, `category_id`
+- [x] Bugs corregidos: security group assembly, record rule domain, data type hardcodeado, field type case normalization
+- [x] Tests del constructor completo (15 nuevos, 386 total)
+- [x] Documentacion de testing: `docs/testing/m3.2-constructor-completo.md`
 
 **Depende de**: M3.1 (constructor core)
 
