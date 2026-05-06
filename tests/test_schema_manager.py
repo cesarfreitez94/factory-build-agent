@@ -40,7 +40,7 @@ def _setup_project_with_tasks(project_dir: Path):
                 "dependencies": ["T001"],
                 "order": 2,
                 "estimated_effort": "medium",
-                "sdd_components": ["views.form", "views.tree"],
+                "sdd_components": ["views.form", "views.list"],
             },
         ],
     }
@@ -95,12 +95,12 @@ def _setup_project_with_tasks(project_dir: Path):
             },
             {
                 "type": "view",
-                "name": "vehicle.vehicle.tree",
+                "name": "vehicle.vehicle.list",
                 "description": "Lista de vehiculos",
-                "view_type": "tree",
+                "view_type": "list",
                 "model": "vehicle.vehicle",
                 "view_fields": ["plate", "brand_id", "model", "year"],
-                "sdd_reference": "views.tree",
+                "sdd_reference": "views.list",
             },
         ],
         "files_to_generate": ["views/vehicle_views.xml"],
@@ -149,7 +149,7 @@ class TestSchemaManagerAssembly:
         assert len(result.schema["views"]) == 2
         view_types = [v["type"] for v in result.schema["views"]]
         assert "form" in view_types
-        assert "tree" in view_types
+        assert "list" in view_types
 
     def test_model_has_fields(self, tmp_path):
         _setup_project_with_tasks(tmp_path)
@@ -596,3 +596,177 @@ class TestInitHasSchemaGate:
         assert "construction" in state["gates"]
         construction_gate = state["gates"]["construction"]
         assert construction_gate["owner_agent"] == "constructor"
+        rule_types = [r["type"] for r in construction_gate["rules"]]
+        assert "view_coverage" in rule_types
+        assert "view_field_check" in rule_types
+        assert "acl_coverage" in rule_types
+
+    def test_security_group_assembly_name_and_description(self, tmp_path):
+        factory_dir = tmp_path / ".factory"
+        tasks_dir = factory_dir / "tasks"
+        tasks_dir.mkdir(parents=True)
+        (factory_dir / "schemas").mkdir(parents=True)
+
+        index = {
+            "module_name": "test", "total_tasks": 1,
+            "tasks": [{"id": "T001", "name": "Security", "file": "T001.json", "dependencies": [], "order": 1, "estimated_effort": "low", "sdd_components": ["security"]}],
+        }
+        (tasks_dir / "index.json").write_text(json.dumps(index))
+
+        t001 = {
+            "id": "T001", "name": "Security", "description": "Security groups and ACL",
+            "components": [
+                {"type": "security_group", "name": "test_admin", "display_name": "Test Admin", "description": "Full access group", "category": "Test Module", "sdd_reference": "security.admin"},
+                {"type": "security_group", "name": "test_user", "description": "Limited access", "sdd_reference": "security.user"},
+                {"type": "access_right", "name": "test_admin", "model": "test.model", "permissions": {"read": True, "write": True, "create": True, "unlink": True}, "sdd_reference": "security.acl"},
+            ],
+            "files_to_generate": ["security/ir.model.access.csv"],
+            "dependencies": [],
+        }
+        (tasks_dir / "T001.json").write_text(json.dumps(t001))
+
+        manager = SchemaManager(tmp_path)
+        result = manager.assemble()
+
+        groups = result.schema["security"]["groups"]
+        assert len(groups) == 2
+        admin = [g for g in groups if g["id"] == "test_admin"][0]
+        assert admin["name"] == "Test Admin"
+        assert admin["description"] == "Full access group"
+        assert admin["category"] == "Test Module"
+        user = [g for g in groups if g["id"] == "test_user"][0]
+        assert user["name"] == "test_user"
+        assert user["description"] == "Limited access"
+        assert user["category"] == "test_user"
+
+    def test_record_rule_domain_from_component(self, tmp_path):
+        factory_dir = tmp_path / ".factory"
+        tasks_dir = factory_dir / "tasks"
+        tasks_dir.mkdir(parents=True)
+        (factory_dir / "schemas").mkdir(parents=True)
+
+        index = {
+            "module_name": "test", "total_tasks": 1,
+            "tasks": [{"id": "T001", "name": "Rules", "file": "T001.json", "dependencies": [], "order": 1, "estimated_effort": "low", "sdd_components": ["security"]}],
+        }
+        (tasks_dir / "index.json").write_text(json.dumps(index))
+
+        t001 = {
+            "id": "T001", "name": "Rules", "description": "Record rules",
+            "components": [
+                {"type": "record_rule", "name": "rule_own_records", "description": "Users see own records", "model": "test.model", "domain": "[('user_id', '=', user.id)]", "groups": ["base.group_user"], "sdd_reference": "security.rules"},
+            ],
+            "files_to_generate": ["security/record_rules.xml"],
+            "dependencies": [],
+        }
+        (tasks_dir / "T001.json").write_text(json.dumps(t001))
+
+        manager = SchemaManager(tmp_path)
+        result = manager.assemble()
+
+        rules = result.schema["security"]["record_rules"]
+        assert len(rules) == 1
+        assert rules[0]["domain"] == "[('user_id', '=', user.id)]"
+        assert rules[0]["groups"] == ["base.group_user"]
+
+    def test_data_type_respects_format(self, tmp_path):
+        factory_dir = tmp_path / ".factory"
+        tasks_dir = factory_dir / "tasks"
+        tasks_dir.mkdir(parents=True)
+        (factory_dir / "schemas").mkdir(parents=True)
+
+        index = {
+            "module_name": "test", "total_tasks": 1,
+            "tasks": [{"id": "T001", "name": "Data", "file": "T001.json", "dependencies": [], "order": 1, "estimated_effort": "low", "sdd_components": ["data"]}],
+        }
+        (tasks_dir / "index.json").write_text(json.dumps(index))
+
+        t001 = {
+            "id": "T001", "name": "Data", "description": "CSV data",
+            "components": [
+                {"type": "data", "name": "data.csv", "format": "csv", "model": "test.model", "noupdate": True, "sdd_reference": "data.import"},
+            ],
+            "files_to_generate": ["data/data.csv"],
+            "dependencies": [],
+        }
+        (tasks_dir / "T001.json").write_text(json.dumps(t001))
+
+        manager = SchemaManager(tmp_path)
+        result = manager.assemble()
+
+        data_entries = result.schema["data"]
+        assert len(data_entries) == 1
+        assert data_entries[0]["type"] == "csv"
+        assert data_entries[0]["noupdate"] is True
+
+    def test_field_type_case_normalization(self, tmp_path):
+        factory_dir = tmp_path / ".factory"
+        tasks_dir = factory_dir / "tasks"
+        tasks_dir.mkdir(parents=True)
+        (factory_dir / "schemas").mkdir(parents=True)
+
+        index = {
+            "module_name": "test", "total_tasks": 1,
+            "tasks": [{"id": "T001", "name": "Models", "file": "T001.json", "dependencies": [], "order": 1, "estimated_effort": "high", "sdd_components": ["models"]}],
+        }
+        (tasks_dir / "index.json").write_text(json.dumps(index))
+
+        t001 = {
+            "id": "T001", "name": "Models", "description": "Test model with lowercase types",
+            "components": [
+                {"type": "model", "name": "test.model", "description": "Test",
+                 "fields": [
+                     {"name": "name", "type": "char", "label": "Name"},
+                     {"name": "partner_id", "type": "many2one", "label": "Partner", "relation": "res.partner"},
+                     {"name": "tags_ids", "type": "many2many", "label": "Tags", "relation": "test.tag"},
+                     {"name": "is_active", "type": "boolean", "label": "Active"},
+                     {"name": "amount", "type": "monetary", "label": "Amount"},
+                     {"name": "created", "type": "datetime", "label": "Created"},
+                 ],
+                 "sdd_reference": "models.test"},
+            ],
+            "files_to_generate": ["models/test_model.py"],
+            "dependencies": [],
+        }
+        (tasks_dir / "T001.json").write_text(json.dumps(t001))
+
+        manager = SchemaManager(tmp_path)
+        result = manager.assemble()
+
+        vehicle = result.schema["models"][0]
+        field_types = {f["name"]: f["type"] for f in vehicle["fields"]}
+        assert field_types["name"] == "Char"
+        assert field_types["partner_id"] == "Many2one"
+        assert field_types["tags_ids"] == "Many2many"
+        assert field_types["is_active"] == "Boolean"
+        assert field_types["amount"] == "Monetary"
+        assert field_types["created"] == "Datetime"
+
+    def test_data_defaults_to_xml(self, tmp_path):
+        factory_dir = tmp_path / ".factory"
+        tasks_dir = factory_dir / "tasks"
+        tasks_dir.mkdir(parents=True)
+        (factory_dir / "schemas").mkdir(parents=True)
+
+        index = {
+            "module_name": "test", "total_tasks": 1,
+            "tasks": [{"id": "T001", "name": "Data", "file": "T001.json", "dependencies": [], "order": 1, "estimated_effort": "low", "sdd_components": ["data"]}],
+        }
+        (tasks_dir / "index.json").write_text(json.dumps(index))
+
+        t001 = {
+            "id": "T001", "name": "Data", "description": "Default data",
+            "components": [
+                {"type": "data", "name": "demo.xml", "model": "test.model", "sdd_reference": "data.demo"},
+            ],
+            "files_to_generate": ["data/demo.xml"],
+            "dependencies": [],
+        }
+        (tasks_dir / "T001.json").write_text(json.dumps(t001))
+
+        manager = SchemaManager(tmp_path)
+        result = manager.assemble()
+
+        data_entries = result.schema["data"]
+        assert data_entries[0]["type"] == "xml"
+        assert data_entries[0]["noupdate"] is False

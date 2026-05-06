@@ -81,8 +81,8 @@ This file MUST conform to the SDD JSON schema. Structure:
     },
     {
       "model": "vehicle.registry",
-      "type": "tree",
-      "name": "vehicle.registry.tree",
+      "type": "list",
+      "name": "vehicle.registry.list",
       "description": "Vehicle list view",
       "fields": ["plate", "owner_id"],
       "traceability": ["RF-01"]
@@ -150,7 +150,7 @@ This file MUST conform to the SDD JSON schema. Structure:
   "traceability_matrix": {
     "description": "Maps each PRD requirement to SDD components",
     "mappings": [
-      {"requirement": "RF-01", "sdD_components": ["vehicle.registry model", "vehicle.registry.form view", "vehicle.registry.tree view"], "description": "CRUD for vehicle records"},
+      {"requirement": "RF-01", "sdD_components": ["vehicle.registry model", "vehicle.registry.form view", "vehicle.registry.list view"], "description": "CRUD for vehicle records"},
       {"requirement": "RF-02", "sdD_components": ["vehicle.registry model (owner_id relation)"], "description": "Vehicle ownership tracking"},
       {"requirement": "RNF-01", "sdD_components": ["security section"], "description": "Access control for vehicle data"}
     ]
@@ -269,7 +269,7 @@ vehicle_registry/
 - Define models with basic fields
 
 ### Phase 2: Views and UI
-- Create form, tree, and search views
+- Create form, list, and search views
 - Add menu items
 
 ### Phase 3: Security
@@ -324,8 +324,9 @@ When designing the SDD, follow these Odoo v18 conventions:
 - Use `<field name="..." widget="many2many_tags"/>` for M2M tags
 - Add `<field name="..." readonly="1"/>` for computed/display-only fields
 - Search views use `<filter>` elements with meaningful names
-- Tree views include `decoration-*` attributes for visual status indicators
-- Always include `editable="bottom"` on inline-editable tree views
+- List views use `<list>` tag (NOT `<tree>`) — `<tree>` is deprecated in Odoo v18
+- List views include `decoration-*` attributes for visual status indicators
+- Always include `editable="bottom"` on inline-editable list views
 
 ### Security
 - Create at least one security group per module

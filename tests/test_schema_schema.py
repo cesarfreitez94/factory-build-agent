@@ -67,8 +67,8 @@ def _valid_schema():
                 "fields": ["plate", "brand_id"],
             },
             {
-                "name": "vehicle.vehicle.tree",
-                "type": "tree",
+                "name": "vehicle.vehicle.list",
+                "type": "list",
                 "model": "vehicle.vehicle",
                 "fields": ["plate", "brand_id"],
             },

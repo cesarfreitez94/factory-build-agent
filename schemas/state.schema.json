@@ -143,7 +143,7 @@
               "properties": {
                 "type": {
                   "type": "string",
-                  "enum": ["schema", "artifact_exists", "traceability", "content_check", "semantic_check", "task_files_exist"],
+                  "enum": ["schema", "artifact_exists", "traceability", "content_check", "semantic_check", "task_files_exist", "view_coverage", "view_field_check", "acl_coverage"],
                   "description": "Rule evaluation type"
                 },
                 "rule_name": {

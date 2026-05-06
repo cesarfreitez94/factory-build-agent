@@ -41,7 +41,7 @@ def _valid_index():
                 "dependencies": ["T001"],
                 "order": 2,
                 "estimated_effort": "medium",
-                "sdd_components": ["views.form", "views.tree"],
+                "sdd_components": ["views.form", "views.list"],
             },
             {
                 "id": "T003",

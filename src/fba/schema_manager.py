@@ -53,6 +53,23 @@ class SchemaManager:
         "Many2many": "_ids",
     }
 
+    TYPE_NORMALIZATION = {
+        "boolean": "Boolean",
+        "integer": "Integer",
+        "float": "Float",
+        "monetary": "Monetary",
+        "char": "Char",
+        "text": "Text",
+        "html": "Html",
+        "date": "Date",
+        "datetime": "Datetime",
+        "binary": "Binary",
+        "selection": "Selection",
+        "many2one": "Many2one",
+        "one2many": "One2many",
+        "many2many": "Many2many",
+    }
+
     def __init__(self, project_dir: Path):
         self.project_dir = Path(project_dir).resolve()
         self.factory_dir = self.project_dir / ".factory"
@@ -242,8 +259,12 @@ class SchemaManager:
                 ))
                 continue
 
-            if ftype in self.SUFFIX_REQUIRED:
-                required_suffix = self.SUFFIX_REQUIRED[ftype]
+            lower_type = ftype.lower()
+            if lower_type in self.TYPE_NORMALIZATION and ftype != self.TYPE_NORMALIZATION[lower_type]:
+                field["type"] = self.TYPE_NORMALIZATION[lower_type]
+
+            if field["type"] in self.SUFFIX_REQUIRED:
+                required_suffix = self.SUFFIX_REQUIRED[field["type"]]
                 if not fname.endswith(required_suffix):
                     old_name = fname
                     new_name = fname + required_suffix
@@ -385,9 +406,9 @@ class SchemaManager:
                 if ctype == "security_group":
                     groups.append({
                         "id": component.get("name", ""),
-                        "name": component.get("description", ""),
+                        "name": component.get("display_name", component.get("name", "")),
                         "description": component.get("description", ""),
-                        "category": component.get("name", ""),
+                        "category": component.get("category", component.get("name", "")),
                         "sdd_reference": component.get("sdd_reference", ""),
                     })
 
@@ -407,7 +428,8 @@ class SchemaManager:
                     record_rules.append({
                         "name": component.get("name", ""),
                         "model": component.get("model", ""),
-                        "domain": component.get("description", "[]"),
+                        "domain": component.get("domain", "[]"),
+                        "groups": component.get("groups", []),
                         "sdd_reference": component.get("sdd_reference", ""),
                     })
 
@@ -441,8 +463,9 @@ class SchemaManager:
                     continue
                 data_entries.append({
                     "file": component.get("name", "data.xml"),
-                    "type": "xml",
+                    "type": component.get("format", "xml"),
                     "model": component.get("model", ""),
+                    "noupdate": component.get("noupdate", False),
                     "sdd_reference": component.get("sdd_reference", ""),
                 })
 

@@ -68,6 +68,16 @@
           "type": "string",
           "minLength": 5,
           "description": "Extended module description."
+        },
+        "data": {
+          "type": "array",
+          "description": "Data files to load on module install (registered in __manifest__.py).",
+          "items": {"type": "string", "minLength": 3}
+        },
+        "demo": {
+          "type": "array",
+          "description": "Demo data files to load when demo data is enabled.",
+          "items": {"type": "string", "minLength": 3}
         }
       },
       "additionalProperties": false
@@ -113,6 +123,14 @@
           "order": {
             "type": "string",
             "description": "Default sort order (e.g., 'name asc')."
+          },
+          "mail_thread": {
+            "type": "boolean",
+            "description": "Whether the model inherits from mail.thread for message tracking and chatter."
+          },
+          "mail_activity": {
+            "type": "boolean",
+            "description": "Whether the model inherits from mail.activity.mixin for activity scheduling."
           },
           "fields": {
             "type": "array",
@@ -212,6 +230,35 @@
                   "type": "boolean",
                   "description": "Whether this field is translatable."
                 },
+                "invisible": {
+                  "type": "string",
+                  "description": "Odoo v18 direct invisible condition (e.g. 'state == \"draft\"'). Use direct Python expressions, NOT attrs dict."
+                },
+                "widget": {
+                  "type": "string",
+                  "description": "Odoo widget name (e.g., many2many_tags, selection, monetary, statusbar)."
+                },
+                "groups": {
+                  "type": "string",
+                  "description": "Security group needed to see this field (e.g., 'module.group_id')."
+                },
+                "tracking": {
+                  "type": "boolean",
+                  "description": "Whether mail.thread tracks changes to this field."
+                },
+                "states": {
+                  "type": "object",
+                  "description": "State-dependent attributes (e.g., {'draft': [('readonly', False)]}). Prefer direct invisible/readonly on the field in Odoo v18 when possible.",
+                  "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": [{"type": "string"}, {}]
+                    }
+                  }
+                },
                 "sdd_reference": {
                   "type": "string",
                   "minLength": 3,
@@ -266,7 +313,7 @@
           },
           "type": {
             "type": "string",
-            "enum": ["form", "tree", "search", "kanban", "calendar", "graph", "pivot", "activity"],
+            "enum": ["form", "list", "search", "kanban", "calendar", "graph", "pivot", "activity"],
             "description": "Odoo view type."
           },
           "model": {
@@ -352,6 +399,11 @@
                 "type": "string",
                 "minLength": 1,
                 "description": "Security category display name."
+              },
+              "category_id": {
+                "type": "string",
+                "minLength": 1,
+                "description": "XML ID of the ir.module.category (e.g., 'base.module_category_hidden')."
               },
               "implied_ids": {
                 "type": "array",
@@ -460,6 +512,14 @@
           "model": {
             "type": "string",
             "description": "Target model for CSV data."
+          },
+          "noupdate": {
+            "type": "boolean",
+            "description": "noupdate flag for data records (True if data should not be updated on module upgrades)."
+          },
+          "demo": {
+            "type": "boolean",
+            "description": "Whether this data entry is demo data (loaded only with demo data enabled)."
           },
           "records": {
             "type": "array",

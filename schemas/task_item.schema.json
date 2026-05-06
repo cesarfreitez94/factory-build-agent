@@ -104,6 +104,30 @@
                 "compute": {
                   "type": "string",
                   "description": "Compute method name for computed fields."
+                },
+                "invisible": {
+                  "type": "string",
+                  "description": "Odoo v18 invisible condition."
+                },
+                "widget": {
+                  "type": "string",
+                  "description": "Odoo widget name (e.g., many2many_tags)."
+                },
+                "groups": {
+                  "type": "string",
+                  "description": "Security groups for field visibility."
+                },
+                "tracking": {
+                  "type": "boolean",
+                  "description": "Mail tracking for field changes."
+                },
+                "readonly": {
+                  "type": "boolean",
+                  "description": "Whether this field is readonly."
+                },
+                "states": {
+                  "type": "object",
+                  "description": "State-dependent attributes."
                 }
               },
               "additionalProperties": false
@@ -111,7 +135,7 @@
           },
           "view_type": {
             "type": "string",
-            "enum": ["form", "tree", "search", "kanban", "calendar", "graph", "pivot", "activity"],
+            "enum": ["form", "list", "search", "kanban", "calendar", "graph", "pivot", "activity"],
             "description": "Odoo view type (for view components)."
           },
           "model": {
@@ -134,6 +158,34 @@
               "unlink": {"type": "boolean"}
             },
             "additionalProperties": false
+          },
+          "domain": {
+            "type": "string",
+            "description": "Domain expression for record rules (Odoo domain syntax, e.g., \"[('user_id', '=', user.id)]\")."
+          },
+          "display_name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Human-readable display name (for security groups, views, etc.)."
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Security category display name (for security groups)."
+          },
+          "groups": {
+            "type": "array",
+            "description": "Security groups this record rule applies to.",
+            "items": {"type": "string"}
+          },
+          "format": {
+            "type": "string",
+            "enum": ["csv", "xml", "json"],
+            "description": "Data file format (for data components). Defaults to xml."
+          },
+          "noupdate": {
+            "type": "boolean",
+            "description": "noupdate flag for data records."
           },
           "sdd_reference": {
             "type": "string",

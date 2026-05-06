@@ -326,6 +326,23 @@ def _init_factory_state(target: Path):
                         "path": ".factory/state.json",
                         "checks": {},
                     },
+                    {
+                        "type": "view_coverage",
+                        "rule_name": "construction_view_coverage",
+                        "path": ".factory/schema.json",
+                        "require_form": True,
+                        "require_list": True,
+                    },
+                    {
+                        "type": "view_field_check",
+                        "rule_name": "construction_view_fields",
+                        "path": ".factory/schema.json",
+                    },
+                    {
+                        "type": "acl_coverage",
+                        "rule_name": "construction_acl_coverage",
+                        "path": ".factory/schema.json",
+                    },
                 ],
             },
         },
