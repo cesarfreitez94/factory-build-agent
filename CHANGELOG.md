@@ -11,7 +11,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ### Agregado
 
-- M3: Construccion + MVP (en progreso) (#59)
+- M3: Construccion + MVP (completado) (#59)
   - M3.0a: Task System Redesign — archivos por task (#64)
   - M3.1: Constructor Core — Schema Manager + Modulo Skeleton + Modelos (#60)
     - Schema Manager: capa de determinismo entre tasks y codigo
@@ -31,6 +31,13 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
     - Guia de testing: `docs/testing/m3.2-constructor-completo.md`
   - M3.3: Tester QA + Code Reviewer (#62)
   - M3.4: CI/CD Manager + Integracion E2E + Docs (#63)
+    - Agente `ci_cd_manager.md`: genera GitHub Actions workflow, valida release readiness, produce ship_report.json/md
+    - Comando `/fba:ship` expandido con flujo completo: precondiciones, generacion CI, ship reports, state update
+    - Gate `ci_cd`: valida factory-ci.yml, ship_report.json, ship_report.md
+    - Fase `ci_cd` integrada en el sistema de fases y transiciones (review → ci_cd → complete)
+    - Tests: 8 nuevos (TestCicdManagerAgent + gate ci_cd), ~430 total
+    - Documentacion E2E: `docs/testing/m3-construccion.md` con paso 11 (verificacion M3.4)
+    - Version bump: 0.4.0 → 0.5.0
 
 ---
 
