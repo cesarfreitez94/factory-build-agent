@@ -27,7 +27,7 @@ def state_with_tasks_gate(tmp_path):
         "methodology": "BABOK",
         "phases": {
             "tasks": {"status": "in_progress", "agent": "planificador"},
-            "construction": {"status": "pending", "agent": "constructor"},
+            "construction": {"status": "pending", "agent": "code-generator"},
         },
         "valid_transitions": {
             "tasks": ["construction"],

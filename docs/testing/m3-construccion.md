@@ -191,7 +191,7 @@ All tasks valid
 
 **Objetivo**: Confirmar que el Schema Manager aplica reglas de nombrado.
 
-Dado que el schema assembly es ejecutado por el agente constructor durante `/fba:build`,
+Dado que el schema assembly es ejecutado por el agente code-generator durante `/fba:construct`,
 la validacion de nombres se hace via el gate `schema`. El test verifica que las reglas
 existen en el codigo.
 
@@ -199,7 +199,7 @@ existen en el codigo.
 ```bash
 python3 -c "
 # Verificar que las reglas de normalizacion estan documentadas
-build_md = open('templates/.opencode/commands/fba:build.md').read()
+build_md = open('templates/.opencode/commands/fba:construct.md').read()
 assert 'many2one' in build_md.lower()
 assert '_id' in build_md
 assert '_ids' in build_md
@@ -241,13 +241,13 @@ state = {
     'project': 'test', 'current_phase': 'construction',
     'methodology': 'BABOK',
     'phases': {
-        'construction': {'status': 'in_progress', 'agent': 'constructor'}
+        'construction': {'status': 'in_progress', 'agent': 'code-generator'}
     },
     'valid_transitions': {'construction': ['testing']},
     'gates': {
         'construction': {
             'description': 'Validation',
-            'owner_agent': 'constructor',
+            'owner_agent': 'code-generator',
             'rules': [
                 {'type': 'artifact_exists', 'rule_name': 'schema_exists', 'path': '.factory/schema.json'},
                 {'type': 'schema', 'rule_name': 'schema_valid', 'schema': 'schema.schema.json', 'path': '.factory/schema.json'},
@@ -284,10 +284,10 @@ Gate blocks invalid/absent schemas correctly
 
 **Comando**:
 ```bash
-grep -c "No interpretation" templates/.opencode/commands/fba:build.md
-grep -c "zero interpretation" templates/.opencode/commands/fba:build.md
-grep -c "Schema ONLY" templates/.opencode/commands/fba:build.md
-grep -c "no interpretation" templates/.opencode/commands/fba:build.md
+grep -c "No interpretation" templates/.opencode/commands/fba:construct.md
+grep -c "zero interpretation" templates/.opencode/commands/fba:construct.md
+grep -c "Schema ONLY" templates/.opencode/commands/fba:construct.md
+grep -c "no interpretation" templates/.opencode/commands/fba:construct.md
 ```
 
 **Resultado esperado**: Cada grep devuelve al menos 1 (todas las frases estan presentes).
@@ -524,6 +524,6 @@ python3 -m pytest tests/ -q
 | Problema | Causa probable | Solucion |
 |----------|---------------|----------|
 | `fba init` no copia module_registry.json | `fba update` no ejecutado despues de cambios en templates | Ejecutar `fba update` o `fba init` en proyecto limpio |
-| Schema assembly genera nombres inconsistentes | Las reglas de normalizacion no se aplicaron | Verificar que el agente constructor lee todas las T*.json y aplica el pipe de normalizacion |
+| Schema assembly genera nombres inconsistentes | Las reglas de normalizacion no se aplicaron | Verificar que el agente code-generator lee todas las T*.json y aplica el pipe de normalizacion |
 | Gate `schema` no existe | state.json generado con version vieja de `fba init` | Re-ejecutar `fba init` |
 | Tests de gate schema fallan | schema.schema.json no se copio a .factory/schemas/ | Verificar que `fba init` copia todos los schemas |

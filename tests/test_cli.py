@@ -96,7 +96,7 @@ def test_init_creates_slash_commands(runner, temp_project):
         "fba:specify.md",
         "fba:plan.md",
         "fba:tasks.md",
-        "fba:build.md",
+        "fba:construct.md",
         "fba:test.md",
         "fba:review.md",
         "fba:ship.md",
@@ -145,7 +145,7 @@ def test_init_creates_project_agents_md(runner, temp_project):
     content = agents_path.read_text()
     assert "# Factory Build Agent" in content
     assert "/fba:elicit" in content
-    assert "/fba:build" in content
+    assert "/fba:construct" in content
 
 
 def test_plan_command_has_frontmatter_and_body(runner, temp_project):

@@ -78,7 +78,7 @@ Debe generarse un plan.md con la secuencia de implementacion,
 riesgos identificados y estimaciones.
 
 ### RF-09: Generacion de Codigo Odoo v18
-El constructor debe generar:
+El code-generator debe generar:
 - `__manifest__.py` completo
 - Modelos Python con campos, relaciones y metodos
 - Vistas XML (tree, form, search, kanban)

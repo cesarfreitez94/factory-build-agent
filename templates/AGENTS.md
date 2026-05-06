@@ -15,7 +15,7 @@ El flujo de desarrollo sigue estas fases:
 2. **Especificacion** (`/fba:specify`) - Generacion de PRD.md
 3. **Planificacion** (`/fba:plan`) - Generacion de SDD.md y plan tecnico
 4. **Tareas** (`/fba:tasks`) - Desglose de tareas implementables
-5. **Construccion** (`/fba:build`) - Generacion de codigo Odoo v18
+5. **Construccion** (`/fba:construct`) - Generacion de codigo Odoo v18
 6. **Testing** (`/fba:test`) - Generacion y ejecucion de pruebas
 7. **Revision** (`/fba:review`) - Revision de calidad y seguridad
 8. **Despliegue** (`/fba:ship`) - CI/CD y preparacion de release

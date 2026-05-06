@@ -7,6 +7,17 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.5.1] - 2026-05-06
+
+### Corregido
+
+- fix: renombrar agente `constructor` → `code-generator` y comando `fba:build` → `fba:construct` (#71)
+  - `constructor` es propiedad readonly de `Object.prototype` en JS — causa crash `TypeError` al iniciar `opencode .`
+  - `build` es agente built-in de OpenCode — conflicto de nombres
+  - Renombrados todos los archivos: templates (2 renames), commands (4 contenido), source cli.py, tests (7 archivos), docs (7 archivos)
+
+---
+
 ## [0.5.0] - 2026-05-06
 
 ### Agregado
@@ -25,7 +36,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
     - Odoo v18 corrections: `tree` → `list`, `attrs` deprecado, atributos directos (`invisible`, `widget`, `groups`, `tracking`, `states`)
     - Schema extendido: `mail_thread`, `mail_activity`, `manifest.data`, `manifest.demo`, `noupdate`, `category_id`
     - Bugs corregidos: security group assembly, record rule domain, data type, field type case normalization
-    - `constructor.md`: instrucciones completas de rendering Odoo v18 con ejemplos
+    - `code-generator.md`: instrucciones completas de rendering Odoo v18 con ejemplos
     - Gate `construction` con nuevas reglas: `view_coverage`, `view_field_check`, `acl_coverage`
     - Tests: 15 nuevos (test_construction_gate.py + extendidos en test_schema_manager.py), 386 total
     - Guia de testing: `docs/testing/m3.2-constructor-completo.md`

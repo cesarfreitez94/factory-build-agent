@@ -145,7 +145,7 @@ def _init_factory_state(target: Path):
             "documentation": {"status": "pending", "agent": "documentador"},
             "planning": {"status": "pending", "agent": "planificador"},
             "tasks": {"status": "pending", "agent": "planificador"},
-            "construction": {"status": "pending", "agent": "constructor"},
+            "construction": {"status": "pending", "agent": "code-generator"},
             "testing": {"status": "pending", "agent": "tester_qa"},
             "review": {"status": "pending", "agent": "revisor_codigo"},
             "ci_cd": {"status": "pending", "agent": "cicd_manager"},
@@ -290,7 +290,7 @@ def _init_factory_state(target: Path):
             },
             "schema": {
                 "description": "Validates schema.json SSOT before code generation",
-                "owner_agent": "constructor",
+                "owner_agent": "code-generator",
                 "rules": [
                     {
                         "type": "artifact_exists",
@@ -313,7 +313,7 @@ def _init_factory_state(target: Path):
             },
             "construction": {
                 "description": "Validates generated Odoo module structure matches schema.json",
-                "owner_agent": "constructor",
+                "owner_agent": "code-generator",
                 "rules": [
                     {
                         "type": "artifact_exists",

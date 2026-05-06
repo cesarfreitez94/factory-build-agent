@@ -47,7 +47,7 @@ opencode .
 # > /fba:specify
 # > /fba:plan
 # > /fba:tasks
-# > /fba:build
+# > /fba:construct
 # > /fba:test
 # > /fba:review
 # > /fba:ship
@@ -58,7 +58,7 @@ opencode .
 ```
 /fba:init ──► /fba:elicit ──► /fba:specify ──► /fba:plan ──► /fba:tasks
                                                                     │
-/fba:ship ◄── /fba:review ◄── /fba:test ◄── /fba:build ◄───────────┘
+/fba:ship ◄── /fba:review ◄── /fba:test ◄── /fba:construct ◄───────────┘
 ```
 
 ## Arquitectura
@@ -71,7 +71,7 @@ especializados, cada uno definido declarativamente en YAML:
 | Elicitador | Elicitar requisitos con metodologia BABOK |
 | Documentador | Generar PRD.md y SDD.md |
 | Planificador | Crear plan tecnico y arquitectura Odoo v18 |
-| Constructor | Generar codigo del modulo Odoo v18 |
+| Code Generator | Generar codigo del modulo Odoo v18 |
 | Tester/QA | Generar y ejecutar pruebas |
 | Revisor de Codigo | Revisar calidad, seguridad y adherencia |
 | CI/CD Manager | Generar workflows de GitHub Actions |

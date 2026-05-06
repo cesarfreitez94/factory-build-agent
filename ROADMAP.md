@@ -13,6 +13,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M2: Planificacion + SDD | ✅ Completado | 2026-05-04 / 2026-05-04 |
 | M4: Sistema de Gates | ✅ Completado | 2026-05-05 / 2026-05-05 |
 | M3: Construccion + MVP | ✅ Completado | 2026-05-05 / 2026-05-06 |
+| M5: Bug Fixes & Stability | 🔄 En progreso | 2026-05-06 / — |
 
 ---
 
@@ -140,7 +141,7 @@ por task.
 - [x] Schema `task_index.schema.json` y `task_item.schema.json`
 - [x] Gate `tasks` con rule type `task_files_exist`
 - [x] Comando `/fba:tasks` actualizado: genera `index.json` + `T*.json`
-- [x] Comando `/fba:build` rediseñado: flujo iterativo task-por-task con sesiones frescas
+- [x] Comando `/fba:construct` rediseñado: flujo iterativo task-por-task con sesiones frescas
 - [x] Orquestador actualizado con nueva tabla de fases
 - [x] Tests unitarios del nuevo sistema de tasks
 - [x] Documentacion de testing: `docs/testing/m3-tasks-files.md`
@@ -154,7 +155,7 @@ por task.
 y codigo. Producir `schema.json` (SSOT) y generar `__manifest__.py`, `__init__.py`,
 y modelos Odoo v18 funcionales.
 
-**Arquitectura interna del constructor**:
+**Arquitectura interna del code-generator**:
 ```
 tasks/index.json + T*.json + SDD.md + module_registry.json
         │
@@ -172,11 +173,11 @@ tasks/index.json + T*.json + SDD.md + module_registry.json
 ```
 
 **Entregables**:
-- [ ] Agente `constructor.md` con Schema Manager + Code Renderer
+- [ ] Agente `code-generator.md` con Schema Manager + Code Renderer
 - [ ] Schema `schema.schema.json` para validar el SSOT deterministico
 - [ ] Module Registry (`module_registry.json`) con modulos core de Odoo v18
 - [ ] Normalizacion de nombres: many2one → `*_id`, many2many → `*_ids`, etc.
-- [ ] Comando `/fba:build` con flujo: assembly schema → validate → render iterativo
+- [ ] Comando `/fba:construct` con flujo: assembly schema → validate → render iterativo
 - [ ] Gate `schema` validando schema.json contra schema.schema.json
 - [ ] Gate `construction` extendido con validacion de consistencia schema ↔ codigo
 - [ ] Builder contract: code renderer no interpreta, no renombra, no reestructura
@@ -237,7 +238,7 @@ seguridad, datos demo).
 - [x] Flujo E2E completo con modulo "Registro de Vehiculos":
   ```
   fba init → /fba:elicit → /fba:specify → /fba:plan → /fba:tasks
-  → /fba:build → /fba:test → /fba:review → /fba:ship
+  → /fba:construct → /fba:test → /fba:review → /fba:ship
   ```
 - [x] Tests E2E del framework completo
 - [x] Documentacion de usuario final: `docs/testing/m3-construccion.md`
@@ -256,7 +257,7 @@ fba init
 /fba:specify
 /fba:plan
 /fba:tasks
-/fba:build
+/fba:construct
 /fba:test
 /fba:review
 /fba:ship
@@ -319,6 +320,26 @@ fba transition tasks       # ✅ gate planning passed, transicion ok
 
 ---
 
+## M5: Bug Fixes & Stability
+
+**Objetivo**: Corregir bugs encontrados post-release de los milestones core (M0-M4).
+
+**Estado**: 🔄 En progreso
+
+### Tareas
+
+- [x] fix(#71): renombrar agente `constructor` → `code-generator` (JS `constructor` readonly property)
+- [x] fix(#71): renombrar comando `fba:build` → `fba:construct` (`build` es built-in de OpenCode)
+
+### Verificacion
+
+```bash
+fba init --project-dir ../fba-test/v3/
+opencode .  # debe abrir sin error
+```
+
+---
+
 ## Arquitectura de Agentes
 
 ```
@@ -328,7 +349,7 @@ Orquestador (fase actual, validacion, transiciones)
 ├── Planificador (arquitectura Odoo)
 ├── Revisor de Artefactos (gates + validacion cross-artifact)
 ├── Validador Semantico (alineacion semantica contra solicitud original)
-├── Constructor (generacion de codigo)
+├── Code Generator (generacion de codigo)
 ├── Tester/QA (pruebas)
 ├── Revisor de Codigo (calidad + seguridad)
 └── CI/CD Manager (GitHub Actions + releases)

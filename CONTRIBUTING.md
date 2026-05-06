@@ -153,10 +153,12 @@ Antes de abrir un Pull Request, verificar:
 | `milestone/1` | Fase elicitacion BABOK |
 | `milestone/2` | Fase planificacion + SDD |
 | `milestone/3` | Fase construccion + MVP |
+| `milestone/4` | Fase sistema de gates |
+| `milestone/5` | Fase bug fixes |
 | `phase/elicitacion` | Agente elicitador |
 | `phase/docs` | Agente documentador |
 | `phase/planning` | Agente planificador |
-| `phase/build` | Agente constructor |
+| `phase/code-generation` | Agente code-generator |
 | `phase/test` | Agente tester/QA |
 | `phase/review` | Agente revisor de codigo |
 | `phase/cicd` | Agente CI/CD manager |

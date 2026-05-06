@@ -35,7 +35,7 @@ of this framework is Odoo addons; the framework itself is a development tool.
 - **Elicitador** — Requirements elicitation using BABOK methodology.
 - **Documentador** — Generates PRD.md and SDD.md documentation.
 - **Planificador** — Generates technical plan and Odoo v18 architecture.
-- **Constructor** — Generates Odoo v18 module code. Internally operates as:
+- **Code Generator** — Generates Odoo v18 module code. Internally operates as:
   - Schema Manager — Assembles deterministic `schema.json` (SSOT) from tasks + SDD + module registry.
   - Code Renderer — Generates code files from `schema.json` with zero interpretation.
 - **Tester/QA** — Generates and runs tests for the generated Odoo modules.
@@ -47,7 +47,7 @@ The agent system is extensible: adding a new sub-agent = adding a Markdown defin
 ### Pipeline (tasks → construction)
 
 ```
-planner → tasks/index.json + T*.json → constructor
+planner → tasks/index.json + T*.json → code-generator
                                           ├── Schema Manager: assembly + normalization + registry lookup
                                           │   → produces schema.json (SSOT)
                                           └── Code Renderer: iterative generation per task

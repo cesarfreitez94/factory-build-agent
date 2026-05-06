@@ -47,6 +47,6 @@ implementation tasks, each in its own structured JSON file under `.factory/tasks
 - `.factory/tasks/index.json` exists and is valid against `task_index.schema.json`.
 - All individual `T*.json` task files exist and are valid against `task_item.schema.json`.
 - `phases.tasks.status` is `"complete"`.
-- Ready for `/fba:build`.
+- Ready for `/fba:construct`.
 
 > Note: The orchestrator runs `fba gate tasks` after this phase to validate the task files.

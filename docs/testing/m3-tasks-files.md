@@ -230,13 +230,13 @@ Construction status: in_progress
 
 ---
 
-### 6. Verificar fba:build.md tiene contenido iterativo
+### 6. Verificar fba:construct.md tiene contenido iterativo
 
 **Objetivo**: Confirmar que el comando build referencia el nuevo flujo.
 
 **Comando**:
 ```bash
-grep -E "index.json|Iterative|fresh|git commit" templates/.opencode/commands/fba:build.md
+grep -E "index.json|Iterative|fresh|git commit" templates/.opencode/commands/fba:construct.md
 ```
 
 **Resultado esperado**:
