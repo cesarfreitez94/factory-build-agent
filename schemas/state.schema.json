@@ -143,7 +143,7 @@
               "properties": {
                 "type": {
                   "type": "string",
-                  "enum": ["schema", "artifact_exists", "traceability", "content_check", "semantic_check"],
+                  "enum": ["schema", "artifact_exists", "traceability", "content_check", "semantic_check", "task_files_exist"],
                   "description": "Rule evaluation type"
                 },
                 "rule_name": {
@@ -183,6 +183,10 @@
                   "type": "array",
                   "description": "Semantic dimensions to evaluate (for semantic_check rule type)",
                   "items": {"type": "string"}
+                },
+                "index_path": {
+                  "type": "string",
+                  "description": "Path to the task index JSON (for task_files_exist rule type)"
                 }
               }
             }

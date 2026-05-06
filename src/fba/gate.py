@@ -124,6 +124,8 @@ class GateRunner:
             return self._check_content(rule)
         elif rule_type == "semantic_check":
             return self._check_semantic(rule)
+        elif rule_type == "task_files_exist":
+            return self._check_task_files_exist(rule)
         else:
             return RuleResult(
                 passed=False,
@@ -468,6 +470,114 @@ class GateRunner:
             message=f"Semantic check pending: comparing {source_path_str} → {target_path_str} across {len(dimensions)} dimensions — requires agent evaluation",
             details={"eval_data": eval_data},
             requires_agent=True,
+        )
+
+    def _check_task_files_exist(self, rule: dict) -> RuleResult:
+        import jsonschema
+
+        rule_name = rule.get("rule_name", "task_files_exist")
+        index_path_str = rule.get("index_path", "")
+
+        index_path = self._resolve_path(index_path_str)
+        if not index_path.exists():
+            return RuleResult(
+                passed=False,
+                rule=rule_name,
+                message=f"Task index not found: {index_path_str}",
+                details={"index_path": index_path_str},
+            )
+
+        try:
+            index_data = json.loads(index_path.read_text())
+        except json.JSONDecodeError as e:
+            return RuleResult(
+                passed=False,
+                rule=rule_name,
+                message=f"Task index is invalid JSON: {index_path_str} - {e}",
+                details={"index_path": index_path_str},
+            )
+
+        tasks = index_data.get("tasks", [])
+        if not tasks:
+            return RuleResult(
+                passed=False,
+                rule=rule_name,
+                message=f"Task index has no tasks defined: {index_path_str}",
+                details={"index_path": index_path_str},
+            )
+
+        task_item_schema = self._find_schema("task_item.schema.json")
+        missing_files = []
+        invalid_json = []
+        empty_files = []
+        schema_failures = []
+
+        for task_entry in tasks:
+            file_name = task_entry.get("file", "")
+            if not file_name:
+                missing_files.append(f"(no file field for task {task_entry.get('id', 'unknown')})")
+                continue
+
+            task_path = self._factory_dir / "tasks" / file_name
+            if not task_path.exists():
+                missing_files.append(file_name)
+                continue
+
+            try:
+                task_content = task_path.read_text()
+            except Exception as e:
+                missing_files.append(f"{file_name} (read error: {e})")
+                continue
+
+            if not task_content.strip():
+                empty_files.append(file_name)
+                continue
+
+            try:
+                task_data = json.loads(task_content)
+            except json.JSONDecodeError as e:
+                invalid_json.append(f"{file_name}: {e}")
+                continue
+
+            if task_item_schema:
+                try:
+                    schema = json.loads(task_item_schema.read_text())
+                    jsonschema.validate(task_data, schema)
+                except jsonschema.ValidationError as e:
+                    schema_failures.append(f"{file_name}: {e.message}")
+
+        failures = []
+        details = {
+            "index_path": index_path_str,
+            "total_tasks": len(tasks),
+            "missing_files": missing_files,
+            "invalid_json": invalid_json,
+            "empty_files": empty_files,
+            "schema_failures": schema_failures,
+        }
+
+        if missing_files:
+            failures.append(f"Missing task files: {', '.join(missing_files[:5])}")
+        if invalid_json:
+            failures.append(f"Invalid JSON: {', '.join(invalid_json[:5])}")
+        if empty_files:
+            failures.append(f"Empty task files: {', '.join(empty_files[:5])}")
+        if schema_failures:
+            failures.append(f"Schema validation failed: {', '.join(schema_failures[:5])}")
+
+        if failures:
+            return RuleResult(
+                passed=False,
+                rule=rule_name,
+                message="; ".join(failures),
+                details=details,
+            )
+
+        return RuleResult(
+            passed=True,
+            rule=rule_name,
+            message=f"All {len(tasks)} task files exist and are valid",
+            details=details,
         )
 
     def _find_schema(self, schema_name: str) -> Path | None:

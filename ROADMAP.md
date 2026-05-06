@@ -112,7 +112,7 @@ especifico para Odoo v18 con trazabilidad completa.
 construccion -> pruebas -> revision -> CI/CD, produciendo un modulo Odoo v18
 instalable y funcional de "Registro de Vehiculos" (CRUD con modelo + vistas).
 
-M3 se divide en 4 sub-milestones secuenciales para facilitar la implementacion
+M3 se divide en 5 sub-milestones secuenciales para facilitar la implementacion
 incremental. Cada sub-milestone es un deliverable independiente y demostrable.
 
 ### Branching
@@ -120,13 +120,32 @@ incremental. Cada sub-milestone es un deliverable independiente y demostrable.
 ```
 main
   └── milestone/3.0-construccion-mvp        ← creado desde main
+        ├── feat/3.0a-task-files            ← desde milestone/3.0 (sistema de tasks rediseñado)
         ├── feat/3.1-constructor-core        ← desde milestone/3.0
         ├── feat/3.2-constructor-completo    ← desde milestone/3.0 (mergea M3.1 a M3.0 primero)
         ├── feat/3.3-tester-reviewer         ← desde milestone/3.0 (mergea M3.2 a M3.0 primero)
         └── feat/3.4-cicd-e2e               ← desde milestone/3.0 (mergea M3.3 a M3.0 primero)
 ```
 
-Flujo: `feat/3.1 → PR → merge a milestone/3.0 → feat/3.2 → PR → merge a milestone/3.0 → ...`
+Flujo: `feat/3.0a → PR → merge a milestone/3.0 → feat/3.1 → PR → merge a milestone/3.0 → ...`
+
+---
+
+### M3.0a: Task System Redesign — Archivos por Task
+**Objetivo**: Rediseñar el sistema de tasks para generar un archivo por task
+en lugar de un solo `tasks.md`, permitiendo construccion iterativa con commits
+por task.
+
+**Entregables**:
+- [x] Schema `task_index.schema.json` y `task_item.schema.json`
+- [x] Gate `tasks` con rule type `task_files_exist`
+- [x] Comando `/fba:tasks` actualizado: genera `index.json` + `T*.json`
+- [x] Comando `/fba:build` rediseñado: flujo iterativo task-por-task con sesiones frescas
+- [x] Orquestador actualizado con nueva tabla de fases
+- [x] Tests unitarios del nuevo sistema de tasks
+- [x] Documentacion de testing: `docs/testing/m3-tasks-files.md`
+
+**Depende de**: M2 (SDD + plan)
 
 ---
 
@@ -142,7 +161,7 @@ Odoo v18 funcionales con campos y relaciones.
 - [ ] Tests unitarios del constructor y del gate construction
 - [ ] Prueba manual: modulo minimo instalable en Odoo v18
 
-**Depende de**: SDD valido + tasks.md (fase `tasks`)
+**Depende de**: SDD valido + tasks/index.json (fase `tasks`)
 
 ---
 

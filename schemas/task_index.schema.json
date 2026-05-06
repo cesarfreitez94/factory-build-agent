@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://opencode.ai/fba/schemas/task_index.schema.json",
+  "title": "Task Index",
+  "description": "Schema for the task index manifest (tasks/index.json). Lists all implementation tasks with metadata and ordering.",
+  "type": "object",
+  "required": [
+    "module_name",
+    "total_tasks",
+    "tasks"
+  ],
+  "properties": {
+    "module_name": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Technical module name this task list applies to."
+    },
+    "total_tasks": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Total number of tasks defined."
+    },
+    "tasks": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Ordered list of implementation tasks.",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "file", "dependencies", "order", "estimated_effort", "sdd_components"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^T\\d{3,}$",
+            "description": "Task identifier (e.g., T001, T002)."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Short human-readable task name."
+          },
+          "file": {
+            "type": "string",
+            "minLength": 5,
+            "pattern": "^T\\d{3,}-[a-z0-9_-]+\\.json$",
+            "description": "Filename of the individual task definition (e.g., T001-modelos.json)."
+          },
+          "dependencies": {
+            "type": "array",
+            "description": "Task IDs this task depends on.",
+            "items": {
+              "type": "string",
+              "pattern": "^T\\d{3,}$"
+            }
+          },
+          "order": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Execution order (1-based)."
+          },
+          "estimated_effort": {
+            "type": "string",
+            "enum": ["low", "medium", "high"],
+            "description": "Estimated effort level for this task."
+          },
+          "sdd_components": {
+            "type": "array",
+            "minItems": 1,
+            "description": "SDD component references this task implements (e.g., models.vehicle, views.form).",
+            "items": {
+              "type": "string",
+              "minLength": 3
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

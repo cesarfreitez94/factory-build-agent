@@ -247,6 +247,34 @@ def _init_factory_state(target: Path):
                     },
                 ],
             },
+            "tasks": {
+                "description": "Validates task index and individual task files",
+                "owner_agent": "planificador",
+                "rules": [
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "task_index_exists",
+                        "path": ".factory/tasks/index.json",
+                    },
+                    {
+                        "type": "schema",
+                        "rule_name": "task_index_schema_valid",
+                        "schema": "task_index.schema.json",
+                        "path": ".factory/tasks/index.json",
+                    },
+                    {
+                        "type": "content_check",
+                        "rule_name": "task_index_content_minimum",
+                        "path": ".factory/tasks/index.json",
+                        "checks": {"min_tasks": 1},
+                    },
+                    {
+                        "type": "task_files_exist",
+                        "rule_name": "all_task_files_exist",
+                        "index_path": ".factory/tasks/index.json",
+                    },
+                ],
+            },
         },
         "artifacts": {},
         "context": {},
