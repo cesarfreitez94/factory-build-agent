@@ -1,4 +1,4 @@
-# Testing - M3: Construccion + MVP (Schema Manager + Code Renderer)
+# Testing - M3: Construccion + MVP (E2E Completo)
 
 ## Requisitos Previos
 
@@ -352,6 +352,170 @@ python3 -m pytest tests/ -q
 ... passed ...
 ```
 (0 fallos)
+
+---
+
+### 11. Verificar el flujo E2E completo con modulo "Registro de Vehiculos"
+
+**Objetivo**: Confirmar que todos los componentes del framework funcionan juntos E2E,
+incluyendo el nuevo CI/CD Manager de M3.4.
+
+#### 11.1 Verificar que el agente ci_cd_manager existe
+
+**Comando**:
+```bash
+ls -la templates/.opencode/agents/ci_cd_manager.md
+cat templates/.opencode/agents/ci_cd_manager.md | head -5
+```
+
+**Resultado esperado**: El archivo existe y tiene frontmatter valido con `mode: subagent`.
+
+#### 11.2 Verificar que el comando fba:ship esta completo
+
+**Comando**:
+```bash
+grep -c "Pre-conditions" templates/.opencode/commands/fba:ship.md
+grep -c "Post-conditions" templates/.opencode/commands/fba:ship.md
+grep -c "ship_complete" templates/.opencode/commands/fba:ship.md
+```
+
+**Resultado esperado**: Cada grep devuelve al menos 1.
+
+#### 11.3 Verificar que fba init incluye el gate ci_cd
+
+**Comando**:
+```bash
+mkdir -p /tmp/test-m3d && fba init -d /tmp/test-m3d
+python3 -c "
+import json
+state = json.load(open('/tmp/test-m3d/.factory/state.json'))
+gates = state.get('gates', {})
+assert 'ci_cd' in gates, 'ci_cd gate missing'
+gate = gates['ci_cd']
+print(f'ci_cd gate: {gate[\"description\"]}')
+print(f'Owner: {gate[\"owner_agent\"]}')
+print(f'Rules: {len(gate[\"rules\"])}')
+for rule in gate['rules']:
+    print(f'  - {rule[\"rule_name\"]} ({rule[\"type\"]})')
+assert gate['owner_agent'] == 'cicd_manager'
+assert len(gate['rules']) == 3
+print('ci_cd gate configured correctly')
+"
+```
+
+**Resultado esperado**:
+```
+ci_cd gate: Validates CI/CD workflow exists and project is ready for release
+Owner: cicd_manager
+Rules: 3
+  - ci_workflow_exists (artifact_exists)
+  - ship_report_json_exists (artifact_exists)
+  - ship_report_md_exists (artifact_exists)
+ci_cd gate configured correctly
+```
+
+#### 11.4 Verificar el gate ci_cd bloquea transiciones invalidas
+
+**Comando**:
+```bash
+python3 -c "
+import json, tempfile
+from pathlib import Path
+from fba.state import StateManager
+from fba.gate import GateError
+
+td = tempfile.mkdtemp()
+factory = Path(td) / '.factory'
+factory.mkdir(parents=True)
+
+state = {
+    'project': 'test', 'current_phase': 'ci_cd',
+    'framework_version': '0.4.0',
+    'init_at': '2026-01-01T00:00:00+00:00',
+    'methodology': 'BABOK',
+    'phases': {
+        'ci_cd': {'status': 'in_progress', 'agent': 'cicd_manager'},
+        'complete': {'status': 'pending', 'agent': 'cicd_manager'},
+    },
+    'valid_transitions': {'ci_cd': ['complete']},
+    'gates': {
+        'ci_cd': {
+            'description': 'CI/CD gate',
+            'owner_agent': 'cicd_manager',
+            'rules': [
+                {'type': 'artifact_exists', 'rule_name': 'ci_workflow', 'path': '.github/workflows/factory-ci.yml'},
+            ],
+        },
+    },
+    'artifacts': {}, 'context': {},
+}
+(factory / 'state.json').write_text(json.dumps(state))
+
+sm = StateManager(td)
+try:
+    sm.transition_to('complete')
+    print('ERROR: should have raised GateError')
+except GateError as e:
+    assert 'ci_cd' in str(e)
+    print(f'Gate ci_cd blocked transition correctly: {e}')
+"
+```
+
+**Resultado esperado**:
+```
+Gate ci_cd blocked transition correctly: Gate 'ci_cd' failed: ...
+```
+
+#### 11.5 Verificar que el template factory-ci.yml se copia correctamente
+
+**Comando**:
+```bash
+cat templates/.github/workflows/factory-ci.yml | head -5
+grep -c "fba-ci" templates/.github/workflows/factory-ci.yml
+grep -c "actions/checkout@v4" templates/.github/workflows/factory-ci.yml
+```
+
+**Resultado esperado**: El template CI existe con el nombre `fba-ci` y usa `actions/checkout@v4`.
+
+#### 11.6 Verificar que el agente ci_cd_manager se incluye en los tests de definiciones
+
+**Comando**:
+```bash
+python3 -m pytest tests/test_agent_definitions.py -v -k "CicdManager"
+```
+
+**Resultado esperado**: Todos los tests pasan (7 tests: existencia, frontmatter, body content).
+
+#### 11.7 Verificar que el sistema de fases incluye ci_cd y complete
+
+**Comando**:
+```bash
+mkdir -p /tmp/test-m3e && fba init -d /tmp/test-m3e
+python3 -c "
+import json
+state = json.load(open('/tmp/test-m3e/.factory/state.json'))
+assert 'ci_cd' in state['phases'], 'ci_cd phase missing'
+assert state['phases']['ci_cd']['status'] == 'pending'
+assert state['phases']['ci_cd']['agent'] == 'cicd_manager'
+assert state['valid_transitions']['review'] == ['ci_cd']
+assert state['valid_transitions']['ci_cd'] == ['complete']
+print('Phase system complete with ci_cd -> complete flow')
+"
+```
+
+**Resultado esperado**:
+```
+Phase system complete with ci_cd -> complete flow
+```
+
+#### 11.8 Ejecutar todos los tests para confirmar 0 regresiones
+
+**Comando**:
+```bash
+python3 -m pytest tests/ -q
+```
+
+**Resultado esperado**: 0 fallos.
 
 ---
 

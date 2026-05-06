@@ -12,7 +12,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M1: Elicitacion + Documentacion | ✅ Completado | 2026-05-03 / 2026-05-03 |
 | M2: Planificacion + SDD | ✅ Completado | 2026-05-04 / 2026-05-04 |
 | M4: Sistema de Gates | ✅ Completado | 2026-05-05 / 2026-05-05 |
-| M3: Construccion + MVP | 🚧 En Progreso | 2026-05-05 |
+| M3: Construccion + MVP | ✅ Completado | 2026-05-05 / 2026-05-06 |
 
 ---
 
@@ -231,17 +231,17 @@ seguridad, datos demo).
 **Objetivo**: Framework completo E2E funcionando, probado y documentado.
 
 **Entregables**:
-- [ ] Agente `ci_cd_manager.md` + comando `/fba:ship`
+- [x] Agente `ci_cd_manager.md` + comando `/fba:ship`
   - Genera GitHub Actions workflow para el modulo Odoo
   - Gate `ci_cd`
-- [ ] Flujo E2E completo con modulo "Registro de Vehiculos":
+- [x] Flujo E2E completo con modulo "Registro de Vehiculos":
   ```
   fba init → /fba:elicit → /fba:specify → /fba:plan → /fba:tasks
   → /fba:build → /fba:test → /fba:review → /fba:ship
   ```
-- [ ] Tests E2E del framework completo
-- [ ] Documentacion de usuario final: `docs/testing/m3-construccion.md`
-- [ ] Actualizacion de ROADMAP, CHANGELOG, version (bump a 0.5.0)
+- [x] Tests E2E del framework completo
+- [x] Documentacion de usuario final: `docs/testing/m3-construccion.md`
+- [x] Actualizacion de ROADMAP, CHANGELOG, version (bump a 0.5.0)
 
 **Depende de**: M3.3 (tester y revisor completos)
 

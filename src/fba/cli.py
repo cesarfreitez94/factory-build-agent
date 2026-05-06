@@ -146,8 +146,8 @@ def _init_factory_state(target: Path):
             "planning": {"status": "pending", "agent": "planificador"},
             "tasks": {"status": "pending", "agent": "planificador"},
             "construction": {"status": "pending", "agent": "constructor"},
-            "testing": {"status": "pending", "agent": "tester"},
-            "review": {"status": "pending", "agent": "revisor"},
+            "testing": {"status": "pending", "agent": "tester_qa"},
+            "review": {"status": "pending", "agent": "revisor_codigo"},
             "ci_cd": {"status": "pending", "agent": "cicd_manager"},
         },
         "valid_transitions": {
@@ -342,6 +342,59 @@ def _init_factory_state(target: Path):
                         "type": "acl_coverage",
                         "rule_name": "construction_acl_coverage",
                         "path": ".factory/schema.json",
+                    },
+                ],
+            },
+            "testing": {
+                "description": "Validates that Odoo tests were generated and a test report exists",
+                "owner_agent": "tester_qa",
+                "rules": [
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "test_report_json_exists",
+                        "path": ".factory/test_report.json",
+                    },
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "test_report_md_exists",
+                        "path": ".factory/test_report.md",
+                    },
+                ],
+            },
+            "review": {
+                "description": "Validates that code review completed with no critical issues",
+                "owner_agent": "revisor_codigo",
+                "rules": [
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "review_report_json_exists",
+                        "path": ".factory/review_report.json",
+                    },
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "review_report_md_exists",
+                        "path": ".factory/review_report.md",
+                    },
+                ],
+            },
+            "ci_cd": {
+                "description": "Validates CI/CD workflow exists and project is ready for release",
+                "owner_agent": "cicd_manager",
+                "rules": [
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "ci_workflow_exists",
+                        "path": ".github/workflows/factory-ci.yml",
+                    },
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "ship_report_json_exists",
+                        "path": ".factory/ship_report.json",
+                    },
+                    {
+                        "type": "artifact_exists",
+                        "rule_name": "ship_report_md_exists",
+                        "path": ".factory/ship_report.md",
                     },
                 ],
             },
