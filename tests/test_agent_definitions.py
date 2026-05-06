@@ -35,7 +35,7 @@ def _load_all_agents():
     return agents
 
 
-EXPECTED_AGENTS = {"elicitador", "documentador", "orchestrator", "planificador", "revisor_artefactos", "validador_semantico"}
+EXPECTED_AGENTS = {"elicitador", "documentador", "orchestrator", "planificador", "revisor_artefactos", "validador_semantico", "constructor"}
 
 
 class TestAgentDefinitionsExist:

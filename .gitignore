@@ -72,3 +72,4 @@ venv.bak/
 
 # Factory Build Agent target projects (these are output, not source)
 .factory/
+!templates/.factory/module_registry.json

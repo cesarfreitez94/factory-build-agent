@@ -1,0 +1,489 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://opencode.ai/fba/schemas/schema.schema.json",
+  "title": "Schema (SSOT)",
+  "description": "Schema for the deterministic module structure (schema.json), the single source of truth that drives code generation.",
+  "type": "object",
+  "required": ["manifest", "models", "views", "security", "data"],
+  "properties": {
+    "manifest": {
+      "type": "object",
+      "required": ["name", "version", "summary", "depends", "license"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 3,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Technical module name (e.g., vehicle_registry)."
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d{2}\\.\\d\\.\\d\\.\\d\\.\\d+$",
+          "description": "Odoo module version (e.g., 18.0.1.0.0)."
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Brief description of the module."
+        },
+        "depends": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Required Odoo addon dependencies.",
+          "items": {
+            "type": "string",
+            "minLength": 2
+          }
+        },
+        "license": {
+          "type": "string",
+          "minLength": 3,
+          "description": "Module license (e.g., LGPL-3)."
+        },
+        "category": {
+          "type": "string",
+          "description": "Odoo module category."
+        },
+        "author": {
+          "type": "string",
+          "description": "Module author."
+        },
+        "website": {
+          "type": "string",
+          "description": "Module website URL."
+        },
+        "application": {
+          "type": "boolean",
+          "description": "Whether this module is an application."
+        },
+        "installable": {
+          "type": "boolean",
+          "description": "Whether this module is installable."
+        },
+        "auto_install": {
+          "type": "boolean",
+          "description": "Whether this module auto-installs."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 5,
+          "description": "Extended module description."
+        }
+      },
+      "additionalProperties": false
+    },
+    "models": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Odoo models defined in this module.",
+      "items": {
+        "type": "object",
+        "required": ["name", "description", "mode", "fields"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "pattern": "^[a-z][a-z0-9_.]+$",
+            "description": "Technical model name (e.g., vehicle.vehicle)."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 5,
+            "description": "Description of the model."
+          },
+          "display_name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Human-readable model name."
+          },
+          "inherit": {
+            "type": ["string", "null"],
+            "description": "Parent model name if extending an existing model, or null."
+          },
+          "mode": {
+            "type": "string",
+            "enum": ["new", "extend"],
+            "description": "new = create a new model; extend = add fields to an existing model."
+          },
+          "sdd_reference": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Reference to the SDD component this model implements."
+          },
+          "order": {
+            "type": "string",
+            "description": "Default sort order (e.g., 'name asc')."
+          },
+          "fields": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Fields defined in this model.",
+            "items": {
+              "type": "object",
+              "required": ["name", "type", "label"],
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[a-z][a-z0-9_]*$",
+                  "description": "Field technical name."
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["Char", "Text", "Integer", "Float", "Boolean", "Date", "Datetime", "Binary", "Selection", "Many2one", "One2many", "Many2many", "Html", "Monetary"],
+                  "description": "Odoo field type."
+                },
+                "label": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Human-readable field label."
+                },
+                "required": {
+                  "type": "boolean",
+                  "description": "Whether this field is required."
+                },
+                "unique": {
+                  "type": "boolean",
+                  "description": "Whether this field must be unique."
+                },
+                "size": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Max size for char fields."
+                },
+                "selection": {
+                  "type": "array",
+                  "description": "Selection options for Selection fields.",
+                  "items": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "items": {"type": "string"}
+                  }
+                },
+                "relation": {
+                  "type": "string",
+                  "minLength": 3,
+                  "description": "Related model for relational fields."
+                },
+                "string": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "String attribute for relational fields."
+                },
+                "comodel_name": {
+                  "type": "string",
+                  "minLength": 3,
+                  "description": "Comodel name for One2many fields."
+                },
+                "inverse_name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Inverse field name for One2many fields."
+                },
+                "domain": {
+                  "type": "string",
+                  "description": "Domain expression for relational fields."
+                },
+                "compute": {
+                  "type": "string",
+                  "description": "Compute method name for computed fields."
+                },
+                "store": {
+                  "type": "boolean",
+                  "description": "Whether a computed field is stored."
+                },
+                "help": {
+                  "type": "string",
+                  "description": "Help text for the field."
+                },
+                "default": {
+                  "description": "Default value for the field."
+                },
+                "readonly": {
+                  "type": "boolean",
+                  "description": "Whether this field is readonly."
+                },
+                "index": {
+                  "type": "boolean",
+                  "description": "Whether this field is indexed."
+                },
+                "translate": {
+                  "type": "boolean",
+                  "description": "Whether this field is translatable."
+                },
+                "sdd_reference": {
+                  "type": "string",
+                  "minLength": 3,
+                  "description": "Reference to the SDD component this field implements."
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "relations": {
+            "type": "array",
+            "description": "Relational fields linking to other models (denormalized for validation).",
+            "items": {
+              "type": "object",
+              "required": ["type", "model", "field"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["Many2one", "One2many", "Many2many"]
+                },
+                "model": {
+                  "type": "string",
+                  "minLength": 3
+                },
+                "field": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "views": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Odoo views defined for this module.",
+      "items": {
+        "type": "object",
+        "required": ["name", "type", "model", "fields"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "description": "XML view ID (e.g., vehicle.vehicle.form)."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["form", "tree", "search", "kanban", "calendar", "graph", "pivot", "activity"],
+            "description": "Odoo view type."
+          },
+          "model": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Model technical name this view belongs to."
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable view name."
+          },
+          "fields": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Fields displayed in this view.",
+            "items": {"type": "string", "minLength": 1}
+          },
+          "filters": {
+            "type": "array",
+            "description": "Search filters for search views.",
+            "items": {
+              "type": "object",
+              "required": ["name", "domain_type"],
+              "properties": {
+                "name": {"type": "string", "minLength": 1},
+                "domain_type": {"type": "string", "enum": ["field", "group_by", "filter"]},
+                "field_name": {"type": "string"},
+                "description": {"type": "string"}
+              },
+              "additionalProperties": false
+            }
+          },
+          "arch": {
+            "type": "string",
+            "description": "Optional inline XML arch for the view."
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "View priority/sequence order."
+          },
+          "sdd_reference": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Reference to the SDD component this view implements."
+          },
+          "file": {
+            "type": "string",
+            "minLength": 3,
+            "description": "File path where this view should be defined."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "security": {
+      "type": "object",
+      "required": ["groups", "access_rights"],
+      "properties": {
+        "groups": {
+          "type": "array",
+          "description": "Security groups defined in this module.",
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "description"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Group XML ID (without module prefix)."
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Human-readable group name."
+              },
+              "description": {
+                "type": "string",
+                "minLength": 5,
+                "description": "What this group can do."
+              },
+              "category": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Security category display name."
+              },
+              "implied_ids": {
+                "type": "array",
+                "description": "IDs of groups this group inherits from.",
+                "items": {"type": "string"}
+              },
+              "sdd_reference": {
+                "type": "string",
+                "minLength": 3,
+                "description": "Reference to the SDD component this group implements."
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "access_rights": {
+          "type": "array",
+          "description": "Access control rules (ACL) per model per group.",
+          "items": {
+            "type": "object",
+            "required": ["model", "group", "perm_read", "perm_write", "perm_create", "perm_unlink"],
+            "properties": {
+              "model": {
+                "type": "string",
+                "minLength": 3,
+                "description": "Model technical name."
+              },
+              "group": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Group XML ID reference."
+              },
+              "perm_read": {"type": "boolean"},
+              "perm_write": {"type": "boolean"},
+              "perm_create": {"type": "boolean"},
+              "perm_unlink": {"type": "boolean"},
+              "sdd_reference": {
+                "type": "string",
+                "minLength": 3,
+                "description": "Reference to the SDD component this ACL implements."
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "record_rules": {
+          "type": "array",
+          "description": "Record-level security rules.",
+          "items": {
+            "type": "object",
+            "required": ["name", "model", "domain"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Record rule XML ID."
+              },
+              "model": {
+                "type": "string",
+                "minLength": 3,
+                "description": "Model technical name."
+              },
+              "domain": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Domain expression in Odoo domain syntax."
+              },
+              "groups": {
+                "type": "array",
+                "description": "Groups this rule applies to.",
+                "items": {"type": "string"}
+              },
+              "perm_read": {"type": "boolean"},
+              "perm_write": {"type": "boolean"},
+              "perm_create": {"type": "boolean"},
+              "perm_unlink": {"type": "boolean"},
+              "sdd_reference": {
+                "type": "string",
+                "minLength": 3,
+                "description": "Reference to the SDD component this rule implements."
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "data": {
+      "type": "array",
+      "description": "Demo and configuration data files.",
+      "items": {
+        "type": "object",
+        "required": ["file", "type"],
+        "properties": {
+          "file": {
+            "type": "string",
+            "minLength": 3,
+            "description": "File path relative to module root."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["csv", "xml", "json"],
+            "description": "Data file format."
+          },
+          "model": {
+            "type": "string",
+            "description": "Target model for CSV data."
+          },
+          "records": {
+            "type": "array",
+            "description": "Inline record definitions.",
+            "items": {
+              "type": "object",
+              "required": ["model"],
+              "properties": {
+                "model": {"type": "string", "minLength": 3},
+                "id": {"type": "string"},
+                "fields": {"type": "object"}
+              },
+              "additionalProperties": false
+            }
+          },
+          "sdd_reference": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Reference to the SDD component this data implements."
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
