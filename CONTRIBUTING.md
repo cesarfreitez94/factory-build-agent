@@ -179,10 +179,14 @@ como probar la funcionalidad entregada:
 
 ```
 docs/testing/
-├── m0-fundacion.md          # Como probar fba init
-├── m1-elicitacion.md        # Como probar la elicitacion BABOK
-├── m2-planificacion.md      # Como probar plan y SDD
-└── m3-construccion.md       # Como probar el flujo E2E
+├── m0-fundacion.md              # Como probar fba init
+├── m1-elicitacion.md            # Como probar la elicitacion BABOK
+├── m2-planificacion.md          # Como probar plan y SDD
+├── m3-tasks-files.md            # Como probar el sistema de tasks por archivo
+├── m3.1-constructor-core.md     # Como probar constructor core
+├── m3.2-constructor-completo.md # Como probar constructor completo
+├── m3-construccion.md           # Como probar el flujo E2E
+└── m4-gates.md                  # Como probar el sistema de gates
 ```
 
 ### Estructura del Documento de Testing

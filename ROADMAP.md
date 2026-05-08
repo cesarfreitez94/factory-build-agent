@@ -173,16 +173,16 @@ tasks/index.json + T*.json + SDD.md + module_registry.json
 ```
 
 **Entregables**:
-- [ ] Agente `code-generator.md` con Schema Manager + Code Renderer
-- [ ] Schema `schema.schema.json` para validar el SSOT deterministico
-- [ ] Module Registry (`module_registry.json`) con modulos core de Odoo v18
-- [ ] Normalizacion de nombres: many2one → `*_id`, many2many → `*_ids`, etc.
-- [ ] Comando `/fba:construct` con flujo: assembly schema → validate → render iterativo
-- [ ] Gate `schema` validando schema.json contra schema.schema.json
-- [ ] Gate `construction` extendido con validacion de consistencia schema ↔ codigo
-- [ ] Builder contract: code renderer no interpreta, no renombra, no reestructura
-- [ ] Tests unitarios del Schema Manager, Module Registry, y Code Renderer
-- [ ] Prueba manual: modulo minimo instalable en Odoo v18
+- [x] Agente `code-generator.md` con Schema Manager + Code Renderer
+- [x] Schema `schema.schema.json` para validar el SSOT deterministico
+- [x] Module Registry (`module_registry.json`) con modulos core de Odoo v18
+- [x] Normalizacion de nombres: many2one → `*_id`, many2many → `*_ids`, etc.
+- [x] Comando `/fba:construct` con flujo: assembly schema → validate → render iterativo
+- [x] Gate `schema` validando schema.json contra schema.schema.json
+- [x] Gate `construction` extendido con validacion de consistencia schema ↔ codigo
+- [x] Builder contract: code renderer no interpreta, no renombra, no reestructura
+- [x] Tests unitarios del Schema Manager, Module Registry, y Code Renderer
+- [x] Prueba manual: modulo minimo instalable en Odoo v18
 
 **Depende de**: SDD valido + tasks/index.json (fase `tasks`)
 
@@ -211,18 +211,18 @@ seguridad, datos demo).
 **Objetivo**: El framework puede probar y revisar el modulo generado automaticamente.
 
 **Entregables**:
-- [ ] Agente `tester_qa.md` + comando `/fba:test`
+- [x] Agente `tester_qa.md` + comando `/fba:test`
   - Genera tests Odoo TestCase: modelos, vistas, seguridad
   - Ejecuta tests y genera `test_report.md`
   - Gate `testing`
-- [ ] Agente `revisor_codigo.md` + comando `/fba:review`
+- [x] Agente `revisor_codigo.md` + comando `/fba:review`
   - Revisa calidad (PEP8, Odoo conventions)
   - Revisa seguridad (ACL, validacion, datos sensibles)
   - Revisa adherencia a specs (PRD/SDD)
   - Genera `review_report.md`
   - Gate `review`
-- [ ] Tests de los agentes tester y revisor
-- [ ] Integracion con el orquestador
+- [x] Tests de los agentes tester y revisor
+- [x] Integracion con el orquestador
 
 **Depende de**: M3.2 (constructor completo — necesita codigo generado)
 
