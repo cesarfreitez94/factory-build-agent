@@ -17,24 +17,24 @@ TEMPLATES_DIR = TESTS_DIR.parent / "templates"
 
 class TestBuildCommandFrontmatter:
     def test_build_command_exists(self):
-        cmd_path = TEMPLATES_DIR / ".opencode" / "commands" / "fba:build.md"
+        cmd_path = TEMPLATES_DIR / ".opencode" / "commands" / "fba:construct.md"
         assert cmd_path.is_file()
 
     def test_build_command_has_frontmatter(self):
         import yaml
-        cmd_path = TEMPLATES_DIR / ".opencode" / "commands" / "fba:build.md"
+        cmd_path = TEMPLATES_DIR / ".opencode" / "commands" / "fba:construct.md"
         text = cmd_path.read_text()
         parts = text.split("---", 2)
         assert len(parts) >= 3
         frontmatter = yaml.safe_load(parts[1])
-        assert frontmatter.get("agent") == "constructor"
+        assert frontmatter.get("agent") == "code-generator"
         assert "generate" in frontmatter.get("description", "").lower()
 
     def test_build_command_body_has_iterative_content(self):
-        cmd_path = TEMPLATES_DIR / ".opencode" / "commands" / "fba:build.md"
+        cmd_path = TEMPLATES_DIR / ".opencode" / "commands" / "fba:construct.md"
         text = cmd_path.read_text()
 
-        assert "# fba:build" in text
+        assert "# fba:construct" in text
         assert "index.json" in text
         assert "T*.json" in text
         assert "Iterative" in text
@@ -98,7 +98,7 @@ class TestTransitionFromTasksToConstruction:
             "phases": {
                 "planning": {"status": "complete", "agent": "planificador"},
                 "tasks": {"status": "in_progress", "agent": "planificador"},
-                "construction": {"status": "pending", "agent": "constructor"},
+                "construction": {"status": "pending", "agent": "code-generator"},
             },
             "valid_transitions": {
                 "tasks": ["construction"],

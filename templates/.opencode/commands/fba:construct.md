@@ -1,9 +1,9 @@
 ---
 description: Assemble deterministic schema.json (SSOT) from tasks and generate Odoo v18 module code with zero interpretation
-agent: constructor
+agent: code-generator
 ---
 
-# fba:build
+# fba:construct
 
 Generate complete Odoo v18 module source code through a two-phase deterministic
 pipeline: Schema Assembly (produce SSOT) → Code Rendering (zero interpretation).
