@@ -266,7 +266,7 @@ ls /tmp/test-m1/.opencode/commands/
 
 **Resultado esperado**:
 ```
-fba:build.md  fba:elicit.md  fba:init.md  fba:plan.md  fba:review.md
+fba:construct.md  fba:elicit.md  fba:init.md  fba:plan.md  fba:review.md
 fba:ship.md  fba:specify.md  fba:tasks.md  fba:test.md
 ```
 

@@ -584,7 +584,7 @@ class TestInitHasSchemaGate:
         state = json.loads((tmp_path / ".factory" / "state.json").read_text())
         assert "schema" in state["gates"]
         schema_gate = state["gates"]["schema"]
-        assert schema_gate["owner_agent"] == "constructor"
+        assert schema_gate["owner_agent"] == "code-generator"
         assert len(schema_gate["rules"]) == 3
 
     def test_init_creates_construction_gate(self, tmp_path):
@@ -595,7 +595,7 @@ class TestInitHasSchemaGate:
         state = json.loads((tmp_path / ".factory" / "state.json").read_text())
         assert "construction" in state["gates"]
         construction_gate = state["gates"]["construction"]
-        assert construction_gate["owner_agent"] == "constructor"
+        assert construction_gate["owner_agent"] == "code-generator"
         rule_types = [r["type"] for r in construction_gate["rules"]]
         assert "view_coverage" in rule_types
         assert "view_field_check" in rule_types

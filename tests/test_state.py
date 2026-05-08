@@ -25,7 +25,7 @@ def project_dir(tmp_path):
             "documentation": {"status": "pending", "agent": "documentador"},
             "planning": {"status": "pending", "agent": "planificador"},
             "tasks": {"status": "pending", "agent": "planificador"},
-            "construction": {"status": "pending", "agent": "constructor"},
+            "construction": {"status": "pending", "agent": "code-generator"},
             "testing": {"status": "pending", "agent": "tester"},
             "review": {"status": "pending", "agent": "revisor"},
             "ci_cd": {"status": "pending", "agent": "cicd_manager"},

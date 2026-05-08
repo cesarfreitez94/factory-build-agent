@@ -443,4 +443,4 @@ fba record review_complete --data '{"overall": "<passed|warnings|failed>", "crit
 7. **Use glob and grep tools**: search across all module files for prohibited
    patterns (`<tree`, `attrs="{`, `<openerp`).
 8. **Do NOT modify module code**: you review only. Any corrections must be
-   delegated to the constructor agent via the correction cycle.
+   delegated to the code-generator agent via the correction cycle.

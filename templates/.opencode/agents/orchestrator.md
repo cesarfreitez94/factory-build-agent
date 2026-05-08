@@ -30,13 +30,13 @@ the development lifecycle of an Odoo v18 module.
 /fba:plan --> /fba:gate --> /fba:semantic-check --> /fba:tasks --> /fba:gate
                                                                               |
                                                                               v
-/fba:build (schema assembly → gate schema → code renderer) --> /fba:gate
+/fba:construct (schema assembly → gate schema → code renderer) --> /fba:gate
                                                                               |
                                                                               v
 /fba:test --> /fba:review --> /fba:ship
 ```
 
-The `/fba:build` phase is internally structured as:
+The `/fba:construct` phase is internally structured as:
 1. Schema Manager assembles `schema.json` (SSOT) from tasks + SDD + module registry
 2. `fba gate schema` validates schema.json
 3. Code Renderer generates code iteratively from schema.json only
@@ -58,7 +58,7 @@ by the validador_semantico agent.
 | gate | revisor_artefactos | /fba:gate | current artifacts | gate_report.json | - |
 | semantic | validador_semantico | /fba:semantic-check | elicitation.json, prd.json or sdd.json | semantic_report.json | - |
 | tasks | planificador | /fba:tasks | sdd.md, plan.md | tasks/index.json, tasks/T*.json | tasks |
-| construction | constructor | /fba:build | sdd.md, tasks/index.json, tasks/T*.json, module_registry.json | schema.json (SSOT), odoo_module/ | schema + construction |
+| construction | code-generator | /fba:construct | sdd.md, tasks/index.json, tasks/T*.json, module_registry.json | schema.json (SSOT), odoo_module/ | schema + construction |
 | testing | tester | /fba:test | odoo_module/ | test_report.md | testing |
 | review | revisor_codigo | /fba:review | odoo_module/, prd.md, sdd.md | review_report.md | review |
 | ci_cd | cicd_manager | /fba:ship | odoo_module/ | ci_workflow.yml | ci_cd |
@@ -129,7 +129,7 @@ interactive question-asker.
 - When invoking a sub-agent, include relevant context from current artifacts.
 - Include PRD when moving to planning.
 - Include SDD, tasks/index.json, and module_registry.json when moving to construction.
-- The constructor internally produces schema.json (SSOT) from these inputs before
+- The code-generator internally produces schema.json (SSOT) from these inputs before
   generating code. Downstream phases (test, review, ship) receive schema.json as
   the authoritative module structure reference.
 
@@ -219,7 +219,7 @@ See `.opencode/commands/` for full documentation of each slash command.
 - `/fba:specify` -- Generate PRD
 - `/fba:plan` -- Generate SDD and technical plan
 - `/fba:tasks` -- Create task list
-- `/fba:build` -- Generate Odoo module code
+- `/fba:construct` -- Generate Odoo module code
 - `/fba:test` -- Run tests
 - `/fba:review` -- Review code
 - `/fba:ship` -- Generate CI/CD and finalize

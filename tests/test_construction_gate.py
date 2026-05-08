@@ -14,7 +14,7 @@ def _make_project(tmp_path: Path, schema: dict, gates: dict) -> GateRunner:
         "project": "test",
         "current_phase": "construction",
         "methodology": "BABOK",
-        "phases": {"construction": {"status": "in_progress", "agent": "constructor"}},
+        "phases": {"construction": {"status": "in_progress", "agent": "code-generator"}},
         "valid_transitions": {"construction": ["testing"]},
         "gates": {"construction": gates},
         "artifacts": {},
@@ -43,7 +43,7 @@ class TestViewCoverage:
         }
         gates = {
             "description": "test",
-            "owner_agent": "constructor",
+            "owner_agent": "code-generator",
             "rules": [
                 {"type": "view_coverage", "rule_name": "vc", "path": ".factory/schema.json"},
             ],
@@ -68,7 +68,7 @@ class TestViewCoverage:
         }
         gates = {
             "description": "test",
-            "owner_agent": "constructor",
+            "owner_agent": "code-generator",
             "rules": [
                 {"type": "view_coverage", "rule_name": "vc", "path": ".factory/schema.json"},
             ],
@@ -94,7 +94,7 @@ class TestViewCoverage:
         }
         gates = {
             "description": "test",
-            "owner_agent": "constructor",
+            "owner_agent": "code-generator",
             "rules": [
                 {"type": "view_coverage", "rule_name": "vc", "path": ".factory/schema.json"},
             ],
@@ -107,7 +107,7 @@ class TestViewCoverage:
     def test_fails_when_schema_missing(self, tmp_path):
         gates = {
             "description": "test",
-            "owner_agent": "constructor",
+            "owner_agent": "code-generator",
             "rules": [
                 {"type": "view_coverage", "rule_name": "vc", "path": ".factory/schema.json"},
             ],
@@ -116,7 +116,7 @@ class TestViewCoverage:
         factory.mkdir(parents=True)
         state = {
             "project": "test", "current_phase": "construction", "methodology": "BABOK",
-            "phases": {"construction": {"status": "in_progress", "agent": "constructor"}},
+            "phases": {"construction": {"status": "in_progress", "agent": "code-generator"}},
             "valid_transitions": {"construction": ["testing"]},
             "gates": {"construction": gates},
             "artifacts": {}, "context": {},
@@ -145,7 +145,7 @@ class TestViewFieldCheck:
         }
         gates = {
             "description": "test",
-            "owner_agent": "constructor",
+            "owner_agent": "code-generator",
             "rules": [
                 {"type": "view_field_check", "rule_name": "vfc", "path": ".factory/schema.json"},
             ],
@@ -170,7 +170,7 @@ class TestViewFieldCheck:
         }
         gates = {
             "description": "test",
-            "owner_agent": "constructor",
+            "owner_agent": "code-generator",
             "rules": [
                 {"type": "view_field_check", "rule_name": "vfc", "path": ".factory/schema.json"},
             ],
@@ -201,7 +201,7 @@ class TestAclCoverage:
         }
         gates = {
             "description": "test",
-            "owner_agent": "constructor",
+            "owner_agent": "code-generator",
             "rules": [
                 {"type": "acl_coverage", "rule_name": "ac", "path": ".factory/schema.json"},
             ],
@@ -232,7 +232,7 @@ class TestAclCoverage:
         }
         gates = {
             "description": "test",
-            "owner_agent": "constructor",
+            "owner_agent": "code-generator",
             "rules": [
                 {"type": "acl_coverage", "rule_name": "ac", "path": ".factory/schema.json"},
             ],
@@ -267,7 +267,7 @@ class TestConstructionGateIntegration:
         }
         gates = {
             "description": "full",
-            "owner_agent": "constructor",
+            "owner_agent": "code-generator",
             "rules": [
                 {"type": "artifact_exists", "rule_name": "schema_exists", "path": ".factory/schema.json"},
                 {"type": "view_coverage", "rule_name": "vc", "path": ".factory/schema.json"},
@@ -296,7 +296,7 @@ class TestConstructionGateIntegration:
         }
         gates = {
             "description": "full",
-            "owner_agent": "constructor",
+            "owner_agent": "code-generator",
             "rules": [
                 {"type": "view_coverage", "rule_name": "vc", "path": ".factory/schema.json"},
                 {"type": "view_field_check", "rule_name": "vfc", "path": ".factory/schema.json"},

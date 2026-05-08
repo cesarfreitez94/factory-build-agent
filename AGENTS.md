@@ -30,12 +30,14 @@ of this framework is Odoo addons; the framework itself is a development tool.
 
 ### Agent System
 
-1 orchestrator + 7 sub-agents defined declaratively in `.opencode/agents/*.md`:
+1 orchestrator + 9 sub-agents defined declaratively in `.opencode/agents/*.md`:
 - **Orchestrator** — Coordinates phases, validates artifacts, invokes sub-agents.
 - **Elicitador** — Requirements elicitation using BABOK methodology.
 - **Documentador** — Generates PRD.md and SDD.md documentation.
 - **Planificador** — Generates technical plan and Odoo v18 architecture.
-- **Constructor** — Generates Odoo v18 module code. Internally operates as:
+- **Revisor de Artefactos** — Validates artifacts against schemas and cross-artifact coherence.
+- **Validador Semantico** — Validates semantic alignment of artifacts against original request.
+- **Code Generator** — Generates Odoo v18 module code. Internally operates as:
   - Schema Manager — Assembles deterministic `schema.json` (SSOT) from tasks + SDD + module registry.
   - Code Renderer — Generates code files from `schema.json` with zero interpretation.
 - **Tester/QA** — Generates and runs tests for the generated Odoo modules.
@@ -47,7 +49,7 @@ The agent system is extensible: adding a new sub-agent = adding a Markdown defin
 ### Pipeline (tasks → construction)
 
 ```
-planner → tasks/index.json + T*.json → constructor
+planner → tasks/index.json + T*.json → code-generator
                                           ├── Schema Manager: assembly + normalization + registry lookup
                                           │   → produces schema.json (SSOT)
                                           └── Code Renderer: iterative generation per task
@@ -149,9 +151,11 @@ main (PROTEGIDO - solo PR merge)
 See [ROADMAP.md](ROADMAP.md) for full milestone details and progress tracking.
 
 - **M0: Foundation** — COMPLETED. Repo structure, orchestrator, `fba init` CLI, CI/CD for the framework.
-- **M1: Elicitation + Documentation** — NEXT. BABOK elicitation flow, PRD.md generation.
-- **M2: Planning + SDD** — SDD.md generation, technical plan, traceability PRD→SDD.
-- **M3: Construction + MVP** — Full E2E: Odoo v18 CRUD module built, tested, reviewed, shipped.
+- **M1: Elicitation + Documentation** — COMPLETED. BABOK elicitation flow, PRD.md generation.
+- **M2: Planning + SDD** — COMPLETED. SDD.md generation, technical plan, traceability PRD→SDD.
+- **M3: Construction + MVP** — COMPLETED. Full E2E: Odoo v18 CRUD module built, tested, reviewed, shipped.
+- **M4: Gates System** — COMPLETED. Declarative gate system, artifact reviewer, semantic validator.
+- **M5: Bug Fixes & Stability** — IN PROGRESS. Post-release fixes and stabilization.
 
 ## Tech Stack
 

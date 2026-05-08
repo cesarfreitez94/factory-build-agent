@@ -47,7 +47,7 @@ opencode .
 # > /fba:specify
 # > /fba:plan
 # > /fba:tasks
-# > /fba:build
+# > /fba:construct
 # > /fba:test
 # > /fba:review
 # > /fba:ship
@@ -58,20 +58,22 @@ opencode .
 ```
 /fba:init ──► /fba:elicit ──► /fba:specify ──► /fba:plan ──► /fba:tasks
                                                                     │
-/fba:ship ◄── /fba:review ◄── /fba:test ◄── /fba:build ◄───────────┘
+/fba:ship ◄── /fba:review ◄── /fba:test ◄── /fba:construct ◄───────────┘
 ```
 
 ## Arquitectura
 
-Factory Build Agent esta compuesto por un **orquestador** y **7 sub-agentes**
-especializados, cada uno definido declarativamente en YAML:
+Factory Build Agent esta compuesto por un **orquestador** y **9 sub-agentes**
+especializados, cada uno definido declarativamente en Markdown:
 
 | Agente | Responsabilidad |
 |--------|----------------|
 | Elicitador | Elicitar requisitos con metodologia BABOK |
 | Documentador | Generar PRD.md y SDD.md |
 | Planificador | Crear plan tecnico y arquitectura Odoo v18 |
-| Constructor | Generar codigo del modulo Odoo v18 |
+| Revisor de Artefactos | Validar artefactos contra schemas y coherencia cross-artifact |
+| Validador Semantico | Validar alineacion semantica contra solicitud original |
+| Code Generator | Generar codigo del modulo Odoo v18 |
 | Tester/QA | Generar y ejecutar pruebas |
 | Revisor de Codigo | Revisar calidad, seguridad y adherencia |
 | CI/CD Manager | Generar workflows de GitHub Actions |
@@ -91,15 +93,20 @@ Los agentes se comunican mediante un sistema hibrido: artefactos en archivos
 
 ```
 factory-build-agent/
-├── AGENTS.md          # Contexto para OpenCode
-├── README.md          # Este archivo
-├── ROADMAP.md         # Hitos y progreso
-├── pyproject.toml     # Configuracion del paquete Python
-├── src/fba/           # Codigo fuente del framework
-├── templates/         # Plantillas que `fba init` copia al proyecto Odoo
-├── schemas/           # JSON Schemas para validacion de artefactos
-├── tests/             # Tests del framework
-└── docs/              # Documentacion del framework
+├── AGENTS.md              # Contexto para OpenCode
+├── CONTRIBUTING.md        # Workflow de desarrollo
+├── README.md              # Este archivo
+├── ROADMAP.md             # Hitos y progreso
+├── CHANGELOG.md           # Registro de cambios
+├── LICENSE                # Licencia MIT
+├── pyproject.toml         # Configuracion del paquete Python
+├── .github/               # CI/CD del framework (workflows, templates)
+├── src/fba/               # Codigo fuente del framework
+├── templates/             # Plantillas que `fba init` copia al proyecto Odoo
+├── schemas/               # JSON Schemas para validacion de artefactos
+├── tests/                 # Tests del framework
+└── docs/                  # Documentacion del framework
+    └── testing/           # Guias de testing por milestone
 ```
 
 ## Requisitos

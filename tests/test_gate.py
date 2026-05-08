@@ -976,7 +976,7 @@ class TestTestingReviewGates:
                 "documentation": {"status": "complete", "agent": "documentador"},
                 "planning": {"status": "complete", "agent": "planificador"},
                 "tasks": {"status": "complete", "agent": "planificador"},
-                "construction": {"status": "complete", "agent": "constructor"},
+                "construction": {"status": "complete", "agent": "code-generator"},
                 "testing": {"status": "pending", "agent": "tester_qa"},
                 "review": {"status": "pending", "agent": "revisor_codigo"},
             },
@@ -1213,7 +1213,7 @@ class TestTestingReviewGates:
         gates = {
             "construction": {
                 "description": "Validates construction",
-                "owner_agent": "constructor",
+                "owner_agent": "code-generator",
                 "rules": [
                     {"type": "artifact_exists", "rule_name": "schema_exists", "path": ".factory/schema.json"},
                 ],
@@ -1230,7 +1230,7 @@ class TestTestingReviewGates:
         gates = {
             "construction": {
                 "description": "Validates construction",
-                "owner_agent": "constructor",
+                "owner_agent": "code-generator",
                 "rules": [
                     {"type": "artifact_exists", "rule_name": "schema_exists", "path": ".factory/schema.json"},
                 ],
