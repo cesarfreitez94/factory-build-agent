@@ -43,6 +43,13 @@ def _valid_state():
             "M10": "in_progress",
             "M6": "planned"
         },
+        "roadmap_summary": [
+            {"milestone":"M0","name":"Fundacion","status":"completed","start_date":"2026-05-02","end_date":"2026-05-02"},
+            {"milestone":"M1","name":"Elicitacion","status":"completed","start_date":"2026-05-03","end_date":"2026-05-03"},
+            {"milestone":"M5","name":"Bug Fixes","status":"completed","start_date":"2026-05-06","end_date":"2026-05-08"},
+            {"milestone":"M10","name":"Meta-Development","status":"in_progress","start_date":"2026-05-09"},
+            {"milestone":"M6","name":"Optimizacion","status":"planned"}
+        ],
         "pending_decisions": [],
         "open_briefs": [],
         "agents": {
@@ -120,6 +127,12 @@ class TestFrameworkStateSchemaMissingFields:
     def test_missing_roadmap_status_fails(self, fw_state_schema):
         state = _valid_state()
         del state["roadmap_status"]
+        with pytest.raises(jsonschema.ValidationError):
+            jsonschema.validate(state, fw_state_schema)
+
+    def test_missing_roadmap_summary_fails(self, fw_state_schema):
+        state = _valid_state()
+        del state["roadmap_summary"]
         with pytest.raises(jsonschema.ValidationError):
             jsonschema.validate(state, fw_state_schema)
 

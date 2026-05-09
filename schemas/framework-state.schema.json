@@ -3,7 +3,7 @@
   "title": "FBA Framework Meta-Development State",
   "description": "Persistent state schema for the framework meta-agents (orchestrator, planner, builder)",
   "type": "object",
-  "required": ["schema_version", "last_updated", "last_session", "active_milestone", "roadmap_status", "agents"],
+  "required": ["schema_version", "last_updated", "last_session", "active_milestone", "roadmap_status", "roadmap_summary", "agents"],
   "properties": {
     "schema_version": {
       "type": "string",
@@ -96,6 +96,21 @@
       "additionalProperties": {
         "type": "string",
         "enum": ["planned", "in_progress", "completed"]
+      }
+    },
+    "roadmap_summary": {
+      "type": "array",
+      "description": "Compact summary of all milestones for the orchestrator — eliminates need to read ROADMAP.md",
+      "items": {
+        "type": "object",
+        "required": ["milestone", "name", "status"],
+        "properties": {
+          "milestone": { "type": "string", "description": "Milestone ID (M0, M1, ...)" },
+          "name": { "type": "string", "description": "Short human-readable name" },
+          "status": { "type": "string", "enum": ["planned", "in_progress", "completed"], "description": "Current status" },
+          "start_date": { "type": "string", "description": "Start date (YYYY-MM-DD)" },
+          "end_date": { "type": "string", "description": "End date (YYYY-MM-DD)" }
+        }
       }
     },
     "pending_decisions": {

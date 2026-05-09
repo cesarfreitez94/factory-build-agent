@@ -4,8 +4,8 @@
   "last_session": {
     "date": "2026-05-09",
     "agent": "framework-builder",
-    "action": "M10 completado: 5 feats mergeados a milestone/10.0-framework-meta-dev",
-    "completed_feats": ["feat/10.1-framework-state", "feat/10.2-agentes-meta", "feat/10.3-slash-commands", "feat/10.4-fw-brief-template", "feat/10.5-docs"],
+    "action": "feat/10.6: optimizar consumo de tokens del orquestador (~25k → ~3k, solo lee framework-state.json)",
+    "completed_feats": ["feat/10.6-token-optimization"],
     "pending_feats": [],
     "blockers": []
   },
@@ -14,8 +14,8 @@
     "name": "Framework Meta-Development System",
     "branch": "milestone/10.0-framework-meta-dev",
     "status": "in_progress",
-    "feats_total": 5,
-    "feats_done": 5,
+    "feats_total": 6,
+    "feats_done": 6,
     "feats_pending": [],
     "ready_for_user_review": true
   },
@@ -32,6 +32,19 @@
     "M8": "planned",
     "M9": "planned"
   },
+  "roadmap_summary": [
+    {"milestone":"M0","name":"Fundacion","status":"completed","start_date":"2026-05-02","end_date":"2026-05-02"},
+    {"milestone":"M1","name":"Elicitacion + Documentacion","status":"completed","start_date":"2026-05-03","end_date":"2026-05-03"},
+    {"milestone":"M2","name":"Planificacion + SDD","status":"completed","start_date":"2026-05-04","end_date":"2026-05-04"},
+    {"milestone":"M4","name":"Sistema de Gates","status":"completed","start_date":"2026-05-05","end_date":"2026-05-05"},
+    {"milestone":"M3","name":"Construccion + MVP","status":"completed","start_date":"2026-05-05","end_date":"2026-05-06"},
+    {"milestone":"M5","name":"Bug Fixes & Stability","status":"completed","start_date":"2026-05-06","end_date":"2026-05-08"},
+    {"milestone":"M10","name":"Framework Meta-Development","status":"in_progress","start_date":"2026-05-09"},
+    {"milestone":"M6","name":"Optimizacion de Agentes","status":"planned"},
+    {"milestone":"M7","name":"User Stories + Code Gen Dual","status":"planned"},
+    {"milestone":"M8","name":"Pipeline, Performance, Multi-modulo","status":"planned"},
+    {"milestone":"M9","name":"Testing Avanzado + Feedback","status":"planned"}
+  ],
   "pending_decisions": [],
   "open_briefs": [],
   "agents": {
