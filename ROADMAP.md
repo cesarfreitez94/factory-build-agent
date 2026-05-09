@@ -14,7 +14,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M4: Sistema de Gates | ✅ Completado | 2026-05-05 / 2026-05-05 |
 | M3: Construccion + MVP | ✅ Completado | 2026-05-05 / 2026-05-06 |
 | M5: Bug Fixes & Stability | ✅ Completado | 2026-05-06 / 2026-05-08 |
-| M6: Optimización de Agentes | ⏳ Planificado | — / — |
+| M6: Optimización de Agentes | 🔄 En Progreso | 2026-05-09 / — |
 | M7: User Stories + Code Gen Dual | ⏳ Planificado | — / — |
 | M8: Pipeline, Performance, Multi-modulo | ⏳ Planificado | — / — |
 | M9: Testing Avanzado + Feedback | ⏳ Planificado | — / — |
@@ -370,13 +370,49 @@ Instrucciones de agentes extraidas a archivos compartidos para eliminar duplicac
 ```
 main
   └── milestone/6.0-optimizar-agentes         ← creado desde main
-        ├── feat/6.1-orquestador-ligero        ← delegar elicitacion, reducir a control de flujo
-        ├── feat/6.2-instrucciones-agentes     ← reducir duplicacion, formato conciso
-        ├── feat/6.3-convenciones-compartidas  ← knowledge base granular (odoo/, babok/, testing/, security/)
+        ├── feat/initm6                       ← [x] plan de implementacion completo
+        ├── feat/6.0-session-manager          ← CLI determinista de decisiones de pipeline
+        ├── feat/6.1-orquestador-ligero       ← orquestador ~80l, elicitacion via JSON
+        ├── feat/6.2-instrucciones-agentes    ← reducir duplicacion, formato conciso
+        ├── feat/6.3-convenciones-compartidas ← knowledge base granular (odoo/, babok/, testing/, security/)
         ├── feat/6.4-identidad-vs-instrucciones ← separar runtime (agents/ knowledge/ contracts/)
-        ├── feat/6.5-artifact-contracts        ← invariantes, ownership, allowed mutations por artefacto
+        ├── feat/6.5-artifact-contracts       ← invariantes, ownership, allowed mutations por artefacto
         └── feat/6.6-stable-ids               ← UUIDs persistentes para todas las entidades
 ```
+
+> Ver plan detallado: [docs/planning/m6-implementation-plan.md](docs/planning/m6-implementation-plan.md)
+
+### M6.0: Session Manager (CLI)
+
+**Objetivo**: Motor determinista de decisiones de pipeline. Stateless: cada query
+lee `state.json` fresco y responde con la siguiente accion. Zero tokens, 100% testeable.
+
+**Entregables**:
+- [ ] `src/fba/session_manager.py` — `SessionManager` con `query(SessionQuery) → SessionResponse`
+- [ ] `schemas/session_query.schema.json` y `schemas/session_response.schema.json`
+- [ ] Comando CLI `fba session query '<json>'`
+- [ ] `state.json` extendido con `command` y `type` (interactive/batch) en cada fase
+- [ ] Tests unitarios (10 casos: todas las transiciones de estado)
+- [x] Plan de implementacion (`docs/planning/m6-implementation-plan.md`)
+
+**Depende de**: M5 (estabilidad actual)
+
+---
+
+### M6.1: Orquestador Ligero
+
+**Objetivo**: Reducir `orchestrator.md` de 250 → ~80 lineas delegando decisiones
+al Session Manager. Elicitacion via JSON protocol (elicitador disena preguntas,
+orquestador las renderiza con `question` tool).
+
+**Entregables**:
+- [ ] `orchestrator.md` reducido a control de flujo puro: loop de `fba session query → ejecutar accion`
+- [ ] `elicitador.md` actualizado: produce `elicit_questions.json`, procesa `elicit_answers.json`
+- [ ] `schemas/elicit_questions.schema.json` y `schemas/elicit_answers.schema.json`
+- [ ] `fba:elicit.md` actualizado: agente cambia a `elicitador`
+- [ ] `protocols/milestone-completion.md` extraido del orquestador
+
+**Depende de**: M6.0 (session manager)
 
 ### M6.1: Orquestador Ligero
 
