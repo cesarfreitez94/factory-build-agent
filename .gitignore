@@ -71,5 +71,6 @@ venv.bak/
 .opencode/log/
 
 # Factory Build Agent target projects (these are output, not source)
-.factory/
-!templates/.factory/module_registry.json
+.factory/*
+!.factory/framework-state.json
+!templates/.factory/*
