@@ -14,6 +14,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M4: Sistema de Gates | ✅ Completado | 2026-05-05 / 2026-05-05 |
 | M3: Construccion + MVP | ✅ Completado | 2026-05-05 / 2026-05-06 |
 | M5: Bug Fixes & Stability | ✅ Completado | 2026-05-06 / 2026-05-08 |
+| M10: Framework Meta-Development | ⏳ En progreso | 2026-05-09 / — |
 | M6: Optimización de Agentes | ⏳ Planificado | — / — |
 | M7: User Stories + Code Gen Dual | ⏳ Planificado | — / — |
 | M8: Pipeline, Performance, Multi-modulo | ⏳ Planificado | — / — |
@@ -353,6 +354,41 @@ fba transition tasks       # ✅ gate planning passed, transicion ok
 ```bash
 fba init --project-dir ../fba-test/v3/
 opencode .  # debe abrir sin error
+```
+
+---
+
+## M10: Framework Meta-Development System
+
+**Objetivo**: Implementar un sistema de 3 agentes meta (orchestrator, planner, builder) que
+gestiona el desarrollo del propio framework FBA de forma autonoma, eliminando la friccion
+entre sesiones y permitiendo ejecucion de milestones sin intervencion constante del usuario.
+
+**Alcance**: Los meta-agentes coordinan, planifican y construyen mejoras del framework.
+M6-M9 se ejecutaran usando este sistema.
+
+### Tareas
+
+- [x] `.factory/framework-state.json` — estado persistente entre sesiones
+- [x] `schemas/framework-state.schema.json` — validacion del archivo de estado
+- [x] `.opencode/agents/framework-orchestrator.md` — coordinador (solo delega, no implementa)
+- [x] `.opencode/agents/framework-planner.md` — arquitecto de mejoras (zero suposiciones)
+- [x] `.opencode/agents/framework-builder.md` — constructor autonomo (respeta CONTRIBUTING.md)
+- [x] `.opencode/commands/fba:fw.md` — punto de entrada del sistema meta
+- [x] `.opencode/commands/fba:fw-plan.md` — acceso directo a planificacion
+- [x] `.opencode/commands/fba:fw-build.md` — acceso directo a construccion
+- [x] `docs/fw-brief-template.md` — template de referencia del brief
+- [x] `docs/testing/m10-framework-meta-dev.md` — instrucciones de testing
+- [x] Documentacion actualizada: AGENTS.md, ROADMAP.md, CHANGELOG.md
+
+### Verificacion
+
+```bash
+opencode .                    # abrir el framework en OpenCode
+/fba:fw                       # orchestrator presenta resumen del roadmap
+/fba:fw-plan "[mejora]"       # planner genera fw-brief.md (pregunta si hay ambiguedad)
+/fba:fw-build                 # builder ejecuta el brief segun CONTRIBUTING.md
+pytest                        # todos los tests pasan
 ```
 
 ---
