@@ -22,6 +22,7 @@ of this framework is Odoo addons; the framework itself is a development tool.
 ### Runtime
 - **OpenCode**: The agent CLI that executes slash commands and manages sub-agents.
 - **Aux CLI**: Python 3.11+ (Click library) for the `fba` command-line tool.
+- **Session Manager**: Stateless CLI (`fba session query`) that reads `state.json` and returns deterministic pipeline decisions. Eliminates decision logic from the orchestrator, reducing its context size.
 
 ### State Management
 - `.factory/state.json` — State machine tracking current phase, artifacts, agent assignments.
@@ -163,7 +164,8 @@ See [ROADMAP.md](ROADMAP.md) for full milestone details and progress tracking.
 - **M2: Planning + SDD** — COMPLETED. SDD.md generation, technical plan, traceability PRD→SDD.
 - **M3: Construction + MVP** — COMPLETED. Full E2E: Odoo v18 CRUD module built, tested, reviewed, shipped.
 - **M4: Gates System** — COMPLETED. Declarative gate system, artifact reviewer, semantic validator.
-- **M5: Bug Fixes & Stability** — IN PROGRESS. Post-release fixes and stabilization.
+- **M5: Bug Fixes & Stability** — COMPLETED. Post-release fixes and stabilization.
+- **M6: Optimización de Agentes** — IN PROGRESS. Session Manager (CLI determinista de pipeline), orquestador ligero, knowledge base.
 
 ## Tech Stack
 

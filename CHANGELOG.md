@@ -41,6 +41,23 @@ Orden corregido: M6 → M7 → M8 (Pipeline) → M9 (Testing). M8 provee la infr
 
 ---
 
+## [Unreleased] - M6 en Progreso
+
+### Agregado (M6.0: Session Manager)
+
+- `src/fba/session_manager.py`: `SessionManager` — motor determinista de decisiones de pipeline (#81)
+  - Stateless: lee `state.json` y responde con la siguiente accion via tabla de decision de 10 casos
+  - `ActionType`: `invoke_agent`, `elicit_round`, `transition`, `ask_user`, `complete`
+  - `SessionQuery` / `SessionResponse`: dataclasses con validacion JSON Schema
+  - Fases `interactive` (elicitacion con QA loop) vs `batch` (agente directo)
+- CLI: `fba session query '<json>'` — comando que invoca el Session Manager
+- Schemas: `session_query.schema.json` + `session_response.schema.json`
+- `state.schema.json`: refactorizado con `definitions/phase`, nuevos campos `command`, `type`, `questions_file`, `answers_file`, `output_file` por fase
+- `_init_factory_state()`: cada fase configurada con `command` y `type`
+- Tests: 12 tests en `test_session_manager.py`, 447 total
+
+---
+
 ## [0.5.1] - 2026-05-06
 
 ### Corregido
