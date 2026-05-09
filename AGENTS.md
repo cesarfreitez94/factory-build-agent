@@ -81,6 +81,8 @@ never reinterpret structure independently.
 11. **Cambios de alcance o arquitectura requieren actualizar documentacion.**
     Agentes nuevos, fases, artefactos, schemas, o componentes arquitectonicos
     → actualizar AGENTS.md, ROADMAP.md, CHANGELOG.md, y templates/docs/testing/.
+12. **El PR de milestone a `main` DEBE incluir ROADMAP.md y CHANGELOG.md actualizados.**
+    El milestone debe aparecer como ✅ Completado con fecha de fin. Sin esto, el PR no se aprueba.
 
 ### Ciclo de Vida de un Milestone
 
@@ -89,14 +91,20 @@ never reinterpret structure independently.
 2. Crear branch: milestone/X.0-descripcion (desde main)
 3. Desglosar sub-issues con labels de fase y tipo
 4. Iterar feat/X.Y.Z → PR → merge a milestone branch
-5. Completadas todas las sub-issues → actualizar ROADMAP.md y CHANGELOG.md
+5. Completadas todas las sub-issues → preparar PR a main:
+   a. Actualizar ROADMAP.md: marcar milestone como ✅ Completado con fecha de fin
+   b. Actualizar CHANGELOG.md: agregar entrada de cierre del milestone
+   c. Ejecutar pytest y confirmar 0 fallos
 6. Validar el milestone branch manualmente:
-   a. Ejecutar pytest y confirmar 0 fallos
-   b. Seguir los pasos en docs/testing/mX-*.md
-   c. El usuario debe dar confirmacion explicita
-   d. El agente NO PUEDE abrir PR a main sin esta confirmacion
+   a. Seguir los pasos en docs/testing/mX-*.md
+   b. El usuario debe dar confirmacion explicita
+   c. El agente NO PUEDE abrir PR a main sin esta confirmacion
 7. PR de milestone/X.0 → main → aprobar → merge
-8. Cerrar Epic Issue
+8. Verificar post-merge: confirmar que ROADMAP.md en main muestra ✅ Completado
+9. Cerrar Epic Issue
+
+⛔ REGLA BLOQUEANTE: El PR de milestone a main DEBE incluir la actualizacion
+   de ROADMAP.md y CHANGELOG.md. No se aprueba un PR sin estos cambios.
 ```
 
 ### Convencion de Commits
