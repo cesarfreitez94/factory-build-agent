@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Session Response",
+  "description": "Response from the Session Manager telling the orchestrator what to do next",
+  "type": "object",
+  "required": ["action"],
+  "properties": {
+    "action": {
+      "type": "string",
+      "enum": ["invoke_agent", "elicit_round", "transition", "ask_user", "complete"],
+      "description": "Next action for the orchestrator"
+    },
+    "agent": {
+      "type": "string",
+      "description": "Agent name (for invoke_agent)"
+    },
+    "command": {
+      "type": "string",
+      "description": "Slash command to execute (for invoke_agent)"
+    },
+    "input_files": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Files the agent must read before execution"
+    },
+    "questions_file": {
+      "type": "string",
+      "description": "Path to questions JSON (for elicit_round)"
+    },
+    "answers_file": {
+      "type": "string",
+      "description": "Path to write user answers (for elicit_round)"
+    },
+    "to_phase": {
+      "type": "string",
+      "description": "Target phase for transition (for transition)"
+    },
+    "gates_required": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Gates that must pass before transition"
+    },
+    "user_question": {
+      "type": "object",
+      "description": "Question to present to user (for ask_user)",
+      "properties": {
+        "header": {"type": "string"},
+        "question": {"type": "string"},
+        "options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {"type": "string"},
+              "description": {"type": "string"}
+            },
+            "required": ["label", "description"]
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "string",
+      "description": "Human-readable summary of the action"
+    }
+  }
+}
