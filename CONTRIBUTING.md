@@ -28,6 +28,8 @@
     AGENTS.md (seccion Architecture), ROADMAP.md (descripcion del milestone),
     CHANGELOG.md, y los archivos de templates/docs/testing/ afectados.
     Esto es parte del feature, no un afterthought.
+12. **El PR de milestone a `main` DEBE incluir ROADMAP.md y CHANGELOG.md actualizados.**
+    El milestone debe aparecer como ✅ Completado con fecha de fin. Sin esto, el PR no se aprueba.
 
 ---
 
@@ -93,17 +95,21 @@ main (PROTEGIDO - solo PR merge)
 2. Crear branch: milestone/X.0-descripcion (desde main)
 3. Crear sub-issues para cada tarea del milestone
 4. Completar todas las sub-issues via PRs al milestone branch
-5. Actualizar ROADMAP.md y CHANGELOG.md
-6. Verificar que docs/testing/mX-descripcion.md existe
-7. **Validar el milestone branch manualmente**:
-   a. Ejecutar `pytest` y confirmar 0 fallos
-   b. Seguir los pasos en `docs/testing/mX-*.md`
-   c. Probar los comandos slash en un proyecto limpio
-   d. El usuario debe dar confirmacion explicita
-   e. ⛔ El agente NO PUEDE abrir PR a main sin esta confirmacion
-8. Abrir PR del milestone branch a main
-9. Revisar checklist de completitud
-10. Merge a main
+5. Completadas todas las sub-issues → preparar PR a main:
+   a. Actualizar ROADMAP.md: marcar milestone como ✅ Completado con fecha de fin
+   b. Actualizar CHANGELOG.md: agregar entrada de cierre del milestone
+   c. Verificar que docs/testing/mX-descripcion.md existe
+   d. Ejecutar pytest y confirmar 0 fallos
+6. **Validar el milestone branch manualmente**:
+   a. Seguir los pasos en `docs/testing/mX-*.md`
+   b. Probar los comandos slash en un proyecto limpio
+   c. El usuario debe dar confirmacion explicita
+   d. ⛔ El agente NO PUEDE abrir PR a main sin esta confirmacion
+7. Abrir PR del milestone branch a main
+   ⛔ El PR DEBE incluir ROADMAP.md y CHANGELOG.md actualizados
+8. Revisar checklist de completitud (ver seccion Checklist Pre-PR)
+9. Merge a main (aprobar → merge)
+10. Verificar post-merge: confirmar que ROADMAP.md en main muestra ✅ Completado
 11. Cerrar Epic Issue
 ```
 
@@ -138,6 +144,8 @@ Antes de abrir un Pull Request, verificar:
 - [ ] Todos los tests pasan: `pytest`
 - [ ] El codigo nuevo tiene tests (si aplica)
 - [ ] La documentacion esta actualizada (AGENTS.md, ROADMAP.md, CHANGELOG.md, docs/testing/ si aplica)
+- [ ] ROADMAP.md marca el milestone como ✅ Completado con fecha de fin (si es PR de milestone)
+- [ ] CHANGELOG.md tiene entrada de cierre del milestone con referencia al issue (si es PR de milestone)
 - [ ] El PR referencia el Issue que cierra (`Closes #XX`)
 - [ ] Los commits siguen conventional commits con referencia al issue
 - [ ] El branch esta al dia con su parent (milestone o main)
