@@ -163,7 +163,9 @@ See [ROADMAP.md](ROADMAP.md) for full milestone details and progress tracking.
 - **M2: Planning + SDD** — COMPLETED. SDD.md generation, technical plan, traceability PRD→SDD.
 - **M3: Construction + MVP** — COMPLETED. Full E2E: Odoo v18 CRUD module built, tested, reviewed, shipped.
 - **M4: Gates System** — COMPLETED. Declarative gate system, artifact reviewer, semantic validator.
-- **M5: Bug Fixes & Stability** — IN PROGRESS. Post-release fixes and stabilization.
+- **M5: Bug Fixes & Stability** — COMPLETED. Post-release fixes and stabilization.
+- **M10: Framework Meta-Development** — IN PROGRESS. Meta-agents for autonomous framework development.
+  M6-M9 will be executed using the M10 meta-agent system.
 
 ## Tech Stack
 
@@ -187,6 +189,11 @@ factory-build-agent/
 │   ├── workflows/ci.yml   # Framework CI
 │   ├── ISSUE_TEMPLATE/    # Issue templates
 │   └── PULL_REQUEST_TEMPLATE.md
+├── .opencode/             # Framework's own agent/command definitions
+│   ├── agents/            # Meta-agent definitions (framework-orchestrator, planner, builder)
+│   └── commands/          # Slash commands for meta-development (/fba:fw, /fba:fw-plan, /fba:fw-build)
+├── .factory/              # Framework's own development state
+│   └── framework-state.json
 ├── src/fba/               # Framework source code
 ├── templates/             # Templates copied by `fba init`
 ├── schemas/               # JSON Schemas for artifact validation
@@ -201,6 +208,46 @@ factory-build-agent/
 - **Docs**: Document testing procedures in `docs/testing/`.
 - **No comments** in code unless explicitly requested.
 - **Language**: Project communication and documentation in Spanish. Code identifiers in English.
+
+## Framework Meta-Development
+
+> El desarrollo del propio framework FBA se gestiona con 3 agentes meta.
+> Este sistema es el punto de entrada para toda mejora del framework desde M10 en adelante.
+
+### Meta-Agents
+
+| Agente | Modo | Rol |
+|--------|------|-----|
+| `framework-orchestrator` | `primary` | Coordinador. Traduce intenciones del usuario en delegacion. NUNCA implementa. |
+| `framework-planner` | `subagent` (hidden) | Arquitecto. Descompone intenciones en `fw-brief.md`. CERO suposiciones. |
+| `framework-builder` | `subagent` (hidden) | Constructor. Ejecuta briefs siguiendo estrictamente CONTRIBUTING.md. |
+
+### Flujo
+
+```
+/fba:fw → orchestrator lee ROADMAP/state/changelog → presenta resumen
+                                                      ↓
+                                            espera intencion del usuario
+                                                      ↓
+                              ┌───────────────────────┼───────────────────────┐
+                              ↓                       ↓                       ↓
+                        /fba:fw-plan            /fba:fw-build            respuesta directa
+                              ↓                       ↓
+                         planner genera          builder ejecuta
+                         fw-brief.md           feats secuenciales
+                                                  ↓
+                                           pytest → commit → PR al milestone
+```
+
+### Archivos del sistema
+
+- `.factory/framework-state.json` — Estado persistente entre sesiones.
+- `.factory/fw-brief.md` — Plan ejecutable generado por el planner.
+- `.opencode/agents/framework-*.md` — Definiciones de los 3 agentes meta.
+- `.opencode/commands/fba:fw*.md` — Slash commands del sistema meta.
+
+Los agentes meta **no van en templates/** — son para el desarrollo de este repositorio,
+no para proyectos Odoo generados.
 
 ## Working on this project
 
