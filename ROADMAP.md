@@ -13,7 +13,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M2: Planificacion + SDD | ✅ Completado | 2026-05-04 / 2026-05-04 |
 | M4: Sistema de Gates | ✅ Completado | 2026-05-05 / 2026-05-05 |
 | M3: Construccion + MVP | ✅ Completado | 2026-05-05 / 2026-05-06 |
-| M5: Bug Fixes & Stability | 🔄 En progreso | 2026-05-06 / — |
+| M5: Bug Fixes & Stability | ✅ Completado | 2026-05-06 / 2026-05-08 |
 | M6: Optimización de Agentes | ⏳ Planificado | — / — |
 | M7: User Stories + Code Gen Dual | ⏳ Planificado | — / — |
 | M8: Pipeline, Performance, Multi-modulo | ⏳ Planificado | — / — |
@@ -341,7 +341,7 @@ fba transition tasks       # ✅ gate planning passed, transicion ok
 
 **Objetivo**: Corregir bugs encontrados post-release de los milestones core (M0-M4).
 
-**Estado**: 🔄 En progreso
+**Estado**: ✅ Completado
 
 ### Tareas
 
