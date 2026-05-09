@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "last_updated": "2026-05-09T00:00:00Z",
+  "last_session": {
+    "date": "2026-05-09",
+    "agent": "framework-builder",
+    "action": "feat/10.1-framework-state creado",
+    "completed_feats": [],
+    "pending_feats": ["feat/10.2", "feat/10.3", "feat/10.4", "feat/10.5"],
+    "blockers": []
+  },
+  "active_milestone": {
+    "id": "M10",
+    "name": "Framework Meta-Development System",
+    "branch": "milestone/10.0-framework-meta-dev",
+    "status": "in_progress",
+    "feats_total": 5,
+    "feats_done": 0,
+    "feats_pending": ["feat/10.1-framework-state", "feat/10.2-agentes-meta", "feat/10.3-slash-commands", "feat/10.4-fw-brief-template", "feat/10.5-docs"],
+    "ready_for_user_review": false
+  },
+  "roadmap_status": {
+    "M0": "completed",
+    "M1": "completed",
+    "M2": "completed",
+    "M3": "completed",
+    "M4": "completed",
+    "M5": "completed",
+    "M10": "in_progress",
+    "M6": "planned",
+    "M7": "planned",
+    "M8": "planned",
+    "M9": "planned"
+  },
+  "pending_decisions": [],
+  "open_briefs": [],
+  "agents": {
+    "framework-orchestrator": { "status": "active", "file": ".opencode/agents/framework-orchestrator.md" },
+    "framework-planner":     { "status": "active", "file": ".opencode/agents/framework-planner.md" },
+    "framework-builder":     { "status": "active", "file": ".opencode/agents/framework-builder.md" }
+  }
+}
