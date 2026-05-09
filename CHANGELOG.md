@@ -49,6 +49,7 @@ Orden corregido: M6 → M7 → M8 (Pipeline) → M9 (Testing). M8 provee la infr
   - `constructor` es propiedad readonly de `Object.prototype` en JS — causa crash `TypeError` al iniciar `opencode .`
   - `build` es agente built-in de OpenCode — conflicto de nombres
   - Renombrados todos los archivos: templates (2 renames), commands (4 contenido), source cli.py, tests (7 archivos), docs (7 archivos)
+- M5: Bug Fixes & Stability — completado (#76)
 
 ---
 
