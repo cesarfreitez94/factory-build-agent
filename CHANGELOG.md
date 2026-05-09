@@ -7,6 +7,40 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [Planificado] - M6 a M9 (Refinado 2026-05-08)
+
+Orden corregido: M6 → M7 → M8 (Pipeline) → M9 (Testing). M8 provee la infraestructura
+(cache, DAG, checkpoints) que M9 necesita para auto-fix y execution sandbox.
+
+### M6: Optimizacion de Agentes + Arquitectura Core
+- Delegar elicitacion a sub-agente para reducir tokens del orquestador
+- Instrucciones de agentes reducidas a <200 lineas cada uno
+- Base de conocimiento granular por dominio: `knowledge/odoo/`, `knowledge/babok/`, `knowledge/testing/`, `knowledge/security/`
+- Separacion runtime (agents) vs knowledge vs contracts
+- Artifact Contracts: invariantes, ownership, allowed mutations por artefacto (extiende JSON schemas)
+- Stable IDs (UUID v4) para todas las entidades en todos los artefactos
+
+### M7: User Stories + Code Generator Dual + Domain IR
+- Domain IR como capa del SDD: `domain_models` (dominio puro) + `odoo_mappings` (implementacion)
+- Soporte de User Stories como metodologia alternativa a BABOK
+- Personas, epicas, historias, criterios de aceptacion Given/When/Then
+- Code generator dividido: Model Generator + XML Generator
+
+### M8: Pipeline, Performance, Multi-modulo
+- Paralelizacion de tasks con DAG de dependencias
+- Pipeline incremental/resumible con checkpoints
+- Cache de validacion hash-based (depende de stable IDs)
+- Proyectos multi-modulo con registro de dependencias
+
+### M9: Testing Avanzado + Feedback + Sandbox
+- Testing ORM real con TransactionCase contra Odoo en Docker
+- Playwright para browser automation de vistas Odoo
+- Feedback loop: tests fallidos → analisis via stable_id → correccion automatica
+- Diagnostico estructurado de gate failures con sugerencias
+- Execution Sandbox: Docker runtime aislado con timeouts, quotas, retry policies
+
+---
+
 ## [0.5.1] - 2026-05-06
 
 ### Corregido
