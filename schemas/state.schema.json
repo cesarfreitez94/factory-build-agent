@@ -4,6 +4,20 @@
   "description": "State machine schema for Factory Build Agent project state",
   "type": "object",
   "required": ["project", "current_phase", "methodology", "phases", "artifacts"],
+  "definitions": {
+    "phase": {
+      "type": "object",
+      "properties": {
+        "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
+        "agent": {"type": "string"},
+        "command": {"type": "string", "description": "Slash command to invoke the agent"},
+        "type": {"enum": ["interactive", "batch"], "description": "Execution mode"},
+        "questions_file": {"type": "string", "description": "Path to questions JSON (interactive phases only)"},
+        "answers_file": {"type": "string", "description": "Path to answers JSON (interactive phases only)"},
+        "output_file": {"type": "string", "description": "Path to phase output artifact (interactive phases only)"}
+      }
+    }
+  },
   "properties": {
     "project": {
       "type": "string",
@@ -31,69 +45,15 @@
       "type": "object",
       "description": "Status of each phase",
       "properties": {
-        "init": {
-          "type": "object",
-          "properties": {
-            "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
-            "agent": {"type": "string"}
-          }
-        },
-        "elicitation": {
-          "type": "object",
-          "properties": {
-            "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
-            "agent": {"type": "string"}
-          }
-        },
-        "documentation": {
-          "type": "object",
-          "properties": {
-            "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
-            "agent": {"type": "string"}
-          }
-        },
-        "planning": {
-          "type": "object",
-          "properties": {
-            "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
-            "agent": {"type": "string"}
-          }
-        },
-        "tasks": {
-          "type": "object",
-          "properties": {
-            "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
-            "agent": {"type": "string"}
-          }
-        },
-        "construction": {
-          "type": "object",
-          "properties": {
-            "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
-            "agent": {"type": "string"}
-          }
-        },
-        "testing": {
-          "type": "object",
-          "properties": {
-            "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
-            "agent": {"type": "string"}
-          }
-        },
-        "review": {
-          "type": "object",
-          "properties": {
-            "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
-            "agent": {"type": "string"}
-          }
-        },
-        "ci_cd": {
-          "type": "object",
-          "properties": {
-            "status": {"type": "string", "enum": ["pending", "in_progress", "complete", "failed"]},
-            "agent": {"type": "string"}
-          }
-        }
+        "init": {"$ref": "#/definitions/phase"},
+        "elicitation": {"$ref": "#/definitions/phase"},
+        "documentation": {"$ref": "#/definitions/phase"},
+        "planning": {"$ref": "#/definitions/phase"},
+        "tasks": {"$ref": "#/definitions/phase"},
+        "construction": {"$ref": "#/definitions/phase"},
+        "testing": {"$ref": "#/definitions/phase"},
+        "review": {"$ref": "#/definitions/phase"},
+        "ci_cd": {"$ref": "#/definitions/phase"}
       }
     },
     "valid_transitions": {

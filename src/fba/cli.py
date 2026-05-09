@@ -8,6 +8,7 @@ import click
 from fba import __version__
 from fba.gate import GateError
 from fba.schema_manager import SchemaManager
+from fba.session_manager import SessionManager, SessionQuery
 from fba.state import StateManager
 
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent.parent / "templates"
@@ -140,15 +141,21 @@ def _init_factory_state(target: Path):
         "current_phase": "init",
         "methodology": "BABOK",
         "phases": {
-            "init": {"status": "in_progress", "agent": "orchestrator"},
-            "elicitation": {"status": "pending", "agent": "elicitador"},
-            "documentation": {"status": "pending", "agent": "documentador"},
-            "planning": {"status": "pending", "agent": "planificador"},
-            "tasks": {"status": "pending", "agent": "planificador"},
-            "construction": {"status": "pending", "agent": "code-generator"},
-            "testing": {"status": "pending", "agent": "tester_qa"},
-            "review": {"status": "pending", "agent": "revisor_codigo"},
-            "ci_cd": {"status": "pending", "agent": "cicd_manager"},
+            "init": {"status": "in_progress", "agent": "orchestrator", "command": "/fba:init"},
+            "elicitation": {
+                "status": "pending", "agent": "elicitador",
+                "command": "/fba:elicit", "type": "interactive",
+                "questions_file": ".factory/elicit_questions.json",
+                "answers_file": ".factory/elicit_answers.json",
+                "output_file": ".factory/context/elicitation.json",
+            },
+            "documentation": {"status": "pending", "agent": "documentador", "command": "/fba:specify", "type": "batch"},
+            "planning": {"status": "pending", "agent": "planificador", "command": "/fba:plan", "type": "batch"},
+            "tasks": {"status": "pending", "agent": "planificador", "command": "/fba:tasks", "type": "batch"},
+            "construction": {"status": "pending", "agent": "code-generator", "command": "/fba:construct", "type": "batch"},
+            "testing": {"status": "pending", "agent": "tester_qa", "command": "/fba:test", "type": "batch"},
+            "review": {"status": "pending", "agent": "revisor_codigo", "command": "/fba:review", "type": "batch"},
+            "ci_cd": {"status": "pending", "agent": "cicd_manager", "command": "/fba:ship", "type": "batch"},
         },
         "valid_transitions": {
             "init": ["elicitation"],
@@ -618,6 +625,52 @@ def validate(artifact, project_dir):
 
     if not all_valid:
         raise SystemExit(1)
+
+
+@main.group(name="session")
+def session_group():
+    """Session Manager commands — deterministic pipeline decision engine."""
+
+
+@session_group.command(name="query")
+@click.argument("json_query")
+@PROJECT_DIR_OPTION
+def session_query(json_query, project_dir):
+    """Query the Session Manager for the next pipeline action.
+
+    JSON_QUERY is a JSON string with fields: query, current_phase, phase_status,
+    gate_result, user_choice.
+
+    \\b
+    Example:
+        fba session query '{"query":"next_action","current_phase":"elicitation"}'
+    """
+    target = _resolve_project_dir(project_dir)
+
+    try:
+        query_data = json.loads(json_query)
+    except json.JSONDecodeError as e:
+        click.echo(f"Error: invalid JSON: {e}")
+        raise SystemExit(1)
+
+    try:
+        q = SessionQuery(
+            query=query_data.get("query", "next_action"),
+            current_phase=query_data["current_phase"],
+            phase_status=query_data.get("phase_status"),
+            gate_result=query_data.get("gate_result"),
+            user_choice=query_data.get("user_choice"),
+        )
+    except KeyError as e:
+        click.echo(f"Error: missing required field: {e}")
+        raise SystemExit(1)
+
+    manager = SessionManager(target)
+    response = manager.query(q)
+
+    from dataclasses import asdict
+    result = asdict(response)
+    click.echo(json.dumps(result, indent=2, ensure_ascii=False))
 
 
 _schema_group = click.group("schema")(lambda: None)
