@@ -7,11 +7,11 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [Planificado] - M10 (2026-05-09)
+## [0.6.0] - 2026-05-09
 
-### M10: Framework Meta-Development System
+### M10: Framework Meta-Development System (completado)
 - Sistema de 3 agentes meta para desarrollo autonomo del framework:
-  - `framework-orchestrator`: coordinador, solo delega, no implementa
+  - `framework-orchestrator`: coordinador, solo delega, no implementa. Optimizado a ~3k tokens (de ~25k).
   - `framework-planner`: arquitecto de mejoras, zero suposiciones
   - `framework-builder`: constructor autonomo, respeta CONTRIBUTING.md estrictamente
 - Archivo de estado persistente: `.factory/framework-state.json`
