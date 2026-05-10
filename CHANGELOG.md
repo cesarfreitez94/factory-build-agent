@@ -18,41 +18,47 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 - 3 slash commands: `/fba:fw`, `/fba:fw-plan`, `/fba:fw-build`
 - Template de brief: `docs/fw-brief-template.md`
 - Schema de validacion: `schemas/framework-state.schema.json`
-- M6-M9 se ejecutaran usando este sistema como infraestructura de desarrollo
+- M11-M15 se ejecutaran usando este sistema (reemplaza el roadmap M6-M9 original)
 
 ---
 
-## [Planificado] - M6 a M9 (Refinado 2026-05-08)
+## [Planificado] - M11 a M15 (Reorganizado 2026-05-09)
 
-Orden corregido: M6 → M7 → M8 (Pipeline) → M9 (Testing). M8 provee la infraestructura
-(cache, DAG, checkpoints) que M9 necesita para auto-fix y execution sandbox.
+Los milestones M6-M9 originales se disuelven. Sus conceptos se reorganizan en 5 nuevos
+milestones estructurados en capas progresivas que priorizan bugs criticos y mejoras
+fundacionales. Ver ROADMAP.md para la tabla completa de conceptos transferidos y no transferidos.
 
-### M6: Optimizacion de Agentes + Arquitectura Core
-- Delegar elicitacion a sub-agente para reducir tokens del orquestador
-- Instrucciones de agentes reducidas a <200 lineas cada uno
-- Base de conocimiento granular por dominio: `knowledge/odoo/`, `knowledge/babok/`, `knowledge/testing/`, `knowledge/security/`
-- Separacion runtime (agents) vs knowledge vs contracts
-- Artifact Contracts: invariantes, ownership, allowed mutations por artefacto (extiende JSON schemas)
-- Stable IDs (UUID v4) para todas las entidades en todos los artefactos
+### M11: Foundation Hardening (Capa 1 — inmediato)
+- #10: Atomic writes en `state.py` y `cli.py` (temp file + fsync + os.replace)
+- #2: Rollback en `StateManager.transition_to()` (revertir state si operacion post-save falla)
+- #7: `ModuleRegistry` con validacion de carga y warnings explicitos
+- `fba doctor`: comando de diagnostico (registry, state integrity, writability, schema alignment)
+- #9: Alinear `task_item.schema.json` con `SchemaManager` (tipos wizard/workflow/report/controller)
 
-### M7: User Stories + Code Generator Dual + Domain IR
-- Domain IR como capa del SDD: `domain_models` (dominio puro) + `odoo_mappings` (implementacion)
-- Soporte de User Stories como metodologia alternativa a BABOK
-- Personas, epicas, historias, criterios de aceptacion Given/When/Then
-- Code generator dividido: Model Generator + XML Generator
+### M12: Diff, Dependencies & Trazabilidad (Capa 1 avanzada)
+- #15: Diff engine para artefactos JSON (PRD, SDD, schema, tasks) con changelog estructurado
+- Artifact contracts layer: invariantes, ownership, allowed mutations por artefacto
+- #12: Analisis de integridad de dependencias Odoo (modulos innecesarios, mixins sin depends, dependencias circulares)
+- Stable IDs foundation (UUID v4) para entidades clave: requisitos (RF-*), modelos, campos
+- **Absorbe**: Artifact Contracts (old M6.5), Stable IDs (old M6.6)
 
-### M8: Pipeline, Performance, Multi-modulo
-- Paralelizacion de tasks con DAG de dependencias
-- Pipeline incremental/resumible con checkpoints
-- Cache de validacion hash-based (depende de stable IDs)
-- Proyectos multi-modulo con registro de dependencias
+### M13: Reliability & Quality (Capa 2)
+- #1: Security scans: bandit + pip-audit + detect-secrets como gates en construction
+- #5: Configuracion de pre-commit hooks (ruff, black, bandit)
+- #6: Mypy strict mode progresivo
+- #8: Cache de validacion hash-based en `.factory/.cache/`
+- **Absorbe**: Cache de validacion (old M8.3)
 
-### M9: Testing Avanzado + Feedback + Sandbox
-- Testing ORM real con TransactionCase contra Odoo en Docker
-- Playwright para browser automation de vistas Odoo
-- Feedback loop: tests fallidos → analisis via stable_id → correccion automatica
-- Diagnostico estructurado de gate failures con sugerencias
-- Execution Sandbox: Docker runtime aislado con timeouts, quotas, retry policies
+### M14: Odoo Depth (Capa 3)
+- #9 full: Implementacion completa de wizard, workflow, report, controller en SchemaManager + Code Renderer
+- #3: Deteccion de cambios de schema y produccion de migraciones Odoo
+- #4: Internacionalizacion i18n (generacion .pot/.po, es_ES default, OCA readiness)
+
+### M15: Advanced QA (Capa 4)
+- #11: Browser automation con Playwright para vistas Odoo (form, list, kanban)
+- #13: Performance test suite (benchmarks de generacion, memoria, tiempo)
+- #14: Concurrency safety warnings (deteccion de escrituras concurrentes en state.json)
+- **Absorbe**: Playwright (old M9.2)
 
 ---
 

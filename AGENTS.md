@@ -164,8 +164,9 @@ See [ROADMAP.md](ROADMAP.md) for full milestone details and progress tracking.
 - **M3: Construction + MVP** — COMPLETED. Full E2E: Odoo v18 CRUD module built, tested, reviewed, shipped.
 - **M4: Gates System** — COMPLETED. Declarative gate system, artifact reviewer, semantic validator.
 - **M5: Bug Fixes & Stability** — COMPLETED. Post-release fixes and stabilization.
-- **M10: Framework Meta-Development** — IN PROGRESS. Meta-agents for autonomous framework development.
-  M6-M9 will be executed using the M10 meta-agent system.
+- **M10: Framework Meta-Development** — COMPLETED. Meta-agents for autonomous framework development.
+- **M11: Foundation Hardening** — IN PROGRESS. Bug fixes (#2, #7, #9, #10) and `fba doctor`.
+  M12-M15 will be implemented sequentially after M11 (replaces M6-M9 — see ROADMAP.md).
 
 ## Tech Stack
 
