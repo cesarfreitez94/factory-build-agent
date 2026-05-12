@@ -1,4 +1,5 @@
 import json
+import warnings
 from pathlib import Path
 
 
@@ -14,7 +15,13 @@ class ModuleRegistry:
         self._model_index: dict[str, str] = {}
 
         registry_path = self._find_registry(project_dir)
-        if registry_path:
+        if registry_path is None:
+            warnings.warn(
+                "ModuleRegistry: no se encontro archivo de registry. "
+                "Todos los modelos se trataran como nuevos.",
+                UserWarning,
+            )
+        elif registry_path:
             self._load(registry_path)
 
     def _find_registry(self, project_dir: Path | None) -> Path | None:
@@ -35,8 +42,33 @@ class ModuleRegistry:
         return None
 
     def _load(self, path: Path) -> None:
-        data = json.loads(path.read_text())
-        self._modules = data.get("modules", {})
+        try:
+            data = json.loads(path.read_text())
+        except json.JSONDecodeError as e:
+            warnings.warn(
+                f"ModuleRegistry: archivo de registry contiene JSON invalido "
+                f"({path}): {e}",
+                UserWarning,
+            )
+            return
+
+        modules_data = data.get("modules")
+        if modules_data is None or not isinstance(modules_data, dict):
+            warnings.warn(
+                f"ModuleRegistry: el archivo de registry no contiene 'modules' "
+                f"como un diccionario ({path}).",
+                UserWarning,
+            )
+            return
+
+        if not modules_data:
+            warnings.warn(
+                f"ModuleRegistry: el archivo de registry esta vacio "
+                f"(no contiene modulos).",
+                UserWarning,
+            )
+
+        self._modules = modules_data
         self._odoo_version = data.get("odoo_version", "18.0")
         self._build_index()
 
