@@ -8,7 +8,7 @@ import click
 from fba import __version__
 from fba.gate import GateError
 from fba.schema_manager import SchemaManager
-from fba.state import StateManager
+from fba.state import StateManager, _atomic_write
 
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent.parent / "templates"
 SCHEMAS_DIR = Path(__file__).resolve().parent.parent.parent / "schemas"
@@ -126,7 +126,7 @@ def _copy_registry(target: Path):
     factory_dir = target / ".factory"
     factory_dir.mkdir(parents=True, exist_ok=True)
     dest = factory_dir / "module_registry.json"
-    shutil.copy2(registry_src, dest)
+    _atomic_write(dest, registry_src.read_text())
 
 
 def _init_factory_state(target: Path):
@@ -404,7 +404,7 @@ def _init_factory_state(target: Path):
     }
 
     state_path = factory_dir / "state.json"
-    state_path.write_text(json.dumps(state, indent=2, ensure_ascii=False))
+    _atomic_write(state_path, json.dumps(state, indent=2, ensure_ascii=False))
 
 
 def _init_events_log(target: Path):
