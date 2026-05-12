@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0",
-  "last_updated": "2026-05-10T03:30:00Z",
+  "last_updated": "2026-05-12T00:00:00Z",
   "last_session": {
-    "date": "2026-05-10",
-    "agent": "framework-builder",
-    "action": "Persistir nueva estructura M11-M15 en ROADMAP, CHANGELOG, AGENTS y framework-state. Branch milestone/11.0 creado. Epic #105.",
+    "date": "2026-05-12",
+    "agent": "framework-orchestrator",
+    "action": "Refactor del sistema de meta-agentes: creados framework-git, framework-registry, framework-explorer. Refactorizados orchestrator, planner, builder. Actualizados slash commands fba:fw, fba:fw-plan, fba:fw-build.",
     "completed_feats": [],
     "pending_feats": [],
     "blockers": []
@@ -56,7 +56,7 @@
   "open_briefs": [
     {
       "file": ".factory/fw-brief.md",
-      "description": "Roadmap reorganization: M6-M9 → M11-M15 con bugs, mejoras y capas progresivas",
+      "description": "Roadmap reorganization: M6-M9 -> M11-M15 con bugs, mejoras y capas progresivas",
       "created": "2026-05-10T02:25:15Z",
       "status": "in_progress"
     }
@@ -64,6 +64,9 @@
   "agents": {
     "framework-orchestrator": { "status": "active", "file": ".opencode/agents/framework-orchestrator.md" },
     "framework-planner":     { "status": "active", "file": ".opencode/agents/framework-planner.md" },
-    "framework-builder":     { "status": "active", "file": ".opencode/agents/framework-builder.md" }
+    "framework-builder":     { "status": "active", "file": ".opencode/agents/framework-builder.md" },
+    "framework-explorer":    { "status": "active", "file": ".opencode/agents/framework-explorer.md" },
+    "framework-registry":    { "status": "active", "file": ".opencode/agents/framework-registry.md" },
+    "framework-git":         { "status": "active", "file": ".opencode/agents/framework-git.md" }
   }
 }

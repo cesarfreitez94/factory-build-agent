@@ -1,5 +1,5 @@
 ---
-description: Planifica una mejora del framework FBA generando un brief ejecutable (fw-brief.md). Delega al framework-planner.
+description: Planifica una mejora del framework FBA generando un brief ejecutable (fw-brief.md) con instrucciones, no soluciones. Delega al framework-planner.
 agent: framework-orchestrator
 ---
 
@@ -26,18 +26,18 @@ Invocar al `framework-planner` via task tool con la intencion del usuario:
 ```
 task(
   description="Planificar: [intencion del usuario]",
-  prompt="El usuario quiere: [intencion exacta]. Lee ROADMAP.md y .factory/framework-state.json. Genera .factory/fw-brief.md con issue, branch, archivos, tests, definicion de done. Si hay ambiguedad, preguntame a mi para escalar al usuario. NO asumas nada.",
+  prompt="El usuario quiere: [intencion exacta]. Usa framework-explorer para contexto (roadmap, state, contributing). Genera .factory/fw-brief.md con: objetivo, issue, branch, constraints, feats con orden y dependencias. SOLO instrucciones y restricciones — NO escribas la solucion ni archivos exactos. Si hay ambiguedad, preguntame a mi para escalar al usuario. NO asumas nada.",
   subagent_type="framework-planner"
 )
 ```
 
 ### 3. Presentar resultado
 
-Lee `.factory/fw-brief.md` generado por el planner y presentalo al usuario en un formato legible:
+Lee `.factory/fw-brief.md` generado por el planner y presentalo al usuario:
 - Objetivo
-- Feats planificados (nombre, orden, dependencias)
-- Archivos a crear/modificar
-- Tests requeridos
+- Restricciones
+- Feats planificados (nombre, orden, dependencias, que debe lograr)
+- Tests requeridos (que comportamiento verificar)
 - Definicion de done
 - Decisiones pendientes (si el planner las identifico)
 
@@ -50,5 +50,5 @@ Preguntar al usuario si:
 
 ## Post-condiciones
 
-- `.factory/fw-brief.md` existe con el plan detallado.
-- `.factory/framework-state.json` tiene el brief registrado en `open_briefs`.
+- `.factory/fw-brief.md` existe con el plan detallado (instrucciones, no soluciones).
+- Delegar a `framework-registry` para registrar el brief en `open_briefs`.

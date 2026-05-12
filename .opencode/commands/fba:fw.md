@@ -1,5 +1,5 @@
 ---
-description: Punto de entrada para el meta-desarrollo del framework FBA. El orquestador lee el estado, presenta un resumen y espera la intencion del usuario.
+description: Punto de entrada para el meta-desarrollo del framework FBA. El orquestador usa framework-explorer para obtener contexto, presenta un resumen y espera la intencion del usuario.
 agent: framework-orchestrator
 ---
 
@@ -17,11 +17,10 @@ Punto de entrada del sistema de meta-agentes para el desarrollo del framework FB
 
 ### 1. Leer estado actual
 
-Leer en orden:
-1. `ROADMAP.md` — milestone activo y pendientes.
-2. `.factory/framework-state.json` — estado de la ultima sesion, feats pendientes, decisiones.
-3. `CHANGELOG.md` — ultimos cambios realizados.
-4. `CONTRIBUTING.md` — recordar las reglas del workflow.
+Delegar a `framework-explorer` para obtener `get_project_context`:
+- Contexto combinado de roadmap + state + agents (max 40 lineas).
+- Usa `framework-explorer` para TODO acceso de lectura a archivos del repo.
+- NO leas ROADMAP.md, CONTRIBUTING.md, CHANGELOG.md ni state.json directamente.
 
 ### 2. Presentar resumen al usuario
 
@@ -60,8 +59,18 @@ Segun la intencion del usuario, delega al agente correspondiente:
 |-----------|-----------|
 | Planificar algo nuevo | `framework-planner` via task tool |
 | Construir/implementar | `framework-builder` via task tool |
-| Informacion/estado | Responder directamente con datos de state.json y ROADMAP.md |
+| Informacion/estado | `framework-registry` (get_summary) via task tool |
 
 ### 5. Al finalizar
 
-Actualizar `.factory/framework-state.json` con los resultados de la sesion.
+Delegar a `framework-registry` la operacion `update_last_session` con los resultados de la sesion.
+
+## Subagentes del sistema
+
+| Subagente | Proposito |
+|-----------|-----------|
+| `framework-explorer` | Explorar repo, devolver contexto conciso. |
+| `framework-registry` | Leer/escribir `.factory/framework-state.json`. |
+| `framework-planner` | Generar briefs (instrucciones, no soluciones). |
+| `framework-builder` | Implementar codigo y tests. |
+| `framework-git` | Operaciones git (commits, branches, PRs). |

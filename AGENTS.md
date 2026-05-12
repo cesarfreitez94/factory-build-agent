@@ -30,7 +30,7 @@ of this framework is Odoo addons; the framework itself is a development tool.
 
 ### Agent System
 
-1 orchestrator + 9 sub-agents defined declaratively in `.opencode/agents/*.md`:
+1 project orchestrator + 9 sub-agents defined declaratively in `templates/.opencode/` (copied to user projects by `fba init`):
 - **Orchestrator** — Coordinates phases, validates artifacts, invokes sub-agents.
 - **Elicitador** — Requirements elicitation using BABOK methodology.
 - **Documentador** — Generates PRD.md and SDD.md documentation.
@@ -45,6 +45,30 @@ of this framework is Odoo addons; the framework itself is a development tool.
 - **CI/CD Manager** — Generates GitHub Actions workflows and manages releases.
 
 The agent system is extensible: adding a new sub-agent = adding a Markdown definition + a slash command.
+
+### Two Orchestrator Types
+
+FBA has **two orchestrators** operating at different levels of abstraction:
+
+#### 1. Project Orchestrator (`orchestrator`)
+- **Location**: `templates/.opencode/agents/orchestrator.md` — copied to each Odoo project via `fba init`
+- **Purpose**: Manages the full lifecycle of **Odoo v18 module development** (uses the factory)
+- **Pipeline**: `init → elicit → specify → plan → tasks → construct → test → review → ship`
+- **Sub-agents**: The 9 agents listed above (elicitador, documentador, planificador, code-generator, tester, etc.)
+- **Commands**: `/fba:init`, `/fba:elicit`, `/fba:specify`, `/fba:plan`, `/fba:tasks`, `/fba:construct`, `/fba:test`, `/fba:review`, `/fba:ship`
+- **State**: `.factory/state.json` in the generated Odoo project
+
+#### 2. Framework Orchestrator (`framework-orchestrator`)
+- **Location**: `.opencode/agents/framework-orchestrator.md` — permanent, NOT copied to projects
+- **Purpose**: Meta-development of **FBA itself** — builds and improves the factory
+- **Flow**: `/fba:fw` → reads ROADMAP/state/changelog → presents summary → awaits user intent → delegates to planner or builder
+- **Sub-agents**: 5 meta-agents (framework-explorer, framework-registry, framework-planner, framework-builder, framework-git)
+- **Commands**: `/fba:fw`, `/fba:fw-plan`, `/fba:fw-build`
+- **State**: `.factory/framework-state.json` in this repository
+
+> **Relationship**: `framework-orchestrator` builds the factory → its output includes `templates/` → `fba init` copies those templates → `orchestrator` (project) uses the factory to generate Odoo modules.
+
+See [Framework Meta-Development](#framework-meta-development) for detailed meta-development workflow.
 
 ### Pipeline (tasks → construction)
 
@@ -191,7 +215,7 @@ factory-build-agent/
 │   ├── ISSUE_TEMPLATE/    # Issue templates
 │   └── PULL_REQUEST_TEMPLATE.md
 ├── .opencode/             # Framework's own agent/command definitions
-│   ├── agents/            # Meta-agent definitions (framework-orchestrator, planner, builder)
+│   ├── agents/            # Meta-agent definitions (framework-orchestrator, explorer, registry, planner, builder, git)
 │   └── commands/          # Slash commands for meta-development (/fba:fw, /fba:fw-plan, /fba:fw-build)
 ├── .factory/              # Framework's own development state
 │   └── framework-state.json
@@ -212,16 +236,19 @@ factory-build-agent/
 
 ## Framework Meta-Development
 
-> El desarrollo del propio framework FBA se gestiona con 3 agentes meta.
-> Este sistema es el punto de entrada para toda mejora del framework desde M10 en adelante.
+> The `framework-orchestrator` (see [Two Orchestrator Types](#two-orchestrator-types) above) manages
+> 5 meta-agents. This system is the entry point for all framework improvements since M10.
 
-### Meta-Agents
+### Meta-Agents (5 total — orchestrated by `framework-orchestrator`)
 
 | Agente | Modo | Rol |
 |--------|------|-----|
 | `framework-orchestrator` | `primary` | Coordinador. Traduce intenciones del usuario en delegacion. NUNCA implementa. |
+| `framework-explorer` | `subagent` (hidden) | Explorador. Lee ROADMAP, state, changelog, contexto — solo lectura. |
+| `framework-registry` | `subagent` (hidden) | Catalogo. Mantiene registro de agentes, schemas, templates, milestones. |
 | `framework-planner` | `subagent` (hidden) | Arquitecto. Descompone intenciones en `fw-brief.md`. CERO suposiciones. |
 | `framework-builder` | `subagent` (hidden) | Constructor. Ejecuta briefs siguiendo estrictamente CONTRIBUTING.md. |
+| `framework-git` | `subagent` (hidden) | Operaciones git segun CONTRIBUTING.md (branch, commit, PR). |
 
 ### Flujo
 
@@ -244,7 +271,7 @@ factory-build-agent/
 
 - `.factory/framework-state.json` — Estado persistente entre sesiones.
 - `.factory/fw-brief.md` — Plan ejecutable generado por el planner.
-- `.opencode/agents/framework-*.md` — Definiciones de los 3 agentes meta.
+- `.opencode/agents/framework-*.md` — Definiciones de los 5 agentes meta.
 - `.opencode/commands/fba:fw*.md` — Slash commands del sistema meta.
 
 Los agentes meta **no van en templates/** — son para el desarrollo de este repositorio,
