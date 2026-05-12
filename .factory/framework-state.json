@@ -1,24 +1,24 @@
 {
   "schema_version": "1.0",
-  "last_updated": "2026-05-12T23:00:00Z",
+  "last_updated": "2026-05-12T23:30:00Z",
   "last_session": {
     "date": "2026-05-12",
     "agent": "framework-orchestrator",
-    "action": "Ejecucion completa de M11 Foundation Hardening — 5 feats, 5 PRs mergeados, 493 tests ok",
-    "completed_feats": ["feat/11.1-atomicity-writes", "feat/11.2-rollback-state", "feat/11.3-registry-robustez", "feat/11.4-fba-doctor", "feat/11.5-wizard-schema-alignment"],
+    "action": "Apertura de PR de M11 a main",
+    "completed_feats": ["11.1", "11.2", "11.3", "11.4", "11.5"],
     "pending_feats": [],
     "blockers": []
   },
   "active_milestone": {
-    "id": "M11",
-    "name": "Foundation Hardening",
-    "branch": "milestone/11.0-foundation-hardening",
-    "status": "completed",
-    "feats_total": 5,
-    "feats_done": 5,
+    "id": "M12",
+    "name": "Diff, Dependencies & Trazabilidad",
+    "branch": "milestone/12.0-diff-deps-traza",
+    "status": "planned",
+    "feats_total": 0,
+    "feats_done": 0,
     "feats_pending": [],
-    "ready_for_user_review": true,
-    "end_date": "2026-05-12"
+    "ready_for_user_review": false,
+    "end_date": null
   },
   "roadmap_status": {
     "M0": "completed",
@@ -42,7 +42,7 @@
     {"milestone":"M3","name":"Construccion + MVP","status":"completed","start_date":"2026-05-05","end_date":"2026-05-06"},
     {"milestone":"M5","name":"Bug Fixes & Stability","status":"completed","start_date":"2026-05-06","end_date":"2026-05-08"},
     {"milestone":"M10","name":"Framework Meta-Development","status":"completed","start_date":"2026-05-09","end_date":"2026-05-09"},
-    {"milestone":"M11","name":"Foundation Hardening (Capa 1)","status":"completed","end_date":"2026-05-12","caps":"Bugs criticos + fba doctor + atomicidad + rollback"},
+    {"milestone":"M11","name":"Foundation Hardening (Capa 1)","status":"completed","start_date":"2026-05-10","end_date":"2026-05-12","caps":"Bugs criticos + fba doctor + atomicidad + rollback + wizard schema alignment"},
     {"milestone":"M12","name":"Diff, Dependencies & Trazabilidad (Capa 1 avanzada)","status":"planned","caps":"Diff engine + dependency integrity + artifact contracts + stable IDs"},
     {"milestone":"M13","name":"Reliability & Quality (Capa 2)","status":"planned","caps":"Security scans + cache + pre-commit + mypy"},
     {"milestone":"M14","name":"Odoo Depth (Capa 3)","status":"planned","caps":"Wizards/workflows + migraciones + i18n"},
@@ -60,8 +60,10 @@
     {
       "id": "D2026-05-12-001",
       "description": "Abrir PR de milestone/11.0 → main — requiere validacion manual del usuario siguiendo docs/testing/m11-foundation-hardening.md",
-      "status": "pending",
-      "created": "2026-05-12"
+      "status": "resolved",
+      "created": "2026-05-12",
+      "resolved": "2026-05-12",
+      "resolution": "PR de M11 a main confirmado y ejecutado por usuario"
     }
   ],
   "agents": {
