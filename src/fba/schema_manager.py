@@ -40,6 +40,10 @@ class SchemaManager:
     code rendering consumes with zero interpretation.
     """
 
+    IMPLEMENTED_TYPES = frozenset({
+        "model", "view", "security_group", "access_right", "record_rule", "data",
+    })
+
     RELATIONAL_TYPES = {"Many2one", "One2many", "Many2many"}
 
     NAMING_RULES = {
@@ -94,6 +98,8 @@ class SchemaManager:
 
         tasks_data = self._load_all_tasks(task_index)
         sdd_data = self._load_sdd()
+
+        self._detect_unknown_types(tasks_data)
 
         models = self._assemble_models(tasks_data)
         views = self._assemble_views(tasks_data)
@@ -172,6 +178,19 @@ class SchemaManager:
                 f"Path: {sdd_path}",
             ))
             return {}
+
+    def _detect_unknown_types(self, tasks_data: dict[str, dict]) -> None:
+        """Warn about component types that are in the schema enum but not yet implemented."""
+        for task_id, task in tasks_data.items():
+            for component in task.get("components", []):
+                ctype = component.get("type", "")
+                if ctype and ctype not in self.IMPLEMENTED_TYPES:
+                    self._warnings.append(AssemblyWarning(
+                        "warning",
+                        f"component type '{ctype}' is declared in schema "
+                        f"but not yet implemented by SchemaManager",
+                        f"Task: {task_id}, component: {component.get('name', 'unnamed')}",
+                    ))
 
     def _assemble_manifest(self, sdd_data: dict, task_index: dict) -> dict:
         module_name = sdd_data.get("module_name", "") or task_index.get("module_name", "unknown")
