@@ -1,25 +1,24 @@
 {
   "schema_version": "1.0",
-  "last_updated": "2026-05-12T20:45:00Z",
+  "last_updated": "2026-05-12T20:49:49Z",
   "last_session": {
     "date": "2026-05-12",
     "agent": "framework-registry",
-    "action": "Completed feat/11.4-fba-doctor",
-    "completed_feats": ["feat/11.4-fba-doctor"],
-    "pending_feats": ["feat/11.5-wizard-schema-alignment"],
+    "action": "Completed feat/11.5-wizard-schema-alignment. M11 Foundation Hardening milestone completed. 5/5 feats done, ready for user review.",
+    "completed_feats": ["feat/11.4-fba-doctor", "feat/11.5-wizard-schema-alignment"],
+    "pending_feats": [],
     "blockers": []
   },
   "active_milestone": {
     "id": "M11",
     "name": "Foundation Hardening",
     "branch": "milestone/11.0-foundation-hardening",
-    "status": "in_progress",
+    "status": "completed",
     "feats_total": 5,
-    "feats_done": 4,
-    "feats_pending": [
-      "feat/11.5-wizard-schema-alignment"
-    ],
-    "ready_for_user_review": false
+    "feats_done": 5,
+    "feats_pending": [],
+    "ready_for_user_review": true,
+    "end_date": "2026-05-12"
   },
   "roadmap_status": {
     "M0": "completed",
@@ -29,7 +28,7 @@
     "M4": "completed",
     "M5": "completed",
     "M10": "completed",
-    "M11": "in_progress",
+    "M11": "completed",
     "M12": "planned",
     "M13": "planned",
     "M14": "planned",
@@ -43,7 +42,7 @@
     {"milestone":"M3","name":"Construccion + MVP","status":"completed","start_date":"2026-05-05","end_date":"2026-05-06"},
     {"milestone":"M5","name":"Bug Fixes & Stability","status":"completed","start_date":"2026-05-06","end_date":"2026-05-08"},
     {"milestone":"M10","name":"Framework Meta-Development","status":"completed","start_date":"2026-05-09","end_date":"2026-05-09"},
-    {"milestone":"M11","name":"Foundation Hardening (Capa 1)","status":"in_progress","caps":"Bugs criticos + fba doctor + atomicidad + rollback"},
+    {"milestone":"M11","name":"Foundation Hardening (Capa 1)","status":"completed","end_date":"2026-05-12","caps":"Bugs criticos + fba doctor + atomicidad + rollback"},
     {"milestone":"M12","name":"Diff, Dependencies & Trazabilidad (Capa 1 avanzada)","status":"planned","caps":"Diff engine + dependency integrity + artifact contracts + stable IDs"},
     {"milestone":"M13","name":"Reliability & Quality (Capa 2)","status":"planned","caps":"Security scans + cache + pre-commit + mypy"},
     {"milestone":"M14","name":"Odoo Depth (Capa 3)","status":"planned","caps":"Wizards/workflows + migraciones + i18n"},
@@ -54,7 +53,7 @@
       "file": ".factory/fw-brief.md",
       "description": "M11 Foundation Hardening: ejecucion de 5 feats (atomicity, rollback, registry, doctor, schema alignment)",
       "created": "2026-05-12T00:00:00Z",
-      "status": "ready"
+      "status": "completed"
     }
   ],
   "pending_decisions": [],

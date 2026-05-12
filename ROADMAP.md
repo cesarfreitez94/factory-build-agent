@@ -15,7 +15,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M3: Construccion + MVP | ✅ Completado | 2026-05-05 / 2026-05-06 |
 | M5: Bug Fixes & Stability | ✅ Completado | 2026-05-06 / 2026-05-08 |
 | M10: Framework Meta-Development | ✅ Completado | 2026-05-09 / 2026-05-09 |
-| M11: Foundation Hardening | 🔨 En Progreso | 2026-05-09 / — |
+| M11: Foundation Hardening | ✅ Completado | 2026-05-09 / 2026-05-12 |
 | M12: Diff, Dependencies & Trazabilidad | ⏳ Planificado | — / — |
 | M13: Reliability & Quality | ⏳ Planificado | — / — |
 | M14: Odoo Depth | ⏳ Planificado | — / — |
@@ -407,13 +407,13 @@ comando `fba doctor`, y alineacion de schema con SchemaManager.
 
 ### Feats
 
-| Orden | Feat | Depende de | Descripcion |
-|-------|------|------------|-------------|
-| 1 | feat/11.1-atomicity-writes | — | #10: Atomic writes en state.py y cli.py con temp file + fsync + os.replace |
-| 2 | feat/11.2-rollback-state | feat/11.1 | #2: Rollback en StateManager.transition_to() — revertir state si operacion post-save falla |
-| 3 | feat/11.3-registry-robustez | — | #7: ModuleRegistry con validacion, warnings explicitos si no carga, _copy_registry con advertencias |
-| 4 | feat/11.4-fba-doctor | feat/11.3 | Comando `fba doctor`: diagnostica registry, state integrity, writability, schema alignment |
-| 5 | feat/11.5-wizard-schema-alignment | — | #9: Alinear task_item.schema.json con SchemaManager — quitar tipos no implementados del enum o agregar validacion con warning |
+| Orden | Feat | Depende de | Descripcion | Estado |
+|-------|------|------------|-------------|--------|
+| 1 | feat/11.1-atomicity-writes | — | #10: Atomic writes en state.py y cli.py con temp file + fsync + os.replace | ✅ |
+| 2 | feat/11.2-rollback-state | feat/11.1 | #2: Rollback en StateManager.transition_to() — revertir state si operacion post-save falla | ✅ |
+| 3 | feat/11.3-registry-robustez | — | #7: ModuleRegistry con validacion, warnings explicitos si no carga, _copy_registry con advertencias | ✅ |
+| 4 | feat/11.4-fba-doctor | feat/11.3 | Comando `fba doctor`: diagnostica registry, state integrity, writability, schema alignment | ✅ |
+| 5 | feat/11.5-wizard-schema-alignment | — | #9: Alinear task_item.schema.json con SchemaManager — deteccion de tipos no implementados con warning | ✅ |
 
 **Depende de**: M10 (framework meta-dev system, en uso para construir M11)
 

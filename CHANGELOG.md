@@ -22,18 +22,16 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [Planificado] - M11 a M15 (Reorganizado 2026-05-09)
+## [0.7.0] - 2026-05-12
 
-Los milestones M6-M9 originales se disuelven. Sus conceptos se reorganizan en 5 nuevos
-milestones estructurados en capas progresivas que priorizan bugs criticos y mejoras
-fundacionales. Ver ROADMAP.md para la tabla completa de conceptos transferidos y no transferidos.
-
-### M11: Foundation Hardening (Capa 1 — inmediato)
-- #10: Atomic writes en `state.py` y `cli.py` (temp file + fsync + os.replace)
-- #2: Rollback en `StateManager.transition_to()` (revertir state si operacion post-save falla)
-- #7: `ModuleRegistry` con validacion de carga y warnings explicitos
-- `fba doctor`: comando de diagnostico (registry, state integrity, writability, schema alignment)
-- #9: Alinear `task_item.schema.json` con `SchemaManager` (tipos wizard/workflow/report/controller)
+### M11: Foundation Hardening — ✅ Completado (2026-05-12)
+- #106: Atomic writes en archivos criticos (`_atomic_write()` con temp file + fsync + os.replace en state.py, cli.py, schema_manager.py)
+- #107: Rollback atomico en `StateManager.transition_to()` — backup y restauracion automatica del state si record_event falla
+- #108: `ModuleRegistry` con validacion de carga y `warnings.warn()` explicitos para 5 escenarios de error
+- #109: Comando `fba doctor` con 5 checks diagnosticos (registry, state, JSON, writability, schema alignment) y exit codes 0/1/2
+- #110: `SchemaManager.IMPLEMENTED_TYPES` + deteccion de tipos no implementados (wizard, workflow, report, controller) con AssemblyWarning
+- 5 nuevos archivos de test (40 tests nuevos): `test_state_atomicity.py`, `test_state_rollback.py`, `test_registry_robustez.py`, `test_fba_doctor.py`, `test_schema_manager_unknown_types.py`
+- Total: 493 tests, 0 fallos
 
 ### M12: Diff, Dependencies & Trazabilidad (Capa 1 avanzada)
 - #15: Diff engine para artefactos JSON (PRD, SDD, schema, tasks) con changelog estructurado
