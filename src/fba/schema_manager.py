@@ -78,6 +78,7 @@ class SchemaManager:
         self.registry = ModuleRegistry(project_dir)
         self._warnings: list[AssemblyWarning] = []
         self._errors: list[AssemblyWarning] = []
+        self._emitted_warnings: set[str] = set()
 
     def assemble(self, output_path: Path | None = None) -> AssemblyResult:
         """Execute the full assembly pipeline and write schema.json.
@@ -327,6 +328,13 @@ class SchemaManager:
                 f"'{lookup['module']}' — mode set to 'extend'",
             ))
             return "extend"
+        if not self.registry.modules and "registry_empty" not in self._emitted_warnings:
+            self._emitted_warnings.add("registry_empty")
+            self._warnings.append(AssemblyWarning(
+                "warning",
+                "ModuleRegistry is empty. All models classified as 'new'.",
+                "No core modules found in registry.",
+            ))
         return "new"
 
     def _validate_relations(self, models: list[dict]) -> None:

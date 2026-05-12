@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "last_updated": "2026-05-12T20:16:42Z",
+  "last_updated": "2026-05-12T20:20:00Z",
   "last_session": {
     "date": "2026-05-12",
-    "agent": "framework-builder",
-    "action": "Completed feat/11.1-atomicity-writes",
-    "completed_feats": ["feat/11.1-atomicity-writes"],
-    "pending_feats": ["feat/11.2-rollback-state", "feat/11.3-registry-robustez", "feat/11.4-fba-doctor", "feat/11.5-wizard-schema-alignment"],
+    "agent": "framework-registry",
+    "action": "Completed feat/11.2-rollback-state",
+    "completed_feats": ["feat/11.2-rollback-state"],
+    "pending_feats": ["feat/11.3-registry-robustez", "feat/11.4-fba-doctor", "feat/11.5-wizard-schema-alignment"],
     "blockers": []
   },
   "active_milestone": {
@@ -15,9 +15,8 @@
     "branch": "milestone/11.0-foundation-hardening",
     "status": "in_progress",
     "feats_total": 5,
-    "feats_done": 1,
+    "feats_done": 2,
     "feats_pending": [
-      "feat/11.2-rollback-state",
       "feat/11.3-registry-robustez",
       "feat/11.4-fba-doctor",
       "feat/11.5-wizard-schema-alignment"

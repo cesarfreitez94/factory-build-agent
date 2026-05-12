@@ -122,6 +122,7 @@ def _copy_schemas(target: Path):
 def _copy_registry(target: Path):
     registry_src = TEMPLATES_DIR / ".factory" / "module_registry.json"
     if not registry_src.exists():
+        click.echo("Warning: Module registry not found in templates. All models will be treated as new.")
         return
     factory_dir = target / ".factory"
     factory_dir.mkdir(parents=True, exist_ok=True)
