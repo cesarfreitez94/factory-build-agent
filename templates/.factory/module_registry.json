@@ -1,0 +1,159 @@
+{
+  "$schema": "https://opencode.ai/fba/schemas/module_registry.schema.json",
+  "odoo_version": "18.0",
+  "description": "Registry of Odoo v18 core modules and their canonical models. Used by the Schema Manager to determine new vs extend mode.",
+  "modules": {
+    "base": {
+      "description": "Core Odoo module with base models",
+      "models": [
+        "res.partner",
+        "res.users",
+        "res.company",
+        "res.country",
+        "res.country.state",
+        "res.currency",
+        "res.lang",
+        "ir.model",
+        "ir.model.fields",
+        "ir.actions.act_window",
+        "ir.actions.server",
+        "ir.ui.menu",
+        "ir.ui.view",
+        "ir.attachment",
+        "ir.config_parameter"
+      ]
+    },
+    "mail": {
+      "description": "Odoo mail and messaging module",
+      "models": [
+        "mail.message",
+        "mail.activity",
+        "mail.activity.type",
+        "mail.channel",
+        "mail.channel.member",
+        "mail.notification",
+        "mail.template"
+      ]
+    },
+    "product": {
+      "description": "Odoo product management module",
+      "models": [
+        "product.product",
+        "product.template",
+        "product.category",
+        "product.attribute",
+        "product.attribute.value",
+        "product.pricelist",
+        "product.pricelist.item",
+        "product.uom",
+        "product.uom.category",
+        "product.packaging"
+      ]
+    },
+    "sale": {
+      "description": "Odoo sales management module",
+      "models": [
+        "sale.order",
+        "sale.order.line",
+        "sale.order.template",
+        "sale.order.template.line",
+        "sale.advance.payment.inv",
+        "sale.report"
+      ]
+    },
+    "account": {
+      "description": "Odoo accounting module",
+      "models": [
+        "account.move",
+        "account.move.line",
+        "account.account",
+        "account.journal",
+        "account.payment",
+        "account.tax",
+        "account.tax.group",
+        "account.fiscal.position",
+        "account.payment.term",
+        "account.analytic.account",
+        "account.analytic.line",
+        "account.chart.template",
+        "account.financial.year"
+      ]
+    },
+    "stock": {
+      "description": "Odoo inventory and warehouse management module",
+      "models": [
+        "stock.move",
+        "stock.move.line",
+        "stock.picking",
+        "stock.picking.type",
+        "stock.location",
+        "stock.warehouse",
+        "stock.quant",
+        "stock.inventory",
+        "stock.production.lot",
+        "stock.rule",
+        "stock.package.type",
+        "stock.putaway.rule"
+      ]
+    },
+    "hr": {
+      "description": "Odoo human resources module",
+      "models": [
+        "hr.employee",
+        "hr.department",
+        "hr.job",
+        "hr.contract",
+        "hr.leave",
+        "hr.leave.type",
+        "hr.attendance",
+        "hr.expense",
+        "hr.applicant"
+      ]
+    },
+    "crm": {
+      "description": "Odoo CRM module",
+      "models": [
+        "crm.lead",
+        "crm.team",
+        "crm.stage",
+        "crm.activity.report",
+        "crm.lead.lost",
+        "crm.merge.opportunity"
+      ]
+    },
+    "web": {
+      "description": "Odoo web client core module",
+      "models": [
+        "ir.http",
+        "ir.qweb"
+      ]
+    },
+    "purchase": {
+      "description": "Odoo purchase management module",
+      "models": [
+        "purchase.order",
+        "purchase.order.line",
+        "purchase.requisition",
+        "purchase.requisition.line"
+      ]
+    },
+    "fleet": {
+      "description": "Odoo fleet management module",
+      "models": [
+        "fleet.vehicle",
+        "fleet.vehicle.model",
+        "fleet.vehicle.model.brand",
+        "fleet.vehicle.odometer",
+        "fleet.vehicle.log.contract",
+        "fleet.vehicle.log.services"
+      ]
+    },
+    "uom": {
+      "description": "Odoo unit of measure module",
+      "models": [
+        "uom.uom",
+        "uom.category"
+      ]
+    }
+  }
+}

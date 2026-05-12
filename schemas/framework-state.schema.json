@@ -1,0 +1,194 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FBA Framework Meta-Development State",
+  "description": "Persistent state schema for the framework meta-agents (orchestrator, planner, builder)",
+  "type": "object",
+  "required": ["schema_version", "last_updated", "last_session", "active_milestone", "roadmap_status", "roadmap_summary", "agents"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Version of this schema"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of last update"
+    },
+    "last_session": {
+      "type": "object",
+      "description": "Summary of the last development session",
+      "required": ["date", "agent", "action", "completed_feats", "pending_feats"],
+      "properties": {
+        "date": {
+          "type": "string",
+          "description": "Date of the last session (YYYY-MM-DD)"
+        },
+        "agent": {
+          "type": "string",
+          "description": "Agent that executed the last session (framework-builder, framework-planner)"
+        },
+        "action": {
+          "type": "string",
+          "description": "Summary of the last action performed"
+        },
+        "completed_feats": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Feats completed in the last session"
+        },
+        "pending_feats": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Feats left pending at the end of the last session"
+        },
+        "blockers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Blockers identified during the last session"
+        }
+      }
+    },
+    "active_milestone": {
+      "type": "object",
+      "description": "The milestone currently being worked on",
+      "required": ["id", "name", "branch", "status", "feats_total", "feats_done", "feats_pending"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Milestone ID (e.g. M10)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable milestone name"
+        },
+        "branch": {
+          "type": "string",
+          "description": "Git branch name for the milestone"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "in_progress", "completed"],
+          "description": "Current status of the milestone"
+        },
+        "feats_total": {
+          "type": "integer",
+          "description": "Total number of feats in the milestone"
+        },
+        "feats_done": {
+          "type": "integer",
+          "description": "Number of completed feats"
+        },
+        "feats_pending": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of pending feat identifiers"
+        },
+        "ready_for_user_review": {
+          "type": "boolean",
+          "description": "Whether the milestone is ready for user review before PR to main",
+          "default": false
+        }
+      }
+    },
+    "roadmap_status": {
+      "type": "object",
+      "description": "Status of all milestones in the roadmap",
+      "additionalProperties": {
+        "type": "string",
+        "enum": ["planned", "in_progress", "completed"]
+      }
+    },
+    "roadmap_summary": {
+      "type": "array",
+      "description": "Compact summary of all milestones for the orchestrator — eliminates need to read ROADMAP.md",
+      "items": {
+        "type": "object",
+        "required": ["milestone", "name", "status"],
+        "properties": {
+          "milestone": { "type": "string", "description": "Milestone ID (M0, M1, ...)" },
+          "name": { "type": "string", "description": "Short human-readable name" },
+          "status": { "type": "string", "enum": ["planned", "in_progress", "completed"], "description": "Current status" },
+          "start_date": { "type": "string", "description": "Start date (YYYY-MM-DD)" },
+          "end_date": { "type": "string", "description": "End date (YYYY-MM-DD)" }
+        }
+      }
+    },
+    "pending_decisions": {
+      "type": "array",
+      "description": "Decisions awaiting user input",
+      "items": {
+        "type": "object",
+        "required": ["id", "description", "raised_by", "raised_at", "status"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Decision identifier (e.g. DEC-001)"
+          },
+          "description": {
+            "type": "string",
+            "description": "What needs to be decided"
+          },
+          "raised_by": {
+            "type": "string",
+            "description": "Agent that raised the decision"
+          },
+          "raised_at": {
+            "type": "string",
+            "description": "Date when the decision was raised"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["awaiting_user", "resolved"],
+            "description": "Current decision status"
+          }
+        }
+      }
+    },
+    "open_briefs": {
+      "type": "array",
+      "description": "Briefs that have been generated but not yet fully executed",
+      "items": {
+        "type": "object",
+        "required": ["file", "milestone", "feats_remaining", "status"],
+        "properties": {
+          "file": {
+            "type": "string",
+            "description": "Path to the brief file"
+          },
+          "milestone": {
+            "type": "string",
+            "description": "Milestone the brief belongs to"
+          },
+          "feats_remaining": {
+            "type": "integer",
+            "description": "Number of feats remaining to be built"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "completed"],
+            "description": "Current status of the brief"
+          }
+        }
+      }
+    },
+    "agents": {
+      "type": "object",
+      "description": "Status of all meta-agents",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["status", "file"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "deprecated"],
+            "description": "Current status of the agent"
+          },
+          "file": {
+            "type": "string",
+            "description": "Path to the agent definition file"
+          }
+        }
+      }
+    }
+  }
+}

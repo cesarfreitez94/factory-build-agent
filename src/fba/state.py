@@ -1,6 +1,31 @@
 import json
+import os
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
+
+
+def _atomic_write(dest: Path, content: str) -> None:
+    """Write content atomically using temp file + fsync + os.replace.
+
+    If the process dies mid-write, the original file remains intact.
+    """
+    dest = Path(dest)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+
+    fd, tmp_path = tempfile.mkstemp(dir=str(dest.parent), prefix=".tmp")
+    try:
+        with os.fdopen(fd, "w") as f:
+            f.write(content)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_path, str(dest))
+    except Exception:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+        raise
 
 
 class StateManager:
@@ -31,8 +56,8 @@ class StateManager:
         return json.loads(self.state_path.read_text())
 
     def save(self, state: dict) -> None:
-        self._factory_dir.mkdir(parents=True, exist_ok=True)
-        self.state_path.write_text(json.dumps(state, indent=2, ensure_ascii=False))
+        content = json.dumps(state, indent=2, ensure_ascii=False)
+        _atomic_write(self.state_path, content)
 
     def transition_to(self, phase: str, skip_gates: bool = False) -> dict:
         state = self.load()
@@ -56,20 +81,51 @@ class StateManager:
             if not gate_result.passed:
                 raise GateError(gate_result)
 
-        if current in state["phases"]:
-            state["phases"][current]["status"] = "complete"
+        rollback_path = self._factory_dir / ".rollback_state.json"
+        backup_made = False
+        try:
+            if self.state_path.exists():
+                rollback_path.write_text(self.state_path.read_text())
+                backup_made = True
 
-        state["current_phase"] = phase
-        if phase in state["phases"]:
-            state["phases"][phase]["status"] = "in_progress"
-        self.save(state)
+            if current in state["phases"]:
+                state["phases"][current]["status"] = "complete"
 
-        self.record_event(
-            "phase_transition",
-            {"from": current, "to": phase},
-        )
+            state["current_phase"] = phase
+            if phase in state["phases"]:
+                state["phases"][phase]["status"] = "in_progress"
+            self.save(state)
 
-        return state
+            self.record_event(
+                "phase_transition",
+                {"from": current, "to": phase},
+            )
+
+            if backup_made and rollback_path.exists():
+                rollback_path.unlink()
+
+            return state
+
+        except Exception as _exc:
+            if backup_made and rollback_path.exists():
+                try:
+                    _atomic_write(self.state_path, rollback_path.read_text())
+                    rollback_path.unlink()
+                except Exception as rollback_error:
+                    try:
+                        error_log = self._factory_dir / ".rollback_error.log"
+                        error_msg = (
+                            f"CRITICAL: Rollback failed during transition "
+                            f"'{current}' -> '{phase}'. "
+                            f"Original error: {_exc}. "
+                            f"Rollback error: {rollback_error}"
+                        )
+                        error_log.write_text(
+                            f"[{datetime.now(timezone.utc).isoformat()}] {error_msg}\n"
+                        )
+                    except OSError:
+                        pass
+            raise
 
     def has_gate_passed(self, phase: str = None) -> bool:
         if phase is None:
@@ -91,6 +147,8 @@ class StateManager:
         self._factory_dir.mkdir(parents=True, exist_ok=True)
         with open(self.events_path, "a") as f:
             f.write(json.dumps(event, ensure_ascii=False) + "\n")
+            f.flush()
+            os.fsync(f.fileno())
 
     def mark_phase(self, phase: str, status: str) -> None:
         state = self.load()

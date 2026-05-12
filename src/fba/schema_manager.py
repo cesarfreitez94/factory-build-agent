@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from fba.module_registry import ModuleRegistry
+from fba.state import _atomic_write
 
 
 @dataclass
@@ -38,6 +39,10 @@ class SchemaManager:
     ``schema.json`` — a normalized, validated structure that all downstream
     code rendering consumes with zero interpretation.
     """
+
+    IMPLEMENTED_TYPES = frozenset({
+        "model", "view", "security_group", "access_right", "record_rule", "data",
+    })
 
     RELATIONAL_TYPES = {"Many2one", "One2many", "Many2many"}
 
@@ -77,6 +82,7 @@ class SchemaManager:
         self.registry = ModuleRegistry(project_dir)
         self._warnings: list[AssemblyWarning] = []
         self._errors: list[AssemblyWarning] = []
+        self._emitted_warnings: set[str] = set()
 
     def assemble(self, output_path: Path | None = None) -> AssemblyResult:
         """Execute the full assembly pipeline and write schema.json.
@@ -92,6 +98,8 @@ class SchemaManager:
 
         tasks_data = self._load_all_tasks(task_index)
         sdd_data = self._load_sdd()
+
+        self._detect_unknown_types(tasks_data)
 
         models = self._assemble_models(tasks_data)
         views = self._assemble_views(tasks_data)
@@ -111,8 +119,7 @@ class SchemaManager:
 
         if output_path:
             output_path = Path(output_path)
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            output_path.write_text(json.dumps(schema, indent=2, ensure_ascii=False))
+            _atomic_write(output_path, json.dumps(schema, indent=2, ensure_ascii=False))
 
         return AssemblyResult(schema, warnings=self._warnings, errors=self._errors)
 
@@ -171,6 +178,19 @@ class SchemaManager:
                 f"Path: {sdd_path}",
             ))
             return {}
+
+    def _detect_unknown_types(self, tasks_data: dict[str, dict]) -> None:
+        """Warn about component types that are in the schema enum but not yet implemented."""
+        for task_id, task in tasks_data.items():
+            for component in task.get("components", []):
+                ctype = component.get("type", "")
+                if ctype and ctype not in self.IMPLEMENTED_TYPES:
+                    self._warnings.append(AssemblyWarning(
+                        "warning",
+                        f"component type '{ctype}' is declared in schema "
+                        f"but not yet implemented by SchemaManager",
+                        f"Task: {task_id}, component: {component.get('name', 'unnamed')}",
+                    ))
 
     def _assemble_manifest(self, sdd_data: dict, task_index: dict) -> dict:
         module_name = sdd_data.get("module_name", "") or task_index.get("module_name", "unknown")
@@ -327,6 +347,13 @@ class SchemaManager:
                 f"'{lookup['module']}' — mode set to 'extend'",
             ))
             return "extend"
+        if not self.registry.modules and "registry_empty" not in self._emitted_warnings:
+            self._emitted_warnings.add("registry_empty")
+            self._warnings.append(AssemblyWarning(
+                "warning",
+                "ModuleRegistry is empty. All models classified as 'new'.",
+                "No core modules found in registry.",
+            ))
         return "new"
 
     def _validate_relations(self, models: list[dict]) -> None:
