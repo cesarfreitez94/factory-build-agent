@@ -735,4 +735,152 @@ def _find_schema(target: Path, schema_name: str) -> Path | None:
     return None
 
 
+@main.command()
+@PROJECT_DIR_OPTION
+@click.option("--verbose", "-v", is_flag=True, help="Detailed diagnostic output")
+@click.option("--json", "json_output", is_flag=True, help="Output in JSON format (for CI)")
+def doctor(project_dir, verbose, json_output):
+    """Diagnose the health of a Factory Build Agent project.
+
+    Checks: registry health, state file integrity, writability, and schema alignment.
+    Exit codes: 0=OK (no errors or warnings), 1=warnings present, 2=errors present.
+    """
+    target = Path(project_dir).resolve() if project_dir else Path.cwd()
+    factory_dir = target / ".factory"
+
+    checks = []
+    errors = []
+    results = []
+
+    if not factory_dir.exists():
+        msg = "No .factory/ directory found. Run 'fba init' first."
+        if json_output:
+            click.echo(json.dumps({"status": "ERROR", "checks": [], "exit_code": 2, "error": msg}))
+        else:
+            click.echo(f"❌ {msg}")
+        raise SystemExit(2)
+
+    def _check(label, fn):
+        try:
+            ok, detail, severity = fn()
+            results.append({"label": label, "ok": ok, "detail": detail, "severity": severity or ("error" if not ok else "ok")})
+            if not ok:
+                if severity == "warning":
+                    checks.append(("⚠", label, detail))
+                else:
+                    errors.append(("❌", label, detail))
+        except Exception as e:
+            results.append({"label": label, "ok": False, "detail": str(e), "severity": "error"})
+            errors.append(("❌", label, str(e)))
+
+    def _d1_check():
+        try:
+            import warnings as _w
+            with _w.catch_warnings(record=True) as caught:
+                _w.simplefilter("always")
+                from fba.module_registry import ModuleRegistry
+                registry = ModuleRegistry(target)
+            reg_warnings = [str(w.message) for w in caught]
+            modules = registry.modules
+            model_count = sum(len(info.get("models", [])) for info in modules.values())
+            detail = f"{len(modules)} modules, {model_count} models"
+            if reg_warnings:
+                detail += f", warnings: {'; '.join(reg_warnings)}"
+                return False, detail, "error" if len(modules) == 0 else "warning"
+            if len(modules) == 0:
+                return False, detail + " (registry empty)", "warning"
+            return True, detail, None
+        except Exception as e:
+            return False, f"Registry error: {e}", "error"
+
+    def _d2_check():
+        state_path = factory_dir / "state.json"
+        if state_path.exists():
+            return True, f"Found at {state_path}", None
+        return False, "state.json not found", "error"
+
+    def _d3_check():
+        state_path = factory_dir / "state.json"
+        if not state_path.exists():
+            return False, "state.json does not exist", "error"
+        try:
+            data = json.loads(state_path.read_text())
+            phase = data.get("current_phase", "unknown")
+            return True, f"Valid JSON, current phase: {phase}", None
+        except json.JSONDecodeError as e:
+            return False, f"Invalid JSON: {e}", "error"
+
+    def _d4_check():
+        test_file = factory_dir / ".doctor_write_test"
+        try:
+            test_file.write_text("test")
+            test_file.unlink()
+            return True, "Writable", None
+        except Exception as e:
+            return False, f"Not writable: {e}", "error"
+
+    def _d5_check():
+        implemented_types = {"model", "view", "security_group", "access_right", "record_rule", "data"}
+        schema_path = factory_dir / "schemas" / "task_item.schema.json"
+        if not schema_path.exists():
+            schema_path = SCHEMAS_DIR / "task_item.schema.json"
+        if not schema_path.exists():
+            return True, "task_item.schema.json not found, skipping alignment check", None
+        try:
+            schema = json.loads(schema_path.read_text())
+            enum = schema.get("properties", {}).get("components", {}).get("items", {}).get("properties", {}).get("type", {}).get("enum", [])
+        except Exception:
+            return True, "Could not parse schema, skipping alignment check", None
+        unimplemented = [t for t in enum if t not in implemented_types]
+        if unimplemented:
+            return False, f"Unimplemented types: {', '.join(unimplemented)}", "warning"
+        return True, "All schema types have implementations", None
+
+    _check("registry", _d1_check)
+    _check("state_exists", _d2_check)
+    _check("state_json", _d3_check)
+    _check("writable", _d4_check)
+    _check("schema_alignment", _d5_check)
+
+    if json_output:
+        output = {
+            "status": "ERROR" if errors else ("WARNING" if checks else "OK"),
+            "checks": results,
+            "exit_code": 2 if errors else (1 if checks else 0),
+            "warnings": len(checks),
+            "errors": len(errors),
+        }
+        click.echo(json.dumps(output, indent=2, ensure_ascii=False))
+        raise SystemExit(output["exit_code"])
+
+    for symbol, label, detail in errors:
+        click.echo(f"{symbol} {label}: {detail}")
+    for symbol, label, detail in checks:
+        click.echo(f"{symbol} {label}: {detail}")
+
+    ok_count = len(results) - len(errors) - len(checks)
+    if not errors and not checks:
+        for r in results:
+            click.echo(f"✅ {r['label']}: {r['detail']}")
+    else:
+        for r in results:
+            if r["severity"] == "ok":
+                click.echo(f"✅ {r['label']}: {r['detail']}")
+
+    if verbose:
+        click.echo("")
+        click.echo("─" * 40)
+        click.echo("Verbose details:")
+        click.echo(f"  Project: {target}")
+        click.echo(f"  Factory dir: {factory_dir}")
+        for r in results:
+            click.echo(f"  [{r['severity'].upper()}] {r['label']}: {r['detail']}")
+
+    if errors:
+        raise SystemExit(2)
+    if checks:
+        raise SystemExit(1)
+    raise SystemExit(0)
+
+
 main.add_command(_schema_group)
