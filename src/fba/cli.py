@@ -820,7 +820,7 @@ def doctor(project_dir, verbose, json_output):
             return False, f"Not writable: {e}", "error"
 
     def _d5_check():
-        implemented_types = {"model", "view", "security_group", "access_right", "record_rule", "data"}
+        implemented_types = set(SchemaManager.IMPLEMENTED_TYPES)
         schema_path = factory_dir / "schemas" / "task_item.schema.json"
         if not schema_path.exists():
             schema_path = SCHEMAS_DIR / "task_item.schema.json"

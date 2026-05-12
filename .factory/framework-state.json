@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "last_updated": "2026-05-12T20:25:00Z",
+  "last_updated": "2026-05-12T20:45:00Z",
   "last_session": {
     "date": "2026-05-12",
     "agent": "framework-registry",
-    "action": "Completed feat/11.3-registry-robustez",
-    "completed_feats": ["feat/11.3-registry-robustez"],
-    "pending_feats": ["feat/11.4-fba-doctor", "feat/11.5-wizard-schema-alignment"],
+    "action": "Completed feat/11.4-fba-doctor",
+    "completed_feats": ["feat/11.4-fba-doctor"],
+    "pending_feats": ["feat/11.5-wizard-schema-alignment"],
     "blockers": []
   },
   "active_milestone": {
@@ -15,9 +15,8 @@
     "branch": "milestone/11.0-foundation-hardening",
     "status": "in_progress",
     "feats_total": 5,
-    "feats_done": 3,
+    "feats_done": 4,
     "feats_pending": [
-      "feat/11.4-fba-doctor",
       "feat/11.5-wizard-schema-alignment"
     ],
     "ready_for_user_review": false
