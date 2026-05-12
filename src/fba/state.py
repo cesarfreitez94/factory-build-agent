@@ -1,6 +1,31 @@
 import json
+import os
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
+
+
+def _atomic_write(dest: Path, content: str) -> None:
+    """Write content atomically using temp file + fsync + os.replace.
+
+    If the process dies mid-write, the original file remains intact.
+    """
+    dest = Path(dest)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+
+    fd, tmp_path = tempfile.mkstemp(dir=str(dest.parent), prefix=".tmp")
+    try:
+        with os.fdopen(fd, "w") as f:
+            f.write(content)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_path, str(dest))
+    except Exception:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+        raise
 
 
 class StateManager:
@@ -31,8 +56,8 @@ class StateManager:
         return json.loads(self.state_path.read_text())
 
     def save(self, state: dict) -> None:
-        self._factory_dir.mkdir(parents=True, exist_ok=True)
-        self.state_path.write_text(json.dumps(state, indent=2, ensure_ascii=False))
+        content = json.dumps(state, indent=2, ensure_ascii=False)
+        _atomic_write(self.state_path, content)
 
     def transition_to(self, phase: str, skip_gates: bool = False) -> dict:
         state = self.load()
@@ -91,6 +116,8 @@ class StateManager:
         self._factory_dir.mkdir(parents=True, exist_ok=True)
         with open(self.events_path, "a") as f:
             f.write(json.dumps(event, ensure_ascii=False) + "\n")
+            f.flush()
+            os.fsync(f.fileno())
 
     def mark_phase(self, phase: str, status: str) -> None:
         state = self.load()

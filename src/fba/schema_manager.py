@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from fba.module_registry import ModuleRegistry
+from fba.state import _atomic_write
 
 
 @dataclass
@@ -111,8 +112,7 @@ class SchemaManager:
 
         if output_path:
             output_path = Path(output_path)
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            output_path.write_text(json.dumps(schema, indent=2, ensure_ascii=False))
+            _atomic_write(output_path, json.dumps(schema, indent=2, ensure_ascii=False))
 
         return AssemblyResult(schema, warnings=self._warnings, errors=self._errors)
 

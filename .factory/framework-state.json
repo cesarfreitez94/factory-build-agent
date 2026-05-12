@@ -3,10 +3,10 @@
   "last_updated": "2026-05-12T00:00:00Z",
   "last_session": {
     "date": "2026-05-12",
-    "agent": "framework-orchestrator",
-    "action": "Refactor del sistema de meta-agentes: creados framework-git, framework-registry, framework-explorer. Refactorizados orchestrator, planner, builder. Actualizados slash commands fba:fw, fba:fw-plan, fba:fw-build.",
+    "agent": "framework-planner",
+    "action": "Generado fw-brief.md con plan de ejecucion detallado para M11 Foundation Hardening (5 feats)",
     "completed_feats": [],
-    "pending_feats": [],
+    "pending_feats": ["feat/11.1-atomicity-writes", "feat/11.2-rollback-state", "feat/11.3-registry-robustez", "feat/11.4-fba-doctor", "feat/11.5-wizard-schema-alignment"],
     "blockers": []
   },
   "active_milestone": {
@@ -56,11 +56,12 @@
   "open_briefs": [
     {
       "file": ".factory/fw-brief.md",
-      "description": "Roadmap reorganization: M6-M9 -> M11-M15 con bugs, mejoras y capas progresivas",
-      "created": "2026-05-10T02:25:15Z",
-      "status": "in_progress"
+      "description": "M11 Foundation Hardening: ejecucion de 5 feats (atomicity, rollback, registry, doctor, schema alignment)",
+      "created": "2026-05-12T00:00:00Z",
+      "status": "ready"
     }
   ],
+  "pending_decisions": [],
   "agents": {
     "framework-orchestrator": { "status": "active", "file": ".opencode/agents/framework-orchestrator.md" },
     "framework-planner":     { "status": "active", "file": ".opencode/agents/framework-planner.md" },
