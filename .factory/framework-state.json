@@ -1,11 +1,11 @@
 {
   "schema_version": "1.0",
-  "last_updated": "2026-05-12T20:49:49Z",
+  "last_updated": "2026-05-12T23:00:00Z",
   "last_session": {
     "date": "2026-05-12",
-    "agent": "framework-registry",
-    "action": "Completed feat/11.5-wizard-schema-alignment. M11 Foundation Hardening milestone completed. 5/5 feats done, ready for user review.",
-    "completed_feats": ["feat/11.4-fba-doctor", "feat/11.5-wizard-schema-alignment"],
+    "agent": "framework-orchestrator",
+    "action": "Ejecucion completa de M11 Foundation Hardening — 5 feats, 5 PRs mergeados, 493 tests ok",
+    "completed_feats": ["feat/11.1-atomicity-writes", "feat/11.2-rollback-state", "feat/11.3-registry-robustez", "feat/11.4-fba-doctor", "feat/11.5-wizard-schema-alignment"],
     "pending_feats": [],
     "blockers": []
   },
@@ -56,7 +56,14 @@
       "status": "completed"
     }
   ],
-  "pending_decisions": [],
+  "pending_decisions": [
+    {
+      "id": "D2026-05-12-001",
+      "description": "Abrir PR de milestone/11.0 → main — requiere validacion manual del usuario siguiendo docs/testing/m11-foundation-hardening.md",
+      "status": "pending",
+      "created": "2026-05-12"
+    }
+  ],
   "agents": {
     "framework-orchestrator": { "status": "active", "file": ".opencode/agents/framework-orchestrator.md" },
     "framework-planner":     { "status": "active", "file": ".opencode/agents/framework-planner.md" },
