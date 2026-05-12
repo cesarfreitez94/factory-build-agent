@@ -6,6 +6,7 @@ from pathlib import Path
 import click
 
 from fba import __version__
+from fba.diff_engine import DiffEngine, DiffError
 from fba.gate import GateError
 from fba.schema_manager import SchemaManager
 from fba.state import StateManager, _atomic_write
@@ -881,6 +882,29 @@ def doctor(project_dir, verbose, json_output):
     if checks:
         raise SystemExit(1)
     raise SystemExit(0)
+
+
+@main.command()
+@click.argument("file_v1", type=click.Path(exists=True, path_type=Path))
+@click.argument("file_v2", type=click.Path(exists=True, path_type=Path))
+@click.option("--format", "-f", "output_format", type=click.Choice(["text", "json"]), default="text", help="Output format (text or json)")
+def diff(file_v1, file_v2, output_format):
+    """Compare two JSON artifact versions and produce a structured changelog.
+
+    FILE_V1 is the older version, FILE_V2 is the newer version.
+    Supports PRD, SDD, schema.json, tasks/index.json, and T*.json artifacts.
+
+    \b
+    Examples:
+      fba diff v1/prd.json v2/prd.json
+      fba diff old/sdd.json new/sdd.json --format json
+    """
+    try:
+        result = DiffEngine.diff(file_v1, file_v2, output_format=output_format)
+        click.echo(result)
+    except DiffError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
 
 
 main.add_command(_schema_group)

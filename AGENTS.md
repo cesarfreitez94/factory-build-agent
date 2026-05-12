@@ -189,8 +189,9 @@ See [ROADMAP.md](ROADMAP.md) for full milestone details and progress tracking.
 - **M4: Gates System** — COMPLETED. Declarative gate system, artifact reviewer, semantic validator.
 - **M5: Bug Fixes & Stability** — COMPLETED. Post-release fixes and stabilization.
 - **M10: Framework Meta-Development** — COMPLETED. Meta-agents for autonomous framework development.
-- **M11: Foundation Hardening** — IN PROGRESS. Bug fixes (#2, #7, #9, #10) and `fba doctor`.
-  M12-M15 will be implemented sequentially after M11 (replaces M6-M9 — see ROADMAP.md).
+- **M11: Foundation Hardening** — COMPLETED. Atomic writes, rollback, registry robustness, `fba doctor`, schema alignment.
+- **M12: Diff, Dependencies & Trazabilidad** — IN PROGRESS. Diff engine for JSON artifacts, artifact contracts with invariants, Odoo dependency integrity analysis, stable IDs (UUID v4) foundation.
+  M13-M15 will be implemented sequentially after M12 (replaces M6-M9 — see ROADMAP.md).
 
 ## Tech Stack
 
