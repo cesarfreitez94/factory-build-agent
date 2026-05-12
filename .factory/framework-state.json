@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "last_updated": "2026-05-12T00:00:00Z",
+  "last_updated": "2026-05-12T20:16:42Z",
   "last_session": {
     "date": "2026-05-12",
-    "agent": "framework-planner",
-    "action": "Generado fw-brief.md con plan de ejecucion detallado para M11 Foundation Hardening (5 feats)",
-    "completed_feats": [],
-    "pending_feats": ["feat/11.1-atomicity-writes", "feat/11.2-rollback-state", "feat/11.3-registry-robustez", "feat/11.4-fba-doctor", "feat/11.5-wizard-schema-alignment"],
+    "agent": "framework-builder",
+    "action": "Completed feat/11.1-atomicity-writes",
+    "completed_feats": ["feat/11.1-atomicity-writes"],
+    "pending_feats": ["feat/11.2-rollback-state", "feat/11.3-registry-robustez", "feat/11.4-fba-doctor", "feat/11.5-wizard-schema-alignment"],
     "blockers": []
   },
   "active_milestone": {
@@ -15,9 +15,8 @@
     "branch": "milestone/11.0-foundation-hardening",
     "status": "in_progress",
     "feats_total": 5,
-    "feats_done": 0,
+    "feats_done": 1,
     "feats_pending": [
-      "feat/11.1-atomicity-writes",
       "feat/11.2-rollback-state",
       "feat/11.3-registry-robustez",
       "feat/11.4-fba-doctor",
