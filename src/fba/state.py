@@ -81,20 +81,51 @@ class StateManager:
             if not gate_result.passed:
                 raise GateError(gate_result)
 
-        if current in state["phases"]:
-            state["phases"][current]["status"] = "complete"
+        rollback_path = self._factory_dir / ".rollback_state.json"
+        backup_made = False
+        try:
+            if self.state_path.exists():
+                rollback_path.write_text(self.state_path.read_text())
+                backup_made = True
 
-        state["current_phase"] = phase
-        if phase in state["phases"]:
-            state["phases"][phase]["status"] = "in_progress"
-        self.save(state)
+            if current in state["phases"]:
+                state["phases"][current]["status"] = "complete"
 
-        self.record_event(
-            "phase_transition",
-            {"from": current, "to": phase},
-        )
+            state["current_phase"] = phase
+            if phase in state["phases"]:
+                state["phases"][phase]["status"] = "in_progress"
+            self.save(state)
 
-        return state
+            self.record_event(
+                "phase_transition",
+                {"from": current, "to": phase},
+            )
+
+            if backup_made and rollback_path.exists():
+                rollback_path.unlink()
+
+            return state
+
+        except Exception as _exc:
+            if backup_made and rollback_path.exists():
+                try:
+                    _atomic_write(self.state_path, rollback_path.read_text())
+                    rollback_path.unlink()
+                except Exception as rollback_error:
+                    try:
+                        error_log = self._factory_dir / ".rollback_error.log"
+                        error_msg = (
+                            f"CRITICAL: Rollback failed during transition "
+                            f"'{current}' -> '{phase}'. "
+                            f"Original error: {_exc}. "
+                            f"Rollback error: {rollback_error}"
+                        )
+                        error_log.write_text(
+                            f"[{datetime.now(timezone.utc).isoformat()}] {error_msg}\n"
+                        )
+                    except OSError:
+                        pass
+            raise
 
     def has_gate_passed(self, phase: str = None) -> bool:
         if phase is None:
