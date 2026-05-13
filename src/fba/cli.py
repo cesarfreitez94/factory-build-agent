@@ -1102,5 +1102,146 @@ def trace(entity_id: str, project_dir: str | None) -> None:
         click.echo(f"     Path: {loc['path']}")
 
 
+_i18n_group = click.group("i18n")(lambda: None)
+_i18n_group.help = "Internationalization (i18n) commands for Odoo module translation files."
+
+
+@_i18n_group.command("extract")
+@PROJECT_DIR_OPTION
+@click.option("--output", "-o", default=None, help="Output path for .pot file (default: <module>/i18n/<module>.pot)")
+@click.option("--schema", "-s", default=None, help="Path to schema.json (default: .factory/schema.json)")
+def i18n_extract(project_dir: str | None, output: Path | None, schema: Path | None) -> None:
+    """Extract translatable strings from schema.json into a .pot template file.
+
+    Scans all models, views, wizards, workflows, reports, and controllers
+    to create a gettext .pot file ready for translation.
+
+    \\b
+    Examples:
+      fba i18n extract                        # uses .factory/schema.json
+      fba i18n extract --schema /path/to/schema.json
+      fba i18n extract -o /path/to/module/i18n/my_module.pot
+    """
+    target = _resolve_project_dir(project_dir)
+    factory_dir = target / ".factory"
+
+    if schema:
+        schema_path = Path(schema)
+    else:
+        schema_path = factory_dir / "schema.json"
+
+    if not schema_path.exists():
+        click.echo(f"Error: Schema not found at {schema_path}")
+        click.echo("Run 'fba schema assemble' first or specify --schema")
+        raise SystemExit(1)
+
+    try:
+        from fba.i18n import I18nExtractor, OCAi18nStructure
+
+        extractor = I18nExtractor()
+        pot_content = extractor.extract_from_schema(schema_path)
+
+        module_name = schema_path.parent.parent.name
+
+        if output:
+            out_path = Path(output)
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(pot_content, encoding="utf-8")
+            click.echo(f"✅ .pot template written to: {out_path}")
+        else:
+            i18n_struct = OCAi18nStructure(target / module_name, module_name)
+            pot_path = i18n_struct.write_pot(pot_content)
+            click.echo(f"✅ .pot template written to: {pot_path}")
+
+        strings_found = len(extractor.strings)
+        click.echo(f"   Extracted {strings_found} translatable string(s)")
+
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+
+@_i18n_group.command("compile")
+@PROJECT_DIR_OPTION
+@click.option("--locale", "-l", default="es_ES", help="Locale code (default: es_ES)")
+@click.option("--input", "-i", "pot_input", default=None, help="Input .pot file (default: <module>.pot in i18n/)")
+@click.option("--output", "-o", default=None, help="Output .po file path")
+@click.option("--translations", "-t", default=None, help="JSON file with translations {msgid: msgstr}")
+def i18n_compile(
+    project_dir: str | None,
+    locale: str,
+    pot_input: Path | None,
+    output: Path | None,
+    translations: Path | None
+) -> None:
+    """Compile a .po translation file from a .pot template.
+
+    Takes a .pot template and produces a locale-specific .po file.
+    Optionally provide translations via JSON file or inline.
+
+    \\b
+    Examples:
+      fba i18n compile --locale es_ES                    # generates es_ES.po from .pot
+      fba i18n compile -l en_US -t translations.json    # with translations from JSON
+      fba i18n compile -i custom.pot -o custom.es_ES.po   # custom paths
+    """
+    target = _resolve_project_dir(project_dir)
+    module_name = target.name
+
+    pot_path: Path | None = None
+
+    if pot_input:
+        pot_path = Path(pot_input)
+    else:
+        candidate = target / module_name / "i18n" / f"{module_name}.pot"
+        if candidate.exists():
+            pot_path = candidate
+        else:
+            candidate = target / "i18n" / f"{module_name}.pot"
+            if candidate.exists():
+                pot_path = candidate
+
+    if not pot_path or not pot_path.exists():
+        click.echo(f"Error: No .pot file found. Specify with --input or ensure i18n/<module>.pot exists.")
+        raise SystemExit(1)
+
+    pot_content = pot_path.read_text(encoding="utf-8")
+
+    translations_dict: dict[str, str] = {}
+    if translations:
+        trans_path = Path(translations)
+        if trans_path.exists():
+            import json
+            translations_dict = json.loads(trans_path.read_text(encoding="utf-8"))
+
+    try:
+        from fba.i18n import PoFileGenerator, OCAi18nStructure
+
+        generator = PoFileGenerator()
+        po_content = generator.generate_po(
+            pot_content,
+            locale,
+            translations_dict,
+            module_name
+        )
+
+        if output:
+            out_path = Path(output)
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(po_content, encoding="utf-8")
+            click.echo(f"✅ .po file written to: {out_path}")
+        else:
+            i18n_struct = OCAi18nStructure(target / module_name, module_name)
+            po_path = i18n_struct.write_po(locale, po_content)
+            click.echo(f"✅ .po file written to: {po_path}")
+
+        click.echo(f"   Locale: {locale}")
+
+    except Exception as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+
 main.add_command(_deps_group)
 main.add_command(_schema_group)
+main.add_command(_i18n_group)
