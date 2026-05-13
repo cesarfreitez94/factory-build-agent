@@ -13,6 +13,7 @@ from fba.diff_engine import DiffEngine, DiffError
 from fba.gate import GateError
 from fba.i18n_manager import I18nManager
 from fba.migration_manager import MigrationError, MigrationManager
+from fba.performance import PerformanceError, PerformanceRunner
 from fba.playwright_manager import PlaywrightError, PlaywrightManager
 from fba.schema_manager import SchemaManager
 from fba.stable_ids import StableIdError, StableIdManager
@@ -786,6 +787,30 @@ def _find_schema(target: Path, schema_name: str) -> Path | None:
     if framework_schema.exists():
         return framework_schema
     return None
+
+
+@main.command()
+@PROJECT_DIR_OPTION
+@click.option("--output", "-o", default=None, type=click.Path(path_type=Path), help="Output directory for performance reports")
+@click.option("--json", "json_output", is_flag=True, help="Print JSON report to stdout")
+def perf(project_dir: str | None, output: Path | None, json_output: bool) -> None:
+    """Run performance benchmarks for Factory Build Agent artifacts."""
+    target = _resolve_project_dir(project_dir)
+
+    try:
+        report = PerformanceRunner(target).run(output_dir=output)
+    except PerformanceError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    if json_output:
+        click.echo(report.json_path.read_text())
+        return
+
+    click.echo("Performance benchmarks completed.")
+    click.echo(f"  Benchmarks: {report.total_benchmarks}")
+    click.echo(f"  Warnings: {report.warning_count}")
+    click.echo(f"  Report: {report.md_path}")
 
 
 @main.command()
