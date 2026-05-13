@@ -26,6 +26,7 @@ of this framework is Odoo addons; the framework itself is a development tool.
 ### State Management
 - `.factory/state.json` — State machine tracking current phase, artifacts, agent assignments.
 - `.factory/events.jsonl` — Append-only event log for audit trail.
+- Concurrency safety: `StateManager` warns when `state.json` changed since load; `fba doctor --concurrency` checks rollback/temp markers.
 - Communication: Hybrid (file-based artifacts + event log + git).
 
 ### Agent System
@@ -41,6 +42,7 @@ of this framework is Odoo addons; the framework itself is a development tool.
   - Schema Manager — Assembles deterministic `schema.json` (SSOT) from tasks + SDD + module registry.
   - Code Renderer — Generates code files from `schema.json` with zero interpretation.
 - **Tester/QA** — Generates and runs tests for the generated Odoo modules.
+  - Advanced QA — `fba test --playwright` generates browser automation for Odoo views; `fba perf` runs generation/time/memory benchmarks.
 - **Revisor de Codigo** — Code quality, security, and spec-adherence review.
 - **CI/CD Manager** — Generates GitHub Actions workflows and manages releases.
 
@@ -190,8 +192,10 @@ See [ROADMAP.md](ROADMAP.md) for full milestone details and progress tracking.
 - **M5: Bug Fixes & Stability** — COMPLETED. Post-release fixes and stabilization.
 - **M10: Framework Meta-Development** — COMPLETED. Meta-agents for autonomous framework development.
 - **M11: Foundation Hardening** — COMPLETED. Atomic writes, rollback, registry robustness, `fba doctor`, schema alignment.
-- **M12: Diff, Dependencies & Trazabilidad** — IN PROGRESS. Diff engine for JSON artifacts, artifact contracts with invariants, Odoo dependency integrity analysis, stable IDs (UUID v4) foundation.
-  M13-M15 will be implemented sequentially after M12 (replaces M6-M9 — see ROADMAP.md).
+- **M12: Diff, Dependencies & Trazabilidad** — COMPLETED. Diff engine for JSON artifacts, artifact contracts with invariants, Odoo dependency integrity analysis, stable IDs (UUID v4) foundation.
+- **M13: Reliability & Quality** — COMPLETED. Security scans, pre-commit, mypy strict mode, validation cache.
+- **M14: Odoo Depth** — COMPLETED. Wizards, workflows, reports, controllers, migrations, i18n.
+- **M15: Advanced QA** — COMPLETED. Playwright browser automation, performance benchmarks, concurrency safety warnings.
 
 ## Tech Stack
 
