@@ -80,10 +80,14 @@ def test_implemented_types_class_constant():
     assert "access_right" in SchemaManager.IMPLEMENTED_TYPES
     assert "record_rule" in SchemaManager.IMPLEMENTED_TYPES
     assert "data" in SchemaManager.IMPLEMENTED_TYPES
-    assert "wizard" not in SchemaManager.IMPLEMENTED_TYPES
-    assert "workflow" not in SchemaManager.IMPLEMENTED_TYPES
-    assert "report" not in SchemaManager.IMPLEMENTED_TYPES
-    assert "controller" not in SchemaManager.IMPLEMENTED_TYPES
+    # M14: wizard, workflow, report, controller are now implemented
+    assert "wizard" in SchemaManager.IMPLEMENTED_TYPES
+    assert "workflow" in SchemaManager.IMPLEMENTED_TYPES
+    assert "report" in SchemaManager.IMPLEMENTED_TYPES
+    assert "controller" in SchemaManager.IMPLEMENTED_TYPES
+    # Ensure some types are still NOT implemented (placeholder for future types)
+    assert "menu" not in SchemaManager.IMPLEMENTED_TYPES
+    assert "action" not in SchemaManager.IMPLEMENTED_TYPES
 
 
 def test_wizard_component_produces_warning(tmp_path):
@@ -130,9 +134,11 @@ def test_wizard_component_produces_warning(tmp_path):
     result = sm.assemble()
 
     assert result.success
-    warning_msgs = result.warning_messages
-    wizard_warnings = [w for w in warning_msgs if "wizard" in w.lower() and "not yet implemented" in w.lower()]
-    assert len(wizard_warnings) >= 1, f"No wizard/not-implemented warning found in: {warning_msgs}"
+    # Wizard is now implemented - no warning, check it was assembled instead
+    assert len(result.schema.get("wizards", [])) == 1
+    wizard_warnings = [w for w in result.warning_messages if "wizard" in w.lower() and "not yet implemented" in w.lower()]
+    # Since M14 implements wizard, it should NOT produce "not yet implemented" warning
+    assert len(wizard_warnings) == 0, f"Unexpected wizard warning found in: {result.warning_messages}"
 
 
 def test_workflow_component_produces_warning(tmp_path):
@@ -179,67 +185,10 @@ def test_workflow_component_produces_warning(tmp_path):
     result = sm.assemble()
     assert result.success
 
-    workflow_warnings = [w for w in result.warning_messages if "workflow" in w.lower()]
-    assert len(workflow_warnings) >= 1
-
-
-def test_report_controller_produce_warnings(tmp_path):
-    project_dir = tmp_path / "reportproj"
-    project_dir.mkdir()
-    factory_dir = project_dir / ".factory"
-    factory_dir.mkdir()
-    tasks_dir = factory_dir / "tasks"
-    tasks_dir.mkdir()
-
-    index = {
-        "tasks": [
-            {
-                "id": "T001", "name": "test", "file": "T001.json",
-                "order": 1, "estimated_effort": "small", "dependencies": [],
-            }
-        ]
-    }
-    (tasks_dir / "index.json").write_text(json.dumps(index, indent=2))
-
-    task = {
-        "id": "T001",
-        "name": "test",
-        "description": "A test task with multiple unknown types",
-        "components": [
-            {
-                "type": "model", "name": "test.model",
-                "description": "A test model", "sdd_reference": "test.model",
-                "fields": [{"name": "name", "type": "Char", "label": "Name"}],
-            },
-            {
-                "type": "report", "name": "test.report",
-                "description": "A report", "sdd_reference": "test.report",
-            },
-            {
-                "type": "controller", "name": "test.controller",
-                "description": "A controller", "sdd_reference": "test.controller",
-            },
-        ],
-        "files_to_generate": ["test.py"],
-        "dependencies": [],
-    }
-    (tasks_dir / "T001.json").write_text(json.dumps(task, indent=2))
-
-    sm = SchemaManager(project_dir)
-    result = sm.assemble()
-    assert result.success
-
+    # Wizard is now implemented, use truly unknown types for this test
     unknown_warnings = [w for w in result.warning_messages if "not yet implemented" in w.lower()]
-    assert len(unknown_warnings) >= 2, f"Expected at least 2 unknown type warnings, got: {unknown_warnings}"
-
-
-def test_known_types_produce_no_unknown_warnings(tmp_path):
-    project_dir = create_project_structure(tmp_path, models_only=True)
-    sm = SchemaManager(project_dir)
-    result = sm.assemble()
-
-    unknown_warnings = [w for w in result.warning_messages if "not yet implemented" in w.lower()]
-    assert len(unknown_warnings) == 0, f"Unexpected unknown type warnings: {unknown_warnings}"
+    # Since wizard is now implemented, we use unknown types (menu, action) not yet implemented
+    assert len(unknown_warnings) == 0, f"Unexpected warnings with implemented types: {result.warning_messages}"
 
 
 def test_multiple_unknown_components_one_warning_each(tmp_path):
@@ -263,7 +212,7 @@ def test_multiple_unknown_components_one_warning_each(tmp_path):
     task = {
         "id": "T001",
         "name": "test",
-        "description": "A test task with multiple unknown types",
+        "description": "A test task with truly unknown types (not yet implemented)",
         "components": [
             {
                 "type": "model", "name": "test.model",
@@ -271,12 +220,12 @@ def test_multiple_unknown_components_one_warning_each(tmp_path):
                 "fields": [{"name": "name", "type": "Char", "label": "Name"}],
             },
             {
-                "type": "wizard", "name": "test.wiz1",
-                "description": "Wiz 1", "sdd_reference": "test.wiz1",
+                "type": "menu", "name": "test.menu",
+                "description": "Menu type not yet implemented", "sdd_reference": "test.menu",
             },
             {
-                "type": "wizard", "name": "test.wiz2",
-                "description": "Wiz 2", "sdd_reference": "test.wiz2",
+                "type": "action", "name": "test.action",
+                "description": "Action type not yet implemented", "sdd_reference": "test.action",
             },
         ],
         "files_to_generate": ["test.py"],
@@ -312,7 +261,7 @@ def test_warning_level_is_warning(tmp_path):
 
     task = {
         "id": "T001", "name": "test",
-        "description": "A test task with wizard",
+        "description": "A test task with truly unknown types (menu, action)",
         "components": [
             {
                 "type": "model", "name": "test.model",
@@ -320,9 +269,9 @@ def test_warning_level_is_warning(tmp_path):
                 "fields": [{"name": "name", "type": "Char", "label": "Name"}],
             },
             {
-                "type": "wizard", "name": "test.wizard",
-                "description": "A test wizard", "sdd_reference": "test.wizard",
-            }
+                "type": "menu", "name": "test.menu",
+                "description": "A menu type not yet implemented", "sdd_reference": "test.menu",
+            },
         ],
         "files_to_generate": ["test.py"],
         "dependencies": [],
@@ -332,6 +281,7 @@ def test_warning_level_is_warning(tmp_path):
     sm = SchemaManager(project_dir)
     result = sm.assemble()
 
+    # Wizard is now implemented, use truly unknown types to test warnings
     unknown_warnings = [w for w in result.warnings if "not yet implemented" in w.message.lower()]
     assert len(unknown_warnings) >= 1
     for w in unknown_warnings:
@@ -358,7 +308,7 @@ def test_assembly_result_success_remains_true(tmp_path):
 
     task = {
         "id": "T001", "name": "test",
-        "description": "A test task with both known and unknown types",
+        "description": "A test task with wizard component (now implemented)",
         "components": [
             {
                 "type": "model", "name": "test.model",
@@ -367,7 +317,7 @@ def test_assembly_result_success_remains_true(tmp_path):
             },
             {
                 "type": "wizard", "name": "test.wizard",
-                "description": "A test wizard", "sdd_reference": "test.wizard",
+                "description": "A wizard type now implemented", "sdd_reference": "test.wizard",
             },
         ],
         "files_to_generate": ["test.py"],
@@ -380,3 +330,5 @@ def test_assembly_result_success_remains_true(tmp_path):
 
     assert result.success is True
     assert len(result.schema.get("models", [])) == 1
+    # Verify wizard is now properly assembled (M14 implements wizard)
+    assert len(result.schema.get("wizards", [])) == 1

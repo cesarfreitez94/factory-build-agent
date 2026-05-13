@@ -95,6 +95,53 @@ def _valid_schema():
             "record_rules": [],
         },
         "data": [],
+        "wizards": [
+            {
+                "name": "vehicle.wizard.confirm",
+                "description": "Wizard to confirm vehicle",
+                "model": "vehicle.wizard.confirm",
+                "fields": [
+                    {"name": "confirm_note", "type": "Char", "label": "Note"},
+                ],
+            },
+        ],
+        "workflows": [
+            {
+                "name": "vehicle.workflow.approval",
+                "model": "vehicle.vehicle",
+                "states": [
+                    {"name": "draft", "description": "Draft state"},
+                    {"name": "pending", "description": "Pending approval"},
+                    {"name": "approved", "description": "Approved state"},
+                ],
+                "signals": [
+                    {"name": "approve", "description": "Approve signal"},
+                    {"name": "reject", "description": "Reject signal"},
+                ],
+                "transitions": [
+                    {"from_state": "draft", "to_state": "pending", "signal": "submit"},
+                    {"from_state": "pending", "to_state": "approved", "signal": "approve"},
+                ],
+            },
+        ],
+        "reports": [
+            {
+                "name": "vehicle.report",
+                "model": "vehicle.vehicle",
+                "report_type": "qweb",
+                "report_name": "Vehicle Report",
+                "field_names": ["name", "plate"],
+            },
+        ],
+        "controllers": [
+            {
+                "name": "vehicle.controller",
+                "route": "/vehicle",
+                "model": "vehicle.vehicle",
+                "methods": ["GET"],
+                "auth": "public",
+            },
+        ],
     }
 
 

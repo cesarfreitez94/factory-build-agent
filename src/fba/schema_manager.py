@@ -43,6 +43,7 @@ class SchemaManager:
 
     IMPLEMENTED_TYPES = frozenset({
         "model", "view", "security_group", "access_right", "record_rule", "data",
+        "wizard", "workflow", "report", "controller",
     })
 
     RELATIONAL_TYPES = {"Many2one", "One2many", "Many2many"}
@@ -106,6 +107,10 @@ class SchemaManager:
         views = self._assemble_views(tasks_data)
         security = self._assemble_security(tasks_data)
         data_entries = self._assemble_data(tasks_data)
+        wizards = self._assemble_wizards(tasks_data)
+        workflows = self._assemble_workflows(tasks_data)
+        reports = self._assemble_reports(tasks_data)
+        controllers = self._assemble_controllers(tasks_data)
         manifest = self._assemble_manifest(sdd_data, task_index)
 
         self._validate_relations(models)
@@ -116,6 +121,10 @@ class SchemaManager:
             "views": views,
             "security": security,
             "data": data_entries,
+            "wizards": wizards,
+            "workflows": workflows,
+            "reports": reports,
+            "controllers": controllers,
         }
 
         if output_path:
@@ -499,3 +508,117 @@ class SchemaManager:
                 })
 
         return data_entries
+
+    def _assemble_wizards(self, tasks_data: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+        """Extract wizard components (TransientModel) from all tasks."""
+        wizards = []
+
+        for task_id, task in tasks_data.items():
+            for component in task.get("components", []):
+                if component.get("type") != "wizard":
+                    continue
+
+                wizard_name = component.get("name", "")
+                if not wizard_name:
+                    self._warnings.append(AssemblyWarning(
+                        "warning", f"Wizard component with empty name in task {task_id}",
+                    ))
+                    continue
+
+                fields = self._normalize_fields(
+                    component.get("fields", []), wizard_name, task_id
+                )
+
+                wizards.append({
+                    "name": wizard_name,
+                    "description": component.get("description", ""),
+                    "model": wizard_name,
+                    "fields": fields,
+                    "sdd_reference": component.get("sdd_reference", ""),
+                    "wizard_model": component.get("wizard_model", wizard_name),
+                    "button_next_step": component.get("button_next_step", ""),
+                })
+
+        return wizards
+
+    def _assemble_workflows(self, tasks_data: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+        """Extract workflow components from all tasks."""
+        workflows = []
+
+        for task_id, task in tasks_data.items():
+            for component in task.get("components", []):
+                if component.get("type") != "workflow":
+                    continue
+
+                workflow_name = component.get("name", "")
+                if not workflow_name:
+                    self._warnings.append(AssemblyWarning(
+                        "warning", f"Workflow component with empty name in task {task_id}",
+                    ))
+                    continue
+
+                workflows.append({
+                    "name": workflow_name,
+                    "model": component.get("model", ""),
+                    "states": component.get("states", []),
+                    "signals": component.get("signals", []),
+                    "transitions": component.get("transitions", []),
+                    "sdd_reference": component.get("sdd_reference", ""),
+                })
+
+        return workflows
+
+    def _assemble_reports(self, tasks_data: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+        """Extract report components from all tasks."""
+        reports = []
+
+        for task_id, task in tasks_data.items():
+            for component in task.get("components", []):
+                if component.get("type") != "report":
+                    continue
+
+                report_name = component.get("name", "")
+                if not report_name:
+                    self._warnings.append(AssemblyWarning(
+                        "warning", f"Report component with empty name in task {task_id}",
+                    ))
+                    continue
+
+                reports.append({
+                    "name": report_name,
+                    "model": component.get("model", ""),
+                    "report_type": component.get("report_type", "qweb"),
+                    "report_name": component.get("report_name", report_name),
+                    "file": component.get("file", f"report/{report_name}.xml"),
+                    "field_names": component.get("field_names", []),
+                    "sdd_reference": component.get("sdd_reference", ""),
+                })
+
+        return reports
+
+    def _assemble_controllers(self, tasks_data: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+        """Extract controller components (HTTP endpoints) from all tasks."""
+        controllers = []
+
+        for task_id, task in tasks_data.items():
+            for component in task.get("components", []):
+                if component.get("type") != "controller":
+                    continue
+
+                controller_name = component.get("name", "")
+                if not controller_name:
+                    self._warnings.append(AssemblyWarning(
+                        "warning", f"Controller component with empty name in task {task_id}",
+                    ))
+                    continue
+
+                controllers.append({
+                    "name": controller_name,
+                    "route": component.get("route", f"/{controller_name.replace('.', '/')}"),
+                    "model": component.get("model", ""),
+                    "methods": component.get("methods", ["GET"]),
+                    "auth": component.get("auth", "public"),
+                    "sdd_reference": component.get("sdd_reference", ""),
+                })
+
+        return controllers

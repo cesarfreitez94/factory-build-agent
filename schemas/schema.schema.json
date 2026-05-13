@@ -4,7 +4,7 @@
   "title": "Schema (SSOT)",
   "description": "Schema for the deterministic module structure (schema.json), the single source of truth that drives code generation.",
   "type": "object",
-  "required": ["manifest", "models", "views", "security", "data"],
+  "required": ["manifest", "models", "views", "security", "data", "wizards", "workflows", "reports", "controllers"],
   "properties": {
     "manifest": {
       "type": "object",
@@ -540,6 +540,126 @@
             "minLength": 3,
             "description": "Reference to the SDD component this data implements."
           }
+        },
+        "additionalProperties": false
+      }
+    },
+    "wizards": {
+      "type": "array",
+      "description": "Odoo TransientModel wizards for multi-step workflows.",
+      "items": {
+        "type": "object",
+        "required": ["name", "model", "fields"],
+        "properties": {
+          "name": {"type": "string", "minLength": 3},
+          "description": {"type": "string", "minLength": 5},
+          "model": {"type": "string", "minLength": 3},
+          "wizard_model": {"type": "string", "minLength": 3},
+          "button_next_step": {"type": "string"},
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "type", "label"],
+              "properties": {
+                "name": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+                "type": {"type": "string", "enum": ["Char", "Text", "Integer", "Float", "Boolean", "Date", "Datetime", "Binary", "Selection", "Many2one", "One2many", "Many2many", "Html", "Monetary"]},
+                "label": {"type": "string"},
+                "required": {"type": "boolean"},
+                "selection": {"type": "array", "items": {"type": "array", "minItems": 2, "maxItems": 2}},
+                "relation": {"type": "string"},
+                "sdd_reference": {"type": "string", "minLength": 3}
+              },
+              "additionalProperties": false
+            }
+          },
+          "sdd_reference": {"type": "string", "minLength": 3}
+        },
+        "additionalProperties": false
+      }
+    },
+    "workflows": {
+      "type": "array",
+      "description": "Odoo workflow definitions with states, signals, and transitions.",
+      "items": {
+        "type": "object",
+        "required": ["name", "model", "states", "transitions"],
+        "properties": {
+          "name": {"type": "string", "minLength": 3},
+          "model": {"type": "string", "minLength": 3},
+          "states": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "description"],
+              "properties": {
+                "name": {"type": "string"},
+                "description": {"type": "string"}
+              },
+              "additionalProperties": false
+            }
+          },
+          "signals": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "description"],
+              "properties": {
+                "name": {"type": "string"},
+                "description": {"type": "string"}
+              },
+              "additionalProperties": false
+            }
+          },
+          "transitions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["from_state", "to_state", "signal"],
+              "properties": {
+                "from_state": {"type": "string"},
+                "to_state": {"type": "string"},
+                "signal": {"type": "string"}
+              },
+              "additionalProperties": false
+            }
+          },
+          "sdd_reference": {"type": "string", "minLength": 3}
+        },
+        "additionalProperties": false
+      }
+    },
+    "reports": {
+      "type": "array",
+      "description": "Odoo report definitions (QWeb, AXL, RDL).",
+      "items": {
+        "type": "object",
+        "required": ["name", "model", "report_type", "report_name"],
+        "properties": {
+          "name": {"type": "string", "minLength": 3},
+          "model": {"type": "string", "minLength": 3},
+          "report_type": {"type": "string", "enum": ["qweb", "axl", "rdl"]},
+          "report_name": {"type": "string", "minLength": 3},
+          "file": {"type": "string"},
+          "field_names": {"type": "array", "items": {"type": "string"}},
+          "sdd_reference": {"type": "string", "minLength": 3}
+        },
+        "additionalProperties": false
+      }
+    },
+    "controllers": {
+      "type": "array",
+      "description": "HTTP controller endpoints for the module.",
+      "items": {
+        "type": "object",
+        "required": ["name", "route", "model", "methods"],
+        "properties": {
+          "name": {"type": "string", "minLength": 3},
+          "route": {"type": "string", "minLength": 1},
+          "model": {"type": "string", "minLength": 3},
+          "methods": {"type": "array", "minItems": 1, "items": {"type": "string", "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"]}},
+          "auth": {"type": "string", "enum": ["public", "user", "api"]},
+          "sdd_reference": {"type": "string", "minLength": 3}
         },
         "additionalProperties": false
       }
