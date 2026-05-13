@@ -1,9 +1,6 @@
 import json
 import os
-import tempfile
-import time
-from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -117,7 +114,7 @@ def test_record_event_uses_append_with_fsync(tmp_path):
     sm = StateManager(tmp_path)
 
     events_path = sm.events_path
-    with patch("os.fsync") as mock_fsync:
+    with patch("os.fsync"):
         sm.record_event("test_event", {"key": "value"})
 
     assert events_path.exists()

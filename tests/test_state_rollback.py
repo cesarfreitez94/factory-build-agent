@@ -1,6 +1,5 @@
 import json
 import os
-from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -44,7 +43,7 @@ def test_transition_records_event_after_save(tmp_path):
     project_dir, _ = _init_project_dir(tmp_path)
     sm = StateManager(project_dir)
 
-    result = sm.transition_to("elicitation", skip_gates=True)
+    sm.transition_to("elicitation", skip_gates=True)
 
     events = sm.events_path.read_text().strip().split("\n")
     assert len(events) == 1
@@ -75,7 +74,7 @@ def test_no_state_modification_on_gate_error(tmp_path):
     project_dir, original_state = _init_project_dir(tmp_path)
     sm = StateManager(project_dir)
 
-    from fba.gate import GateResult, GateError
+    from fba.gate import GateError, GateResult
 
     gate_result = GateResult(
         passed=False,
