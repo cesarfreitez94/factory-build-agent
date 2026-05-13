@@ -1,6 +1,7 @@
 ---
-description: Punto de entrada para el meta-desarrollo del framework FBA. El orquestador usa framework-explorer para obtener contexto, presenta un resumen y espera la intencion del usuario.
+description: Punto de entrada para meta-desarrollo del framework FBA
 agent: framework-orchestrator
+subtask: true
 ---
 
 # fba:fw

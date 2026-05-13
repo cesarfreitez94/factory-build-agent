@@ -1,7 +1,6 @@
 """Tests for the Gate system: GateRunner, GateResult, RuleResult, GateError."""
 
 import json
-from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
@@ -267,8 +266,8 @@ class TestGateRunnerSchemaValidation:
     def test_schema_valid(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            from pathlib import Path as P
-            d = self.setup_state_with_schema(P(tmp))
+            from pathlib import Path
+            d = self.setup_state_with_schema(Path(tmp))
             (d / ".factory" / "artifact.json").write_text('{"name": "hello"}')
             runner = GateRunner(d)
             result = runner.check_phase("test_phase")
@@ -278,8 +277,8 @@ class TestGateRunnerSchemaValidation:
     def test_schema_invalid(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            from pathlib import Path as P
-            d = self.setup_state_with_schema(P(tmp))
+            from pathlib import Path
+            d = self.setup_state_with_schema(Path(tmp))
             (d / ".factory" / "artifact.json").write_text('{"name": 123}')
             runner = GateRunner(d)
             result = runner.check_phase("test_phase")
@@ -289,8 +288,8 @@ class TestGateRunnerSchemaValidation:
     def test_schema_artifact_not_found(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            from pathlib import Path as P
-            d = self.setup_state_with_schema(P(tmp))
+            from pathlib import Path
+            d = self.setup_state_with_schema(Path(tmp))
             runner = GateRunner(d)
             result = runner.check_phase("test_phase")
             assert result.passed is False
@@ -299,8 +298,8 @@ class TestGateRunnerSchemaValidation:
     def test_schema_invalid_json(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            from pathlib import Path as P
-            d = self.setup_state_with_schema(P(tmp))
+            from pathlib import Path
+            d = self.setup_state_with_schema(Path(tmp))
             (d / ".factory" / "artifact.json").write_text('not json')
             runner = GateRunner(d)
             result = runner.check_phase("test_phase")
@@ -341,8 +340,8 @@ class TestGateRunnerTraceability:
     def test_traceability_complete(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            from pathlib import Path as P
-            d = self.setup_traceability_state(P(tmp))
+            from pathlib import Path
+            d = self.setup_traceability_state(Path(tmp))
 
             prd = {
                 "functional_requirements": [
@@ -372,8 +371,8 @@ class TestGateRunnerTraceability:
     def test_traceability_incomplete(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            from pathlib import Path as P
-            d = self.setup_traceability_state(P(tmp))
+            from pathlib import Path
+            d = self.setup_traceability_state(Path(tmp))
 
             prd = {
                 "functional_requirements": [
@@ -400,8 +399,8 @@ class TestGateRunnerTraceability:
     def test_traceability_prd_not_found(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            from pathlib import Path as P
-            d = self.setup_traceability_state(P(tmp))
+            from pathlib import Path
+            d = self.setup_traceability_state(Path(tmp))
 
             sdd = {"traceability_matrix": {"mappings": []}}
             (d / ".factory" / "sdd.json").write_text(json.dumps(sdd))
@@ -416,8 +415,8 @@ class TestGateRunnerContentCheck:
     def test_content_check_passes(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            from pathlib import Path as P
-            d = P(tmp)
+            from pathlib import Path
+            d = Path(tmp)
             factory = d / ".factory"
             factory.mkdir()
 
@@ -459,8 +458,8 @@ class TestGateRunnerContentCheck:
     def test_content_check_fails_insufficient(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            from pathlib import Path as P
-            d = P(tmp)
+            from pathlib import Path
+            d = Path(tmp)
             factory = d / ".factory"
             factory.mkdir()
 
@@ -684,8 +683,8 @@ class TestGateRunnerSemanticCheck:
     def test_semantic_check_does_not_block(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            from pathlib import Path as P
-            d = self.setup_semantic_state(P(tmp))
+            from pathlib import Path
+            d = self.setup_semantic_state(Path(tmp))
 
             elicitation = {
                 "initial_description": "modulo de inventario",
@@ -718,8 +717,8 @@ class TestGateRunnerSemanticCheck:
     def test_semantic_check_packages_eval_data(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            from pathlib import Path as P
-            d = self.setup_semantic_state(P(tmp))
+            from pathlib import Path
+            d = self.setup_semantic_state(Path(tmp))
 
             elicitation = {
                 "initial_description": "modulo de inventario",
@@ -775,8 +774,8 @@ class TestGateRunnerSemanticCheck:
     def test_semantic_check_missing_source(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            from pathlib import Path as P
-            d = self.setup_semantic_state(P(tmp))
+            from pathlib import Path
+            d = self.setup_semantic_state(Path(tmp))
 
             prd = {"vision": "test", "objectives": ["test"]}
             (d / ".factory" / "prd.json").write_text(json.dumps(prd))
@@ -792,8 +791,8 @@ class TestGateRunnerSemanticCheck:
     def test_semantic_check_missing_target(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            from pathlib import Path as P
-            d = self.setup_semantic_state(P(tmp))
+            from pathlib import Path
+            d = self.setup_semantic_state(Path(tmp))
 
             elicitation = {"initial_description": "modulo X", "business_context": "test"}
             (d / ".factory" / "context" / "elicitation.json").write_text(json.dumps(elicitation))
@@ -809,8 +808,8 @@ class TestGateRunnerSemanticCheck:
     def test_semantic_check_invalid_json(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            from pathlib import Path as P
-            d = self.setup_semantic_state(P(tmp))
+            from pathlib import Path
+            d = self.setup_semantic_state(Path(tmp))
 
             (d / ".factory" / "context" / "elicitation.json").write_text("not valid json")
             (d / ".factory" / "prd.json").write_text("also not json")
@@ -826,8 +825,8 @@ class TestGateRunnerSemanticCheck:
     def test_semantic_check_default_dimensions(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            from pathlib import Path as P
-            d = P(tmp)
+            from pathlib import Path
+            d = Path(tmp)
             factory = d / ".factory"
             factory.mkdir(parents=True)
 
@@ -934,8 +933,8 @@ class TestCLIGateSemanticCheck:
     def test_cli_gate_shows_pending_semantic(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            from pathlib import Path as P
-            d = self.setup_semantic_cli_state(P(tmp))
+            from pathlib import Path
+            d = self.setup_semantic_cli_state(Path(tmp))
 
             runner_cli = CliRunner()
             result = runner_cli.invoke(main, ["gate", "documentation", "-d", str(d)])
@@ -948,8 +947,8 @@ class TestCLIGateSemanticCheck:
     def test_cli_gate_semantic_does_not_fail_passed_gate(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
-            from pathlib import Path as P
-            d = self.setup_semantic_cli_state(P(tmp))
+            from pathlib import Path
+            d = self.setup_semantic_cli_state(Path(tmp))
 
             runner_cli = CliRunner()
             result = runner_cli.invoke(main, ["gate", "documentation", "-d", str(d)])

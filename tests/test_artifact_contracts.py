@@ -2,7 +2,6 @@
 
 import json
 import uuid
-from pathlib import Path
 
 import pytest
 
@@ -297,6 +296,7 @@ class TestContractCli:
 
     def test_validate_contract_prd_passes(self, tmp_path):
         from click.testing import CliRunner
+
         from fba.cli import main
 
         factory = tmp_path / ".factory"
@@ -312,6 +312,7 @@ class TestContractCli:
 
     def test_validate_contract_prd_fails(self, tmp_path):
         from click.testing import CliRunner
+
         from fba.cli import main
 
         factory = tmp_path / ".factory"
@@ -327,6 +328,7 @@ class TestContractCli:
 
     def test_validate_contract_sdd_passes(self, tmp_path):
         from click.testing import CliRunner
+
         from fba.cli import main
 
         factory = tmp_path / ".factory"
@@ -342,6 +344,7 @@ class TestContractCli:
 
     def test_validate_contract_schema_passes(self, tmp_path):
         from click.testing import CliRunner
+
         from fba.cli import main
 
         factory = tmp_path / ".factory"
@@ -357,6 +360,7 @@ class TestContractCli:
 
     def test_validate_contract_missing_file(self, tmp_path):
         from click.testing import CliRunner
+
         from fba.cli import main
 
         factory = tmp_path / ".factory"

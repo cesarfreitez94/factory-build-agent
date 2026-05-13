@@ -6,7 +6,7 @@ ownership rules, and allowed mutations between versions.
 
 import json
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 
 class ContractError(Exception):
@@ -35,13 +35,13 @@ class ContractEngine:
 
     def __init__(self, contracts_dir: Optional[Path] = None):
         self._contracts_dir = contracts_dir or self.CONTRACTS_DIR
-        self._cache: dict[str, dict] = {}
+        self._cache: dict[str, dict[str, Any]] = {}
 
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
 
-    def validate_invariants(self, artifact_type: str, data: dict) -> list[dict]:
+    def validate_invariants(self, artifact_type: str, data: dict[str, Any]) -> list[dict[str, Any]]:
         """Validate all invariants for the given artifact.
 
         Returns a list of violations. Empty list means all invariants pass.
@@ -93,10 +93,10 @@ class ContractEngine:
     def validate_mutations(
         self,
         artifact_type: str,
-        old_data: dict,
-        new_data: dict,
-        context: Optional[dict] = None,
-    ) -> list[dict]:
+        old_data: dict[str, Any],
+        new_data: dict[str, Any],
+        context: Optional[dict[str, Any]] = None,
+    ) -> list[dict[str, Any]]:
         """Validate allowed mutations between two versions.
 
         Checks that changes between old_data and new_data respect
@@ -115,7 +115,7 @@ class ContractEngine:
         violations = []
 
         for mutation_rule in contract.get("allowed_mutations", []):
-            rule_type = mutation_rule["rule"]
+            _ = mutation_rule["rule"]
             violations.extend(
                 self._check_mutation_rule(
                     mutation_rule, old_data, new_data, context
@@ -128,7 +128,7 @@ class ContractEngine:
     # Internal: contract loading
     # ------------------------------------------------------------------
 
-    def _load_contract(self, artifact_type: str) -> dict:
+    def _load_contract(self, artifact_type: str) -> dict[str, Any]:
         """Load a contract definition from disk."""
         if artifact_type not in self.SUPPORTED_TYPES:
             raise ContractError(
@@ -149,14 +149,14 @@ class ContractEngine:
             raise ContractError(f"Invalid contract JSON in {contract_path}: {e}")
 
         self._cache[artifact_type] = contract
-        return contract
+        return cast(dict[str, Any], contract)
 
     # ------------------------------------------------------------------
     # Internal: invariant checks
     # ------------------------------------------------------------------
 
     def _check_invariant(
-        self, data: dict, field: str, op: str, value: Any
+        self, data: dict[str, Any], field: str, op: str, value: Any
     ) -> tuple[bool, str]:
         """Check a single invariant rule against the data."""
         actual = self._resolve_field(data, field)
@@ -244,11 +244,11 @@ class ContractEngine:
 
     def _check_mutation_rule(
         self,
-        rule: dict,
-        old_data: dict,
-        new_data: dict,
-        context: Optional[dict],
-    ) -> list[dict]:
+        rule: dict[str, Any],
+        old_data: dict[str, Any],
+        new_data: dict[str, Any],
+        context: Optional[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
         """Check a single mutation rule."""
         rule_type = rule["rule"]
         violations = []
@@ -270,13 +270,13 @@ class ContractEngine:
 
     def _check_no_delete_if_referenced(
         self,
-        rule: dict,
-        old_data: dict,
-        new_data: dict,
-        context: Optional[dict],
-    ) -> list[dict]:
+        rule: dict[str, Any],
+        old_data: dict[str, Any],
+        new_data: dict[str, Any],
+        context: Optional[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
         """Check that deleted items are not referenced in another artifact."""
-        violations = []
+        _: list[dict[str, Any]] = []
         source_field = rule["source_field"]
 
         old_items = old_data.get(source_field, [])
@@ -285,9 +285,9 @@ class ContractEngine:
         if not isinstance(old_items, list) or not isinstance(new_items, list):
             return []
 
-        old_ids = {item.get("id", item.get("name", "")) for item in old_items if isinstance(item, dict)}
-        new_ids = {item.get("id", item.get("name", "")) for item in new_items if isinstance(item, dict)}
-        deleted_ids = old_ids - new_ids
+        old_ids: set[str] = {item.get("id", item.get("name", "")) or "" for item in old_items if isinstance(item, dict)}
+        new_ids: set[str] = {item.get("id", item.get("name", "")) or "" for item in new_items if isinstance(item, dict)}
+        deleted_ids: set[str] = old_ids - new_ids
 
         if not deleted_ids:
             return []
@@ -298,7 +298,7 @@ class ContractEngine:
         ref_artifact = rule.get("reference_artifact")
         ref_field = rule.get("reference_field")
 
-        if ref_artifact and context:
+        if ref_artifact and context and ref_field is not None:
             ref_data = context.get(ref_artifact, {})
             if not ref_data:
                 return [
@@ -325,10 +325,10 @@ class ContractEngine:
         return []
 
     def _check_cross_field_no_delete(
-        self, rule: dict, old_data: dict, new_data: dict
-    ) -> list[dict]:
+        self, rule: dict[str, Any], old_data: dict[str, Any], new_data: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Check cross-field constraints within a single artifact."""
-        violations = []
+        violations: list[dict[str, Any]] = []
         source_field = rule["source_field"]
         cross_field = rule.get("cross_field", "")
         cross_match = rule.get("cross_match", "model")
@@ -381,8 +381,8 @@ class ContractEngine:
         return violations
 
     def _check_uuid_immutability(
-        self, rule: dict, old_data: dict, new_data: dict
-    ) -> list[dict]:
+        self, rule: dict[str, Any], old_data: dict[str, Any], new_data: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Check that UUID stable IDs are immutable across versions."""
         source_field = rule["source_field"]
         stable_id_field = rule.get("stable_id_field", "uuid")
@@ -447,10 +447,10 @@ class ContractEngine:
 
     @staticmethod
     def _find_references(
-        data: dict, field_path: str, target_ids: set
+        data: dict[str, Any], field_path: str, target_ids: set[str]
     ) -> list[str]:
         """Find references to target_ids within data at field_path."""
-        current = data
+        current: Any = data
         for part in field_path.split("."):
             if isinstance(current, dict):
                 current = current.get(part)
@@ -462,10 +462,10 @@ class ContractEngine:
         if not isinstance(current, list):
             current = [current] if current else []
 
-        found = []
+        found: list[str] = []
         for item in current:
             if isinstance(item, dict):
-                req = item.get("requirement", item.get("id", item.get("name", "")))
+                req: str = item.get("requirement", item.get("id", item.get("name", ""))) or ""
                 if req in target_ids:
                     found.append(req)
 

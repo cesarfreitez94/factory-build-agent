@@ -8,7 +8,7 @@ modifications with field/section granularity.
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 
 class DiffError(Exception):
@@ -35,7 +35,7 @@ class DiffEngine:
     }
 
     @staticmethod
-    def detect_artifact_type(data: dict) -> str:
+    def detect_artifact_type(data: dict[str, Any]) -> str:
         """Detect the artifact type from its top-level keys.
 
         Returns one of: prd, sdd, schema, tasks_index, task_item, unknown.
@@ -126,7 +126,7 @@ class DiffEngine:
         old: Any,
         new: Any,
         path: str = "$",
-    ) -> dict:
+    ) -> dict[str, list[dict[str, Any]]]:
         """Recursively compare two JSON values.
 
         Returns a dict with 'added', 'removed', and 'modified' lists.
@@ -135,9 +135,9 @@ class DiffEngine:
         For arrays of objects, matches elements by 'id' field when available,
         otherwise compares by index.
         """
-        result: dict[str, list] = {"added": [], "removed": [], "modified": []}
+        result: dict[str, list[dict[str, Any]]] = {"added": [], "removed": [], "modified": []}
 
-        if type(old) != type(new):
+        if type(old) is not type(new):
             result["modified"].append({
                 "path": path,
                 "old_value": old,
@@ -209,7 +209,7 @@ class DiffEngine:
         return result
 
     @staticmethod
-    def _index_array(arr: list) -> dict:
+    def _index_array(arr: list[Any]) -> dict[str, dict[str, Any]]:
         """Index an array for comparison.
 
         Arrays of dicts with an 'id' field are indexed by id.
@@ -225,7 +225,7 @@ class DiffEngine:
         return indexed
 
     @staticmethod
-    def _format_text(changelog: dict) -> str:
+    def _format_text(changelog: dict[str, Any]) -> str:
         """Format changelog as human-readable text."""
         lines = []
         lines.append(f"=== Diff: {changelog['artifact_type']} ===")
@@ -274,7 +274,7 @@ class DiffEngine:
         return "\n".join(lines)
 
     @staticmethod
-    def _format_json(changelog: dict) -> str:
+    def _format_json(changelog: dict[str, Any]) -> str:
         """Format changelog as a deterministic JSON string."""
         return json.dumps(changelog, indent=2, ensure_ascii=False, sort_keys=True)
 

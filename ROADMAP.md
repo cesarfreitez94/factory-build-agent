@@ -17,7 +17,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M10: Framework Meta-Development | ✅ Completado | 2026-05-09 / 2026-05-09 |
 | M11: Foundation Hardening | ✅ Completado | 2026-05-09 / 2026-05-12 |
 | M12: Diff, Dependencies & Trazabilidad | ✅ Completado | 2026-05-12 / 2026-05-13 |
-| M13: Reliability & Quality | ⏳ Planificado | — / — |
+| M13: Reliability & Quality | ✅ Completado | 2026-05-14 / 2026-05-13 |
 | M14: Odoo Depth | ⏳ Planificado | — / — |
 | M15: Advanced QA | ⏳ Planificado | — / — |
 
@@ -466,7 +466,7 @@ pytest tests/test_dependency_integrity.py tests/test_stable_ids.py
 
 ---
 
-## M13: Reliability & Quality (Capa 2)
+## M13: Reliability & Quality (Capa 2) ✅
 
 **Objetivo**: Agregar seguridad (#1 bandit + pip-audit + detect-secrets), cache de validacion (#8 hash-based),
 pre-commit hooks (#5), y type checking con mypy (#6).
@@ -478,12 +478,13 @@ y cache de validacion hash-based en `.factory/.cache/`.
 
 ### Feats
 
-| Orden | Feat | Depende de | Descripcion |
-|-------|------|------------|-------------|
-| 1 | feat/13.1-security-scans | M11 | #1: Bandit + pip-audit + detect-secrets como gates en construction |
-| 2 | feat/13.2-pre-commit | — | #5: Configuracion de pre-commit hooks (.pre-commit-config.yaml) con ruff, black, bandit |
-| 3 | feat/13.3-mypy | — | #6: Configuracion mypy con strict mode progresivo, pyproject.toml [tool.mypy] |
-| 4 | feat/13.4-cache-validacion | M11, feat/12.1 | #8: Cache de validacion hash-based en `.factory/.cache/` — no re-validar artefactos sin cambios |
+| Orden | Feat | Depende de | Descripcion | Estado |
+|-------|------|------------|-------------|--------|
+| 1 | feat/13.1-fix-meta-flow | M11 | #127: Corregir flujo meta-desarrollo (permissions, subtask: true, git flow) | ✅ |
+| 2 | feat/13.2-security-scans | M11 | #1: Bandit + pip-audit + detect-secrets como gates en construction | ⏳ |
+| 3 | feat/13.3-pre-commit | — | #5: Configuracion de pre-commit hooks (ruff, black, bandit) | ⏳ |
+| 4 | feat/13.4-mypy | — | #6: Configuracion mypy con strict mode progresivo | ⏳ |
+| 5 | feat/13.5-cache-validacion | M11, feat/12.1 | #8: Cache de validacion hash-based en `.factory/.cache/` | ⏳ |
 
 **Depende de**: M11 (Foundation Hardening) y parcialmente M12 feat/12.1 (diff engine para deteccion de cambios)
 

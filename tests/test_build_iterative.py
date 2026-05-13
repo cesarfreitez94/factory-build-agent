@@ -7,9 +7,8 @@ import pytest
 from click.testing import CliRunner
 
 from fba.cli import main
-from fba.gate import GateError, GateRunner
+from fba.gate import GateError
 from fba.state import StateManager
-
 
 TESTS_DIR = Path(__file__).resolve().parent
 TEMPLATES_DIR = TESTS_DIR.parent / "templates"
@@ -81,7 +80,7 @@ class TestTransitionFromTasksToConstruction:
         tasks_dir = factory_dir / "tasks"
         tasks_dir.mkdir()
 
-        tasks_dir_created = tasks_dir
+        _ = tasks_dir
         schemas_dir_created = schemas_dir
 
         schemas = TESTS_DIR.parent / "schemas"

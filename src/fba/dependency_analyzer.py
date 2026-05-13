@@ -5,10 +5,12 @@ Detects: unused dependencies, missing dependencies, and circular dependencies.
 Uses the diff engine to compare dependency changes between versions.
 """
 
+from __future__ import annotations
+
 import json
 import re
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 
 class DependencyError(Exception):
@@ -44,7 +46,7 @@ class DependencyAnalyzer:
         r"['\"]([\w]+)['\"]",
     )
 
-    CORE_ODOO_MODULES = {
+    CORE_ODOO_MODULES: set[str] = {
         "base", "web", "mail", "stock", "sale", "purchase",
         "account", "crm", "hr", "product", "uom", "report",
     }
@@ -52,9 +54,9 @@ class DependencyAnalyzer:
     def analyze_module(
         self,
         module_path: Path,
-        project_modules: Optional[set] = None,
-        deps_map: Optional[dict] = None,
-    ):
+        project_modules: Optional[set[str]] = None,
+        deps_map: Optional[dict[str, set[str]]] = None,
+    ) -> DependencyResult:
         """Analyze a single Odoo module for dependency issues.
 
         Args:
@@ -122,7 +124,7 @@ class DependencyAnalyzer:
             code_usage=actual_usage,
         )
 
-    def analyze_project(self, project_path: Path):
+    def analyze_project(self, project_path: Path) -> dict[str, DependencyResult]:
         """Analyze all modules in a project for dependency issues.
 
         Args:
@@ -138,9 +140,9 @@ class DependencyAnalyzer:
         if not module_dirs:
             raise DependencyError(f"No Odoo modules found in {project_path}")
 
-        all_module_names = {d.name for d in module_dirs}
+        all_module_names: set[str] = {d.name for d in module_dirs}
 
-        deps_map = {}
+        deps_map: dict[str, set[str]] = {}
         for mod_dir in module_dirs:
             try:
                 manifest = self._load_manifest(mod_dir)
@@ -148,7 +150,7 @@ class DependencyAnalyzer:
             except DependencyError:
                 deps_map[mod_dir.name] = set()
 
-        results = {}
+        results: dict[str, DependencyResult] = {}
         for mod_dir in sorted(module_dirs):
             result = self.analyze_module(
                 mod_dir, project_modules=all_module_names, deps_map=deps_map
@@ -159,13 +161,12 @@ class DependencyAnalyzer:
 
     def diff_dependencies(
         self, old_manifest_path: Path, new_manifest_path: Path
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Compare dependency declarations between two manifest versions.
 
         Uses the diff engine from feat/12.1 to produce a structured
         changelog of dependency changes.
         """
-        from fba.diff_engine import DiffEngine, DiffError
 
         try:
             old_data = json.loads(old_manifest_path.read_text()) if old_manifest_path.suffix == ".json" else {}
@@ -191,7 +192,7 @@ class DependencyAnalyzer:
     # Internal
     # ------------------------------------------------------------------
 
-    def _load_manifest(self, module_path: Path) -> dict:
+    def _load_manifest(self, module_path: Path) -> dict[str, Any]:
         """Load __manifest__.py from a module directory."""
         manifest_path = module_path / "__manifest__.py"
         if not manifest_path.exists():
@@ -203,13 +204,13 @@ class DependencyAnalyzer:
         except Exception as e:
             raise DependencyError(f"Failed to parse {manifest_path}: {e}")
 
-    def _parse_manifest(self, content: str) -> dict:
+    def _parse_manifest(self, content: str) -> dict[str, Any]:
         """Parse __manifest__.py content into a dict.
 
         Handles the common Odoo manifest format: a dict literal.
         Uses regex to extract 'depends' list.
         """
-        result = {"depends": []}
+        result: dict[str, Any] = {"depends": []}
 
         depends_match = re.search(
             r"['\"]depends['\"]\s*:\s*\[(.*?)\]",
@@ -228,9 +229,9 @@ class DependencyAnalyzer:
 
         return result
 
-    def _scan_code_usage(self, module_path: Path) -> set:
+    def _scan_code_usage(self, module_path: Path) -> set[str]:
         """Scan all Python files in a module for external module references."""
-        usage = set()
+        usage: set[str] = set()
 
         for py_file in module_path.rglob("*.py"):
             if py_file.name == "__manifest__.py":
@@ -257,11 +258,11 @@ class DependencyAnalyzer:
     def _detect_circular_deps(
         self,
         current_module: str,
-        declared_deps: set,
-        all_modules: set,
-        visited: Optional[set] = None,
-        path: Optional[list] = None,
-        deps_map: Optional[dict] = None,
+        declared_deps: set[str],
+        all_modules: set[str],
+        visited: Optional[set[str]] = None,
+        path: Optional[list[str]] = None,
+        deps_map: Optional[dict[str, set[str]]] = None,
     ) -> list[list[str]]:
         """Detect circular dependencies in the module graph.
 
@@ -300,10 +301,10 @@ class DependencyAnalyzer:
         return cycles
 
     def _build_deps_map_from_siblings(
-        self, module_path: Path, project_modules: set
-    ) -> dict:
+        self, module_path: Path, project_modules: set[str]
+    ) -> dict[str, set[str]]:
         """Build a deps_map from sibling module directories."""
-        deps_map = {}
+        deps_map: dict[str, set[str]] = {}
         parent = module_path.parent
         for mod_name in project_modules:
             mod_dir = parent / mod_name
@@ -344,10 +345,10 @@ class DependencyResult:
 
     def __init__(
         self,
-        summary: dict,
-        issues: list[dict],
-        manifest_deps: set,
-        code_usage: set,
+        summary: dict[str, Any],
+        issues: list[dict[str, Any]],
+        manifest_deps: set[str],
+        code_usage: set[str],
     ):
         self.summary = summary
         self.issues = issues
@@ -362,7 +363,7 @@ class DependencyResult:
     def is_clean(self) -> bool:
         return len(self.issues) == 0
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"DependencyResult(module={self.summary['module']}, "
             f"issues={self.summary['total_issues']})"

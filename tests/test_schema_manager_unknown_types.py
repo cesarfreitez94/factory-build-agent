@@ -1,9 +1,6 @@
 import json
-from pathlib import Path
 
-import pytest
-
-from fba.schema_manager import SchemaManager, AssemblyWarning, AssemblyResult
+from fba.schema_manager import SchemaManager
 
 
 def create_task_data(task_id, components, task_name="test"):

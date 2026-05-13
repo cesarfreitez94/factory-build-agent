@@ -1,0 +1,40 @@
+# Pre-commit hooks for Factory Build Agent
+# See: https://github.com/pre-commit/pre-commit-hooks
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-json
+      - id: detect-aws-credentials
+        args: ["--allow-missing-credentials"]
+      - id: detect-private-key
+
+  - repo: https://github.com/sirosen/check-jsonschema
+    rev: 0.33.0
+    hooks:
+      - id: check-jsonschema
+        name: Validate JSON files against schemas
+        args: ["--schemafile", "schemas/prd-schema.json"]
+        files: \.factory/prd\.json$
+
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.33.0
+    hooks:
+      - id: check-jsonschema
+        name: Validate task JSON files
+        args: ["--schemafile", "schemas/task-schema.json"]
+        files: \.factory/tasks/T\d+\.json$
+
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.33.0
+    hooks:
+      - id: check-jsonschema
+        name: Validate schema.json
+        args: ["--schemafile", "schemas/schema-schema.json"]
+        files: \.factory/schema\.json$

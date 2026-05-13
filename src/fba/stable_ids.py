@@ -10,7 +10,6 @@ import uuid
 from pathlib import Path
 from typing import Any, Optional
 
-
 ENTITY_TYPES = ("requirement", "model", "field")
 
 
@@ -55,7 +54,7 @@ class StableIdManager:
 
     @staticmethod
     def ensure_ids_in_array(
-        items: list[dict],
+        items: list[dict[str, Any]],
         entity_type: str,
         id_field: str = "id",
         stable_id_field: str = "uuid",
@@ -85,11 +84,11 @@ class StableIdManager:
 
     @staticmethod
     def validate_immutability(
-        old_items: list[dict],
-        new_items: list[dict],
+        old_items: list[dict[str, Any]],
+        new_items: list[dict[str, Any]],
         id_field: str = "id",
         stable_id_field: str = "uuid",
-    ) -> list[dict]:
+    ) -> list[dict[str, Any]]:
         """Check that UUIDs are immutable across versions.
 
         Args:
@@ -135,7 +134,7 @@ class StableIdManager:
     def trace(
         entity_id: str,
         factory_dir: Path,
-    ) -> Optional[dict]:
+    ) -> Optional[dict[str, Any]]:
         """Trace a UUID across all artifacts in a factory directory.
 
         Searches PRD, SDD, and schema.json for the given UUID.
@@ -180,7 +179,7 @@ class StableIdManager:
     @staticmethod
     def _find_uuid_in_artifact(
         data: Any, target_uuid: str, artifact_name: str, path: str = "$"
-    ) -> list[dict]:
+    ) -> list[dict[str, Any]]:
         """Recursively search for a UUID in an artifact dict.
 
         Returns list of locations where the UUID was found.
@@ -220,7 +219,7 @@ class StableIdManager:
         return results
 
     @staticmethod
-    def _infer_entity_type(artifact_name: str, data: dict, path: str) -> str:
+    def _infer_entity_type(artifact_name: str, data: dict[str, Any], path: str) -> str:
         """Infer the entity type from context."""
         if artifact_name == "prd":
             if "functional_requirements" in path:

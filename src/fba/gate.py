@@ -1,6 +1,7 @@
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any, cast
 
 
 @dataclass
@@ -8,10 +9,10 @@ class RuleResult:
     passed: bool
     rule: str
     message: str = ""
-    details: dict = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
     requires_agent: bool = False
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         return {
             "passed": self.passed,
             "rule": self.rule,
@@ -26,22 +27,22 @@ class GateResult:
     passed: bool
     phase: str
     description: str = ""
-    results: list = field(default_factory=list)
+    results: list[RuleResult] = field(default_factory=list)
     owner_agent: str = ""
 
     @property
-    def failures(self):
+    def failures(self) -> list[RuleResult]:
         return [r for r in self.results if not r.passed]
 
     @property
-    def error_count(self):
+    def error_count(self) -> int:
         return len(self.failures)
 
     @property
-    def pending_agent_checks(self):
+    def pending_agent_checks(self) -> list[RuleResult]:
         return [r for r in self.results if r.requires_agent]
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         return {
             "passed": self.passed,
             "phase": self.phase,
@@ -99,19 +100,19 @@ class GateRunner:
         current = self._state.get("current_phase", "init")
         return self.check_phase(current)
 
-    def check_all(self) -> dict:
+    def check_all(self) -> dict[str, GateResult]:
         return {
             phase: self.check_phase(phase)
             for phase in self._gates
         }
 
-    def _load_state(self):
+    def _load_state(self) -> dict[str, Any]:
         state_path = self._factory_dir / "state.json"
         if not state_path.exists():
             return {}
-        return json.loads(state_path.read_text())
+        return cast(dict[str, Any], json.loads(state_path.read_text()))
 
-    def _evaluate_rule(self, rule: dict) -> RuleResult:
+    def _evaluate_rule(self, rule: dict[str, Any]) -> RuleResult:
         rule_type = rule.get("type", "")
 
         if rule_type == "schema":
@@ -132,6 +133,8 @@ class GateRunner:
             return self._check_view_field_check(rule)
         elif rule_type == "acl_coverage":
             return self._check_acl_coverage(rule)
+        elif rule_type == "security_scan":
+            return self._check_security_scan(rule)
         else:
             return RuleResult(
                 passed=False,
@@ -142,7 +145,7 @@ class GateRunner:
     def _resolve_path(self, relative_path: str) -> Path:
         return self.project_dir / relative_path
 
-    def _check_artifact_exists(self, rule: dict) -> RuleResult:
+    def _check_artifact_exists(self, rule: dict[str, Any]) -> RuleResult:
         rule_name = rule.get("rule_name", "artifact_exists")
         path_str = rule.get("path", "")
         artifact_path = self._resolve_path(path_str)
@@ -179,7 +182,7 @@ class GateRunner:
             details={"path": path_str},
         )
 
-    def _check_schema(self, rule: dict) -> RuleResult:
+    def _check_schema(self, rule: dict[str, Any]) -> RuleResult:
         import jsonschema
 
         rule_name = rule.get("rule_name", "schema")
@@ -232,7 +235,7 @@ class GateRunner:
             details={"schema": schema_name, "path": artifact_path_str},
         )
 
-    def _check_traceability(self, rule: dict) -> RuleResult:
+    def _check_traceability(self, rule: dict[str, Any]) -> RuleResult:
         rule_name = rule.get("rule_name", "traceability")
         prd_path_str = rule.get("prd_path", "")
         sdd_path_str = rule.get("sdd_path", "")
@@ -313,7 +316,7 @@ class GateRunner:
             },
         )
 
-    def _check_content(self, rule: dict) -> RuleResult:
+    def _check_content(self, rule: dict[str, Any]) -> RuleResult:
         rule_name = rule.get("rule_name", "content_check")
         path_str = rule.get("path", "")
         checks = rule.get("checks", {})
@@ -364,7 +367,7 @@ class GateRunner:
             details={"path": path_str, "checks_passed": len(checks)},
         )
 
-    def _check_semantic(self, rule: dict) -> RuleResult:
+    def _check_semantic(self, rule: dict[str, Any]) -> RuleResult:
         rule_name = rule.get("rule_name", "semantic_check")
         source_path_str = rule.get("source_path", "")
         target_path_str = rule.get("target_path", "")
@@ -478,7 +481,7 @@ class GateRunner:
             requires_agent=True,
         )
 
-    def _check_task_files_exist(self, rule: dict) -> RuleResult:
+    def _check_task_files_exist(self, rule: dict[str, Any]) -> RuleResult:
         import jsonschema
 
         rule_name = rule.get("rule_name", "task_files_exist")
@@ -598,7 +601,7 @@ class GateRunner:
 
         return None
 
-    def _check_view_coverage(self, rule: dict) -> RuleResult:
+    def _check_view_coverage(self, rule: dict[str, Any]) -> RuleResult:
         rule_name = rule.get("rule_name", "view_coverage")
         schema_path_str = rule.get("path", ".factory/schema.json")
 
@@ -652,7 +655,7 @@ class GateRunner:
             details={"path": schema_path_str, "models_checked": len(model_names)},
         )
 
-    def _check_view_field_check(self, rule: dict) -> RuleResult:
+    def _check_view_field_check(self, rule: dict[str, Any]) -> RuleResult:
         rule_name = rule.get("rule_name", "view_field_check")
         schema_path_str = rule.get("path", ".factory/schema.json")
 
@@ -678,7 +681,7 @@ class GateRunner:
         models = schema.get("models", [])
         views = schema.get("views", [])
 
-        model_fields: dict[str, set] = {}
+        model_fields: dict[str, set[str]] = {}
         for model in models:
             model_fields[model["name"]] = {f["name"] for f in model.get("fields", [])}
 
@@ -710,7 +713,7 @@ class GateRunner:
             details={"path": schema_path_str, "views_checked": len(views)},
         )
 
-    def _check_acl_coverage(self, rule: dict) -> RuleResult:
+    def _check_acl_coverage(self, rule: dict[str, Any]) -> RuleResult:
         rule_name = rule.get("rule_name", "acl_coverage")
         schema_path_str = rule.get("path", ".factory/schema.json")
 
@@ -754,4 +757,47 @@ class GateRunner:
             rule=rule_name,
             message=f"All {len(model_names)} models have ACL entries",
             details={"path": schema_path_str, "models_covered": len(model_names)},
+        )
+
+    def _check_security_scan(self, rule: dict[str, Any]) -> RuleResult:
+        from fba.security import run_security_scan
+
+        rule_name = rule.get("rule_name", "security_scan")
+        project_path_str = rule.get("path", ".")
+        exclude_paths = rule.get("exclude_paths", [])
+
+        project_path = self._resolve_path(project_path_str)
+
+        try:
+            report = run_security_scan(project_path, exclude_paths=exclude_paths)
+        except Exception as e:
+            return RuleResult(
+                passed=False,
+                rule=rule_name,
+                message=f"Security scan failed: {e}",
+                details={"error": str(e)},
+            )
+
+        if not report.overall_passed:
+            failed_scanners = [
+                r.scanner for r in report.scanner_results if not r.passed
+            ]
+            return RuleResult(
+                passed=False,
+                rule=rule_name,
+                message=f"Security scan failed: {', '.join(failed_scanners)} ({report.total_findings} total findings)",
+                details={
+                    "total_findings": report.total_findings,
+                    "scanner_results": [r.to_dict() for r in report.scanner_results],
+                },
+            )
+
+        return RuleResult(
+            passed=True,
+            rule=rule_name,
+            message=f"Security scan passed: 0 findings across {len(report.scanner_results)} scanners",
+            details={
+                "total_findings": report.total_findings,
+                "scanners_passed": len(report.scanner_results),
+            },
         )
