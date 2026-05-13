@@ -484,7 +484,7 @@ y cache de validacion hash-based en `.factory/.cache/`.
 | 2 | feat/13.2-security-scans | M11 | #1: Bandit + pip-audit + detect-secrets como gates en construction | ⏳ |
 | 3 | feat/13.3-pre-commit | — | #5: Configuracion de pre-commit hooks (ruff, black, bandit) | ⏳ |
 | 4 | feat/13.4-mypy | — | #6: Configuracion mypy con strict mode progresivo | ⏳ |
-| 5 | feat/13.5-cache-validacion | M11, feat/12.1 | #8: Cache de validacion hash-based en `.factory/.cache/` | ⏳ |
+| 5 | feat/13.5-cache-validacion | M11, feat/12.1 | #8: Cache de validacion hash-based en `.factory/.cache/` | ✅ |
 
 **Depende de**: M11 (Foundation Hardening) y parcialmente M12 feat/12.1 (diff engine para deteccion de cambios)
 

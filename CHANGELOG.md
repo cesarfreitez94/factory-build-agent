@@ -7,6 +7,17 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [13.0] - 2026-05-13
+
+### Completed
+- feat/13.1: input validation & sanitization
+- feat/13.2: output encoding safety
+- feat/13.3: pytest plugins (random-order, rerun failures)
+- feat/13.4: mypy type checking
+- feat/13.5: hash-based validation cache
+
+---
+
 ## [Unreleased] - 2026-05-13
 
 ### M13: Reliability & Quality (Capa 2) — ✅ Completado
