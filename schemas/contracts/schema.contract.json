@@ -1,0 +1,58 @@
+{
+  "artifact_type": "schema",
+  "version": "1.0",
+  "description": "Contract for schema.json (SSOT) artifacts produced by the Schema Manager.",
+  "invariants": [
+    {
+      "id": "schema-has-manifest",
+      "description": "schema.json must have a manifest with a module name",
+      "check": {"field": "manifest.name", "op": "min_length", "value": 3}
+    },
+    {
+      "id": "schema-has-models",
+      "description": "schema.json must define at least one model",
+      "check": {"field": "models", "op": "min_items", "value": 1}
+    },
+    {
+      "id": "schema-models-have-fields",
+      "description": "All models must have at least one field",
+      "check": {"field": "models", "op": "all_items_have_min_items_field", "value": {"field": "fields", "min": 1}}
+    },
+    {
+      "id": "schema-fields-have-type",
+      "description": "All fields must have a type property",
+      "check": {"field": "models", "op": "all_items_nested_field", "value": {"nested": "fields", "field": "type"}}
+    },
+    {
+      "id": "schema-has-views-or-empty",
+      "description": "schema.json must have a views array (can be empty)",
+      "check": {"field": "views", "op": "exists"}
+    }
+  ],
+  "ownership": {
+    "manifest": {"agent": "code-generator", "phase": "construction"},
+    "models": {"agent": "code-generator", "phase": "construction"},
+    "views": {"agent": "code-generator", "phase": "construction"},
+    "security": {"agent": "code-generator", "phase": "construction"},
+    "data": {"agent": "code-generator", "phase": "construction"}
+  },
+  "allowed_mutations": [
+    {
+      "id": "schema-no-remove-field-with-data",
+      "description": "Cannot remove a model field if data records reference it",
+      "rule": "cross_field_no_delete",
+      "source_field": "models",
+      "source_subfield": "fields",
+      "cross_field": "data",
+      "cross_check": "references_field"
+    },
+    {
+      "id": "schema-no-remove-model-with-related-views",
+      "description": "Cannot remove a model that has views defined for it",
+      "rule": "cross_field_no_delete",
+      "source_field": "models",
+      "cross_field": "views",
+      "cross_match": "model"
+    }
+  ]
+}

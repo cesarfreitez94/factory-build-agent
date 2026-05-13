@@ -6,7 +6,11 @@ from pathlib import Path
 import click
 
 from fba import __version__
+from fba.contract_engine import ContractEngine, ContractError
+from fba.dependency_analyzer import DependencyAnalyzer, DependencyError
+from fba.diff_engine import DiffEngine, DiffError
 from fba.gate import GateError
+from fba.stable_ids import StableIdManager, StableIdError
 from fba.schema_manager import SchemaManager
 from fba.state import StateManager, _atomic_write
 
@@ -559,11 +563,18 @@ def gate(phase, all_gates, project_dir):
 @main.command()
 @click.argument("artifact", required=False)
 @PROJECT_DIR_OPTION
-def validate(artifact, project_dir):
-    """Validate project artifacts against their JSON schemas.
+@click.option("--contract", "contract_type", default=None, help="Validate against artifact contract (prd, sdd, schema) instead of JSON schema")
+def validate(artifact, project_dir, contract_type):
+    """Validate project artifacts against their JSON schemas or contracts.
 
     If no artifact is specified, validates all artifacts found in state.json.
+    Use --contract to validate business rules (invariants, ownership, mutations)
+    instead of structural JSON schema validation.
     """
+    if contract_type:
+        _validate_contract(contract_type, project_dir)
+        return
+
     target = _resolve_project_dir(project_dir)
 
     schemas_available = _list_schemas(target)
@@ -619,6 +630,40 @@ def validate(artifact, project_dir):
 
     if not all_valid:
         raise SystemExit(1)
+
+
+def _validate_contract(contract_type, project_dir):
+    """Validate an artifact against its business contract."""
+    target = _resolve_project_dir(project_dir)
+
+    art_path = target / ".factory" / f"{contract_type}.json"
+    if not art_path.exists():
+        click.echo(f"Error: Artifact file not found: {art_path}")
+        raise SystemExit(1)
+
+    try:
+        artifact_data = json.loads(art_path.read_text())
+    except json.JSONDecodeError as e:
+        click.echo(f"Error: Invalid JSON in {art_path}: {e}")
+        raise SystemExit(1)
+
+    engine = ContractEngine()
+
+    try:
+        violations = engine.validate_invariants(contract_type, artifact_data)
+    except ContractError as e:
+        click.echo(f"Error: {e}")
+        raise SystemExit(1)
+
+    if not violations:
+        click.echo(f"✅ Contract '{contract_type}': all invariants pass")
+        return
+
+    click.echo(f"❌ Contract '{contract_type}': {len(violations)} violation(s) found")
+    for v in violations:
+        click.echo(f"  - [{v['id']}] {v['description']}")
+        click.echo(f"    Field: {v['field']} — {v['detail']}")
+    raise SystemExit(1)
 
 
 _schema_group = click.group("schema")(lambda: None)
@@ -883,4 +928,102 @@ def doctor(project_dir, verbose, json_output):
     raise SystemExit(0)
 
 
+@main.command()
+@click.argument("file_v1", type=click.Path(exists=True, path_type=Path))
+@click.argument("file_v2", type=click.Path(exists=True, path_type=Path))
+@click.option("--format", "-f", "output_format", type=click.Choice(["text", "json"]), default="text", help="Output format (text or json)")
+def diff(file_v1, file_v2, output_format):
+    """Compare two JSON artifact versions and produce a structured changelog.
+
+    FILE_V1 is the older version, FILE_V2 is the newer version.
+    Supports PRD, SDD, schema.json, tasks/index.json, and T*.json artifacts.
+
+    \b
+    Examples:
+      fba diff v1/prd.json v2/prd.json
+      fba diff old/sdd.json new/sdd.json --format json
+    """
+    try:
+        result = DiffEngine.diff(file_v1, file_v2, output_format=output_format)
+        click.echo(result)
+    except DiffError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+
+_deps_group = click.group("deps")(lambda: None)
+_deps_group.help = "Odoo dependency integrity analysis."
+
+
+@_deps_group.command("check")
+@PROJECT_DIR_OPTION
+def deps_check(project_dir):
+    """Analyze Odoo module dependencies for integrity issues.
+
+    Checks:
+      - Unused dependencies: modules in 'depends' not referenced in code
+      - Missing dependencies: modules used in code but missing from 'depends'
+      - Circular dependencies: cycles in the module dependency graph
+    """
+    target = _resolve_project_dir(project_dir)
+
+    analyzer = DependencyAnalyzer()
+
+    try:
+        results = analyzer.analyze_project(target)
+    except DependencyError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    total_issues = 0
+    for mod_name, result in sorted(results.items()):
+        summary = result.summary
+        if not result.has_issues:
+            click.echo(f"✅ {mod_name}: clean")
+            continue
+
+        click.echo(f"❌ {mod_name}: {summary['total_issues']} issue(s)")
+        for issue in result.issues:
+            icon = {"unused_dependency": "⚠", "missing_dependency": "❌", "circular_dependency": "🔄"}.get(issue["type"], "?")
+            click.echo(f"   {icon} [{issue['type']}] {issue['message']}")
+        total_issues += summary["total_issues"]
+
+    if total_issues > 0:
+        click.echo(f"\n{total_issues} total dependency issue(s) found across {len(results)} module(s)")
+        raise SystemExit(1)
+
+    click.echo(f"\nAll {len(results)} module(s) have clean dependencies.")
+
+
+@main.command()
+@click.argument("entity_id")
+@PROJECT_DIR_OPTION
+def trace(entity_id, project_dir):
+    """Trace a stable UUID across all project artifacts.
+
+    Searches PRD, SDD, and schema.json for the given UUID and reports
+    where the entity is referenced.
+    """
+    target = _resolve_project_dir(project_dir)
+    factory_dir = target / ".factory"
+
+    try:
+        result = StableIdManager.trace(entity_id, factory_dir)
+    except StableIdError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    if result is None:
+        click.echo(f"UUID '{entity_id[:16]}...' not found in any artifact.")
+        raise SystemExit(1)
+
+    click.echo(f"🔍 Tracing UUID: {entity_id}")
+    click.echo(f"   Found in {result['found_in']} location(s):")
+    for loc in result["locations"]:
+        click.echo(f"   - [{loc['entity_type']}] {loc['entity_id']}")
+        click.echo(f"     Artifact: {loc['artifact']}")
+        click.echo(f"     Path: {loc['path']}")
+
+
+main.add_command(_deps_group)
 main.add_command(_schema_group)

@@ -7,6 +7,20 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.8.0] - 2026-05-13
+
+### M12: Diff, Dependencies & Trazabilidad (Capa 1 avanzada) — ✅ Completado
+- #118 feat/12.1: `DiffEngine` — core diff engine para artefactos JSON del pipeline. Compara PRD, SDD, schema.json, tasks/index.json y produce changelogs estructurados (texto y JSON). Comando: `fba diff <file_v1> <file_v2> [--format text|json]`. 34 tests.
+- #119 feat/12.2: `ContractEngine` — capa de contratos declarativos (JSON) con invariantes, ownership y allowed mutations por tipo de artefacto. Extiende `fba validate --contract <type>`. Contratos en `schemas/contracts/`. 29 tests.
+- #120 feat/12.3: `DependencyAnalyzer` — analisis de integridad de dependencias Odoo. Detecta dependencias no usadas, faltantes y circulares en `__manifest__.py`. Comando: `fba deps check`. 24 tests.
+- #121 feat/12.4: `StableIdManager` — sistema de stable IDs con UUID v4 para requisitos, modelos y campos. Asignacion en creacion, inmutabilidad validada por contrato, trazabilidad con `fba trace <uuid>`. 24 tests.
+- Documentacion: `docs/testing/m12-diff-deps-traza.md`
+
+### Branch
+`milestone/12.0-diff-deps-traza` (4/4 feats mergeados, 604 tests pasando)
+
+---
+
 ## [0.6.0] - 2026-05-09
 
 ### M10: Framework Meta-Development System (completado)

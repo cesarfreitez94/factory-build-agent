@@ -16,7 +16,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M5: Bug Fixes & Stability | ✅ Completado | 2026-05-06 / 2026-05-08 |
 | M10: Framework Meta-Development | ✅ Completado | 2026-05-09 / 2026-05-09 |
 | M11: Foundation Hardening | ✅ Completado | 2026-05-09 / 2026-05-12 |
-| M12: Diff, Dependencies & Trazabilidad | ⏳ Planificado | — / — |
+| M12: Diff, Dependencies & Trazabilidad | ✅ Completado | 2026-05-12 / 2026-05-13 |
 | M13: Reliability & Quality | ⏳ Planificado | — / — |
 | M14: Odoo Depth | ⏳ Planificado | — / — |
 | M15: Advanced QA | ⏳ Planificado | — / — |
@@ -429,7 +429,9 @@ pytest tests/test_schema_manager_unknown_types.py
 
 ---
 
-## M12: Diff, Dependencies & Trazabilidad (Capa 1 avanzada)
+## M12: Diff, Dependencies & Trazabilidad (Capa 1 avanzada) ✅
+
+**Estado**: Completado (2026-05-13) — 4/4 feats mergeados.
 
 **Objetivo**: Implementar diff engine (#15) para trazabilidad de cambios entre artefactos,
 analisis de integridad de dependencias (#12), y formalizar artifact contracts con stable IDs basicos.
@@ -437,7 +439,7 @@ analisis de integridad de dependencias (#12), y formalizar artifact contracts co
 **Alcance**: Core diff engine para artefactos JSON, contracts layer, dependency integrity analysis,
 y fundacion de stable IDs (UUID).
 
-**Branch**: `milestone/12.0-diff-dependencies`
+**Branch**: `milestone/12.0-diff-deps-traza`
 
 ### Feats
 
