@@ -381,7 +381,7 @@ class SchemaManager:
 
                 self._warnings.append(AssemblyWarning(
                     "warning",
-                    f"Field '{field.get('name')}' ({ftype}) in model "
+                    f"Field '{_field.get('name')}' ({ftype}) in model "
                     f"'{model_name}' references '{relation}' which is not "
                     f"found in schema models or module registry",
                 ))
