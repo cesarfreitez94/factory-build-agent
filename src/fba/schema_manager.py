@@ -43,6 +43,7 @@ class SchemaManager:
 
     IMPLEMENTED_TYPES = frozenset({
         "model", "view", "security_group", "access_right", "record_rule", "data",
+        "wizard", "workflow", "report", "controller",
     })
 
     RELATIONAL_TYPES = {"Many2one", "One2many", "Many2many"}
@@ -107,6 +108,10 @@ class SchemaManager:
         security = self._assemble_security(tasks_data)
         data_entries = self._assemble_data(tasks_data)
         manifest = self._assemble_manifest(sdd_data, task_index)
+        wizards = self._assemble_wizards(tasks_data)
+        workflows = self._assemble_workflows(tasks_data)
+        reports = self._assemble_reports(tasks_data)
+        controllers = self._assemble_controllers(tasks_data)
 
         self._validate_relations(models)
 
@@ -117,6 +122,14 @@ class SchemaManager:
             "security": security,
             "data": data_entries,
         }
+        if wizards:
+            schema["wizards"] = wizards
+        if workflows:
+            schema["workflows"] = workflows
+        if reports:
+            schema["reports"] = reports
+        if controllers:
+            schema["controllers"] = controllers
 
         if output_path:
             output_path = Path(output_path)
@@ -499,3 +512,204 @@ class SchemaManager:
                 })
 
         return data_entries
+
+    def _assemble_wizards(self, tasks_data: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+        """Extract wizard components (TransientModel) from all tasks."""
+        wizards: dict[str, dict[str, Any]] = {}
+
+        for task_id, task in tasks_data.items():
+            for component in task.get("components", []):
+                if component.get("type") != "wizard":
+                    continue
+                wiz_name = component.get("name", "")
+                if not wiz_name:
+                    self._warnings.append(AssemblyWarning(
+                        "warning", f"Wizard component with empty name in task {task_id}",
+                    ))
+                    continue
+
+                fields = self._normalize_fields(
+                    component.get("fields", []), wiz_name, task_id
+                )
+
+                if wiz_name in wizards:
+                    existing = wizards[wiz_name]
+                    existing["fields"] = self._merge_fields(
+                        existing["fields"], fields, wiz_name, task_id
+                    )
+                else:
+                    wizards[wiz_name] = {
+                        "name": wiz_name,
+                        "description": component.get("description", ""),
+                        "display_name": component.get("display_name", ""),
+                        "fields": fields,
+                        "view_type": component.get("view_type", "form"),
+                        "view_fields": component.get("view_fields", [f["name"] for f in fields]),
+                        "action_name": component.get("action_name", ""),
+                        "methods": component.get("methods", []),
+                        "sdd_reference": component.get("sdd_reference", ""),
+                    }
+
+        return sorted(wizards.values(), key=lambda w: w["name"])
+
+    def _assemble_workflows(self, tasks_data: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+        """Extract workflow components (ir.actions.server, ir.cron) from all tasks."""
+        workflows: list[dict[str, Any]] = []
+        seen: set[str] = set()
+
+        for task_id, task in tasks_data.items():
+            for component in task.get("components", []):
+                if component.get("type") != "workflow":
+                    continue
+                wf_name = component.get("name", "")
+                if not wf_name:
+                    self._warnings.append(AssemblyWarning(
+                        "warning", f"Workflow component with empty name in task {task_id}",
+                    ))
+                    continue
+
+                wf_model = component.get("model", "")
+                if not wf_model:
+                    self._warnings.append(AssemblyWarning(
+                        "warning", f"Workflow '{wf_name}' has no 'model' field. "
+                        f"Workflows require a target model.",
+                        f"Task: {task_id}",
+                    ))
+                    continue
+
+                key = f"{wf_name}:{wf_model}"
+                if key in seen:
+                    continue
+                seen.add(key)
+
+                kind = component.get("kind", "server_action")
+                if kind not in ("server_action", "scheduled_job"):
+                    kind = "server_action"
+
+                workflow = {
+                    "name": wf_name,
+                    "kind": kind,
+                    "model": wf_model,
+                    "description": component.get("description", ""),
+                    "state": component.get("state", "code"),
+                    "code": component.get("code", ""),
+                    "trigger": component.get("trigger", "manual"),
+                    "active": component.get("active", True),
+                    "sdd_reference": component.get("sdd_reference", ""),
+                }
+                if kind == "scheduled_job":
+                    workflow["interval_number"] = component.get("interval_number", 1)
+                    workflow["interval_type"] = component.get("interval_type", "hours")
+                workflows.append(workflow)
+
+        return sorted(workflows, key=lambda w: w["name"])
+
+    def _assemble_reports(self, tasks_data: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+        """Extract report components (QWeb + ir.actions.report) from all tasks."""
+        reports: list[dict[str, Any]] = []
+        seen: set[str] = set()
+
+        for task_id, task in tasks_data.items():
+            for component in task.get("components", []):
+                if component.get("type") != "report":
+                    continue
+                rep_name = component.get("name", "")
+                if not rep_name:
+                    self._warnings.append(AssemblyWarning(
+                        "warning", f"Report component with empty name in task {task_id}",
+                    ))
+                    continue
+
+                rep_model = component.get("model", "")
+                if not rep_model:
+                    self._warnings.append(AssemblyWarning(
+                        "warning", f"Report '{rep_name}' has no 'model' field. "
+                        f"Reports require a target model.",
+                        f"Task: {task_id}",
+                    ))
+                    continue
+
+                report_name = component.get("report_name", "")
+                if not report_name:
+                    report_name = f"module.report_{rep_name.replace('.', '_')}"
+                    self._warnings.append(AssemblyWarning(
+                        "warning",
+                        f"Report '{rep_name}' has no 'report_name'. "
+                        f"Auto-generated: {report_name}",
+                        f"Task: {task_id}",
+                    ))
+
+                key = f"{rep_name}:{rep_model}"
+                if key in seen:
+                    continue
+                seen.add(key)
+
+                report = {
+                    "name": rep_name,
+                    "model": rep_model,
+                    "report_name": report_name,
+                    "report_type": component.get("report_type", "qweb-pdf"),
+                    "description": component.get("description", ""),
+                    "template_name": component.get("template_name", f"report_{rep_name.replace('.', '_')}"),
+                    "paperformat_name": component.get("paperformat_name", ""),
+                    "paperformat": component.get("paperformat", {}),
+                    "menu": component.get("menu", False),
+                    "attachment": component.get("attachment", ""),
+                    "attachment_use": component.get("attachment_use", False),
+                    "sdd_reference": component.get("sdd_reference", ""),
+                }
+                reports.append(report)
+
+        return sorted(reports, key=lambda r: r["name"])
+
+    def _assemble_controllers(self, tasks_data: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
+        """Extract controller components (http.Controller) from all tasks."""
+        controllers: dict[str, dict[str, Any]] = {}
+
+        for task_id, task in tasks_data.items():
+            for component in task.get("components", []):
+                if component.get("type") != "controller":
+                    continue
+                ctrl_name = component.get("name", "")
+                if not ctrl_name:
+                    self._warnings.append(AssemblyWarning(
+                        "warning", f"Controller component with empty name in task {task_id}",
+                    ))
+                    continue
+
+                routes = component.get("routes", [])
+                valid_routes = []
+                for route in routes:
+                    if not isinstance(route, dict):
+                        continue
+                    path = route.get("path", "")
+                    if not path:
+                        self._warnings.append(AssemblyWarning(
+                            "warning",
+                            f"Route in controller '{ctrl_name}' has no 'path'. Skipping.",
+                            f"Task: {task_id}",
+                        ))
+                        continue
+                    valid_routes.append({
+                        "path": path,
+                        "method": route.get("method", "GET"),
+                        "auth": route.get("auth", "user"),
+                        "handler": route.get("handler", f"_handle_{path.strip('/').replace('/', '_')}"),
+                        "type": route.get("type", "http"),
+                        "csrf": route.get("csrf", True),
+                        "cors": route.get("cors", ""),
+                        "description": route.get("description", ""),
+                    })
+
+                if ctrl_name in controllers:
+                    existing = controllers[ctrl_name]
+                    existing["routes"] = existing["routes"] + valid_routes
+                else:
+                    controllers[ctrl_name] = {
+                        "name": ctrl_name,
+                        "description": component.get("description", ""),
+                        "routes": valid_routes,
+                        "sdd_reference": component.get("sdd_reference", ""),
+                    }
+
+        return sorted(controllers.values(), key=lambda c: c["name"])

@@ -7,6 +7,22 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
+## M14: Odoo Depth (Capa 3) — 2026-05-13
+
+### Nuevas Capacidades
+- **Wizards**: Generacion de modelos TransientModel con vistas form/action desde schema.json
+- **Workflows**: Generacion de ir.actions.server + ir.cron para automations
+- **Reports**: Generacion de QWeb templates + ir.actions.report + paperformat
+- **Controllers**: Generacion de clases http.Controller con @http.route
+- **Migraciones**: Deteccion de cambios de schema via DiffEngine → pre/post/end-migrate.py + bump de version
+- **i18n**: Generacion de .pot + .po para es_ES y es_CL con estandar OCA
+
+### Tests
+- 64 nuevos tests (20 wizards + 22 migraciones + 22 i18n)
+- 719 tests totales, 0 fallos
+
+---
+
 ## [Unreleased] - 2026-05-13
 
 ### M13: Reliability & Quality (Capa 2) — ✅ Completado

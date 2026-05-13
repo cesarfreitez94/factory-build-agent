@@ -1,24 +1,24 @@
 {
   "schema_version": "1.0",
-  "last_updated": "2026-05-13T12:00:00Z",
+  "last_updated": "2026-05-13T18:00:00Z",
   "last_session": {
     "date": "2026-05-13",
-    "agent": "framework-registry",
-    "action": "feat/13.4 completado: mypy type checking | M13 en progreso, feat 13.5 (cache-validation) pendiente",
-    "completed_feats": ["13.1", "13.2", "13.3", "13.4"],
-    "pending_feats": ["13.5"],
+    "agent": "framework-builder",
+    "action": "M14 Odoo Depth completado: 3/3 feats mergeados (wizards/workflows, migraciones, i18n). 719 tests, 0 fallos.",
+    "completed_feats": ["14.1", "14.2", "14.3"],
+    "pending_feats": [],
     "blockers": []
   },
   "active_milestone": {
-    "id": "M13",
-    "name": "Reliability & Quality (Capa 2)",
-    "branch": "milestone/13.0-reliability-quality",
-    "status": "in_progress",
-    "feats_total": 5,
-    "feats_done": 4,
-    "feats_pending": ["13.5"],
+    "id": "M15",
+    "name": "Advanced QA (Capa 4)",
+    "branch": "milestone/15.0-advanced-qa",
+    "status": "planned",
+    "feats_total": 3,
+    "feats_done": 0,
+    "feats_pending": ["15.1", "15.2", "15.3"],
     "ready_for_user_review": false,
-    "start_date": "2026-05-13"
+    "start_date": null
   },
   "roadmap_status": {
     "M0": "completed",
@@ -30,8 +30,8 @@
     "M10": "completed",
     "M11": "completed",
     "M12": "completed",
-    "M13": "in_progress",
-    "M14": "planned",
+    "M13": "completed",
+    "M14": "completed",
     "M15": "planned"
   },
   "roadmap_summary": [
@@ -44,8 +44,8 @@
     {"milestone":"M10","name":"Framework Meta-Development","status":"completed","start_date":"2026-05-09","end_date":"2026-05-09"},
     {"milestone":"M11","name":"Foundation Hardening (Capa 1)","status":"completed","start_date":"2026-05-10","end_date":"2026-05-12","caps":"Bugs criticos + fba doctor + atomicidad + rollback + wizard schema alignment"},
     {"milestone":"M12","name":"Diff, Dependencies & Trazabilidad (Capa 1 avanzada)","status":"completed","end_date":"2026-05-13","caps":"Diff engine + dependency integrity + artifact contracts + stable IDs"},
-    {"milestone":"M13","name":"Reliability & Quality (Capa 2)","status":"in_progress","start_date":"2026-05-13","caps":"Security scans + cache + pre-commit + mypy"},
-    {"milestone":"M14","name":"Odoo Depth (Capa 3)","status":"planned","caps":"Wizards/workflows + migraciones + i18n"},
+    {"milestone":"M13","name":"Reliability & Quality (Capa 2)","status":"completed","start_date":"2026-05-13","end_date":"2026-05-13","caps":"Security scans + cache + pre-commit + mypy"},
+    {"milestone":"M14","name":"Odoo Depth (Capa 3)","status":"completed","start_date":"2026-05-13","end_date":"2026-05-13","caps":"Wizards/workflows + migraciones + i18n"},
     {"milestone":"M15","name":"Advanced QA (Capa 4)","status":"planned","caps":"Playwright + performance benchmarks + concurrency"}
   ],
   "open_briefs": [
@@ -65,7 +65,13 @@
       "file": ".factory/fw-brief-m13.md",
       "description": "M13 Reliability & Quality: 5 feats (security scans, cache, pre-commit, mypy, cache-validation)",
       "created": "2026-05-13T00:00:00Z",
-      "status": "in_progress"
+      "status": "completed"
+    },
+    {
+      "file": ".factory/fw-brief-m14.md",
+      "description": "M14 Odoo Depth: 3 feats (wizards/workflows, migraciones, i18n)",
+      "created": "2026-05-13T00:00:00Z",
+      "status": "completed"
     }
   ],
   "pending_decisions": [
