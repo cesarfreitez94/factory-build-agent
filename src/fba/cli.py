@@ -13,6 +13,7 @@ from fba.diff_engine import DiffEngine, DiffError
 from fba.gate import GateError
 from fba.i18n_manager import I18nManager
 from fba.migration_manager import MigrationError, MigrationManager
+from fba.playwright_manager import PlaywrightError, PlaywrightManager
 from fba.schema_manager import SchemaManager
 from fba.stable_ids import StableIdError, StableIdManager
 from fba.state import StateManager, _atomic_write
@@ -785,6 +786,33 @@ def _find_schema(target: Path, schema_name: str) -> Path | None:
     if framework_schema.exists():
         return framework_schema
     return None
+
+
+@main.command()
+@click.option("--playwright", is_flag=True, help="Generate Playwright browser automation for Odoo views")
+@click.option("--base-url", default="http://localhost:8069", help="Default Odoo URL used in generated Playwright specs")
+@click.option("--output", "-o", default=None, type=click.Path(path_type=Path), help="Output directory for Playwright artifacts")
+@PROJECT_DIR_OPTION
+def test(playwright: bool, base_url: str, output: Path | None, project_dir: str | None) -> None:
+    """Generate or run advanced QA artifacts for a Factory Build Agent project."""
+    target = _resolve_project_dir(project_dir)
+
+    if not playwright:
+        click.echo("No test backend selected. Use --playwright for browser automation artifacts.")
+        raise SystemExit(1)
+
+    try:
+        manager = PlaywrightManager(target)
+        report = manager.generate(base_url=base_url, output_dir=output)
+    except PlaywrightError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    click.echo("Playwright browser automation generated.")
+    click.echo(f"  Spec: {report.spec_path}")
+    click.echo(f"  Cases: {report.total_cases}")
+    if report.warnings:
+        click.echo(f"  Warnings: {len(report.warnings)}")
 
 
 @main.command()
