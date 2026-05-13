@@ -7,6 +7,7 @@ import click
 
 from fba import __version__
 from fba.contract_engine import ContractEngine, ContractError
+from fba.dependency_analyzer import DependencyAnalyzer, DependencyError
 from fba.diff_engine import DiffEngine, DiffError
 from fba.gate import GateError
 from fba.schema_manager import SchemaManager
@@ -949,4 +950,49 @@ def diff(file_v1, file_v2, output_format):
         raise SystemExit(1)
 
 
+_deps_group = click.group("deps")(lambda: None)
+_deps_group.help = "Odoo dependency integrity analysis."
+
+
+@_deps_group.command("check")
+@PROJECT_DIR_OPTION
+def deps_check(project_dir):
+    """Analyze Odoo module dependencies for integrity issues.
+
+    Checks:
+      - Unused dependencies: modules in 'depends' not referenced in code
+      - Missing dependencies: modules used in code but missing from 'depends'
+      - Circular dependencies: cycles in the module dependency graph
+    """
+    target = _resolve_project_dir(project_dir)
+
+    analyzer = DependencyAnalyzer()
+
+    try:
+        results = analyzer.analyze_project(target)
+    except DependencyError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    total_issues = 0
+    for mod_name, result in sorted(results.items()):
+        summary = result.summary
+        if not result.has_issues:
+            click.echo(f"✅ {mod_name}: clean")
+            continue
+
+        click.echo(f"❌ {mod_name}: {summary['total_issues']} issue(s)")
+        for issue in result.issues:
+            icon = {"unused_dependency": "⚠", "missing_dependency": "❌", "circular_dependency": "🔄"}.get(issue["type"], "?")
+            click.echo(f"   {icon} [{issue['type']}] {issue['message']}")
+        total_issues += summary["total_issues"]
+
+    if total_issues > 0:
+        click.echo(f"\n{total_issues} total dependency issue(s) found across {len(results)} module(s)")
+        raise SystemExit(1)
+
+    click.echo(f"\nAll {len(results)} module(s) have clean dependencies.")
+
+
+main.add_command(_deps_group)
 main.add_command(_schema_group)
