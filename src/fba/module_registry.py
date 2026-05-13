@@ -107,7 +107,7 @@ class ModuleRegistry:
 
     def resolve_relation(self, model_name: str) -> str | None:
         """Return the module name if model belongs to a core module, else None.
-        
+
         If the model is NOT in the core registry, it is assumed to belong
         to the module being built."""
         return self._model_index.get(model_name)
