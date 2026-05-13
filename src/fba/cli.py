@@ -844,7 +844,8 @@ def test(playwright: bool, base_url: str, output: Path | None, project_dir: str 
 @PROJECT_DIR_OPTION
 @click.option("--verbose", "-v", is_flag=True, help="Detailed diagnostic output")
 @click.option("--json", "json_output", is_flag=True, help="Output in JSON format (for CI)")
-def doctor(project_dir: str | None, verbose: bool, json_output: bool) -> None:
+@click.option("--concurrency", is_flag=True, help="Check state.json concurrency safety markers")
+def doctor(project_dir: str | None, verbose: bool, json_output: bool, concurrency: bool) -> None:
     """Diagnose the health of a Factory Build Agent project.
 
     Checks: registry health, state file integrity, writability, and schema alignment.
@@ -941,11 +942,16 @@ def doctor(project_dir: str | None, verbose: bool, json_output: bool) -> None:
             return False, f"Unimplemented types: {', '.join(unimplemented)}", "warning"
         return True, "All schema types have implementations", None
 
+    def _d6_check() -> tuple[bool, str, str | None]:
+        return StateManager(target).concurrency_diagnostics()
+
     _check("registry", _d1_check)
     _check("state_exists", _d2_check)
     _check("state_json", _d3_check)
     _check("writable", _d4_check)
     _check("schema_alignment", _d5_check)
+    if concurrency:
+        _check("concurrency", _d6_check)
 
     if json_output:
         output = {
