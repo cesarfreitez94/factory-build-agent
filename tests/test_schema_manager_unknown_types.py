@@ -80,10 +80,10 @@ def test_implemented_types_class_constant():
     assert "access_right" in SchemaManager.IMPLEMENTED_TYPES
     assert "record_rule" in SchemaManager.IMPLEMENTED_TYPES
     assert "data" in SchemaManager.IMPLEMENTED_TYPES
-    assert "wizard" not in SchemaManager.IMPLEMENTED_TYPES
-    assert "workflow" not in SchemaManager.IMPLEMENTED_TYPES
-    assert "report" not in SchemaManager.IMPLEMENTED_TYPES
-    assert "controller" not in SchemaManager.IMPLEMENTED_TYPES
+    assert "wizard" in SchemaManager.IMPLEMENTED_TYPES
+    assert "workflow" in SchemaManager.IMPLEMENTED_TYPES
+    assert "report" in SchemaManager.IMPLEMENTED_TYPES
+    assert "controller" in SchemaManager.IMPLEMENTED_TYPES
 
 
 def test_wizard_component_produces_warning(tmp_path):
@@ -130,9 +130,7 @@ def test_wizard_component_produces_warning(tmp_path):
     result = sm.assemble()
 
     assert result.success
-    warning_msgs = result.warning_messages
-    wizard_warnings = [w for w in warning_msgs if "wizard" in w.lower() and "not yet implemented" in w.lower()]
-    assert len(wizard_warnings) >= 1, f"No wizard/not-implemented warning found in: {warning_msgs}"
+    assert len(result.schema.get("wizards", [])) == 1
 
 
 def test_workflow_component_produces_warning(tmp_path):
@@ -179,8 +177,7 @@ def test_workflow_component_produces_warning(tmp_path):
     result = sm.assemble()
     assert result.success
 
-    workflow_warnings = [w for w in result.warning_messages if "workflow" in w.lower()]
-    assert len(workflow_warnings) >= 1
+    assert any("no 'model'" in w.lower() for w in result.warning_messages)
 
 
 def test_report_controller_produce_warnings(tmp_path):
@@ -204,7 +201,7 @@ def test_report_controller_produce_warnings(tmp_path):
     task = {
         "id": "T001",
         "name": "test",
-        "description": "A test task with multiple unknown types",
+        "description": "A test task with multiple new types",
         "components": [
             {
                 "type": "model", "name": "test.model",
@@ -212,12 +209,12 @@ def test_report_controller_produce_warnings(tmp_path):
                 "fields": [{"name": "name", "type": "Char", "label": "Name"}],
             },
             {
-                "type": "report", "name": "test.report",
-                "description": "A report", "sdd_reference": "test.report",
+                "type": "report", "name": "test.report", "model": "",
+                "description": "A report without model", "sdd_reference": "test.report",
             },
             {
-                "type": "controller", "name": "test.controller",
-                "description": "A controller", "sdd_reference": "test.controller",
+                "type": "controller", "name": "test.controller", "routes": [],
+                "description": "A controller with no routes", "sdd_reference": "test.controller",
             },
         ],
         "files_to_generate": ["test.py"],
@@ -229,8 +226,12 @@ def test_report_controller_produce_warnings(tmp_path):
     result = sm.assemble()
     assert result.success
 
-    unknown_warnings = [w for w in result.warning_messages if "not yet implemented" in w.lower()]
-    assert len(unknown_warnings) >= 2, f"Expected at least 2 unknown type warnings, got: {unknown_warnings}"
+    assert len(result.schema.get("reports", [])) == 0
+    assert len(result.schema.get("controllers", [])) == 1
+    assert result.schema["controllers"][0]["routes"] == []
+    warnings_lower = [w.lower() for w in result.warning_messages]
+    has_model_warning = any("no 'model'" in w for w in warnings_lower)
+    assert has_model_warning, f"Expected model warning for report, got: {result.warning_messages}"
 
 
 def test_known_types_produce_no_unknown_warnings(tmp_path):
@@ -263,7 +264,7 @@ def test_multiple_unknown_components_one_warning_each(tmp_path):
     task = {
         "id": "T001",
         "name": "test",
-        "description": "A test task with multiple unknown types",
+        "description": "A test task with multiple wizards",
         "components": [
             {
                 "type": "model", "name": "test.model",
@@ -288,8 +289,7 @@ def test_multiple_unknown_components_one_warning_each(tmp_path):
     result = sm.assemble()
     assert result.success
 
-    unknown_warnings = [w for w in result.warning_messages if "not yet implemented" in w.lower()]
-    assert len(unknown_warnings) >= 2, f"Expected 2 unknown type warnings (one per component), got: {unknown_warnings}"
+    assert len(result.schema.get("wizards", [])) == 2
 
 
 def test_warning_level_is_warning(tmp_path):
@@ -312,7 +312,7 @@ def test_warning_level_is_warning(tmp_path):
 
     task = {
         "id": "T001", "name": "test",
-        "description": "A test task with wizard",
+        "description": "A test task with workflow missing model",
         "components": [
             {
                 "type": "model", "name": "test.model",
@@ -320,8 +320,9 @@ def test_warning_level_is_warning(tmp_path):
                 "fields": [{"name": "name", "type": "Char", "label": "Name"}],
             },
             {
-                "type": "wizard", "name": "test.wizard",
-                "description": "A test wizard", "sdd_reference": "test.wizard",
+                "type": "workflow", "name": "test.wf",
+                "description": "A test workflow", "sdd_reference": "test.wf",
+                "model": "",
             }
         ],
         "files_to_generate": ["test.py"],
@@ -332,9 +333,9 @@ def test_warning_level_is_warning(tmp_path):
     sm = SchemaManager(project_dir)
     result = sm.assemble()
 
-    unknown_warnings = [w for w in result.warnings if "not yet implemented" in w.message.lower()]
-    assert len(unknown_warnings) >= 1
-    for w in unknown_warnings:
+    model_warnings = [w for w in result.warnings if "no 'model'" in w.message.lower()]
+    assert len(model_warnings) >= 1
+    for w in model_warnings:
         assert w.level == "warning"
 
 
@@ -358,7 +359,7 @@ def test_assembly_result_success_remains_true(tmp_path):
 
     task = {
         "id": "T001", "name": "test",
-        "description": "A test task with both known and unknown types",
+        "description": "A test task with both known and wizard types",
         "components": [
             {
                 "type": "model", "name": "test.model",
@@ -380,3 +381,4 @@ def test_assembly_result_success_remains_true(tmp_path):
 
     assert result.success is True
     assert len(result.schema.get("models", [])) == 1
+    assert len(result.schema.get("wizards", [])) == 1
