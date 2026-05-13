@@ -11,6 +11,8 @@ from fba.contract_engine import ContractEngine, ContractError
 from fba.dependency_analyzer import DependencyAnalyzer, DependencyError
 from fba.diff_engine import DiffEngine, DiffError
 from fba.gate import GateError
+from fba.i18n_manager import I18nManager
+from fba.migration_manager import MigrationError, MigrationManager
 from fba.schema_manager import SchemaManager
 from fba.stable_ids import StableIdError, StableIdManager
 from fba.state import StateManager, _atomic_write
@@ -709,10 +711,14 @@ def schema_assemble(project_dir: str | None, output: str | None) -> None:
 
     click.echo("")
     click.echo(f"✅ schema.json assembled at {output_path}")
-    click.echo(f"   Models: {len(result.schema.get('models', []))}")
-    click.echo(f"   Views:  {len(result.schema.get('views', []))}")
-    click.echo(f"   Groups: {len(result.schema.get('security', {}).get('groups', []))}")
-    click.echo(f"   ACLs:   {len(result.schema.get('security', {}).get('access_rights', []))}")
+    click.echo(f"   Models:      {len(result.schema.get('models', []))}")
+    click.echo(f"   Wizards:     {len(result.schema.get('wizards', []))}")
+    click.echo(f"   Views:       {len(result.schema.get('views', []))}")
+    click.echo(f"   Workflows:   {len(result.schema.get('workflows', []))}")
+    click.echo(f"   Reports:     {len(result.schema.get('reports', []))}")
+    click.echo(f"   Controllers: {len(result.schema.get('controllers', []))}")
+    click.echo(f"   Groups:      {len(result.schema.get('security', {}).get('groups', []))}")
+    click.echo(f"   ACLs:        {len(result.schema.get('security', {}).get('access_rights', []))}")
 
 
 def _check_traceability(target: Path, sdd: dict[str, Any]) -> bool:
@@ -1028,3 +1034,145 @@ def trace(entity_id: str, project_dir: str | None) -> None:
 
 main.add_command(_deps_group)
 main.add_command(_schema_group)
+
+
+_migrate_group = click.group("migrate")(lambda: None)
+_migrate_group.help = "Schema migration detection and script generation."
+
+
+@_migrate_group.command("check")
+@PROJECT_DIR_OPTION
+@click.option("--previous", "-p", default=None, type=click.Path(exists=True, path_type=Path), help="Path to previous schema.json (default: .factory/schema_prev.json)")
+@click.option("--json", "json_output", is_flag=True, help="Output in JSON format")
+def migrate_check(project_dir: str | None, previous: Path | None, json_output: bool) -> None:
+    """Detect schema changes and generate migration scripts.
+
+    Compares the current schema.json with a previous version to detect
+    model/field additions, deletions, and modifications. Classifies each
+    change as breaking or non-breaking and generates pre/post/end migration
+    scripts.
+
+    \b
+    Example:
+      fba migrate check --previous old_schema.json
+    """
+    target = _resolve_project_dir(project_dir)
+
+    try:
+        mgr = MigrationManager(target)
+        report = mgr.analyze(previous_schema_path=previous)
+    except MigrationError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    if json_output:
+        output = {
+            "current_version": report.current_version,
+            "previous_version": report.previous_version,
+            "new_version": report.new_version,
+            "total_changes": report.total_changes,
+            "breaking_count": report.breaking_count,
+            "non_breaking_count": report.non_breaking_count,
+            "changes": [
+                {
+                    "path": c.path,
+                    "kind": c.kind,
+                    "category": c.category,
+                    "model_name": c.model_name,
+                    "field_name": c.field_name,
+                    "breaking": c.breaking,
+                    "reason": c.reason,
+                }
+                for c in report.changes
+            ],
+            "scripts": report.scripts,
+        }
+        click.echo(json.dumps(output, indent=2, ensure_ascii=False))
+        raise SystemExit(0)
+
+    click.echo(f"=== Schema Migration Analysis ===")
+    click.echo(f"Previous: {report.previous_version} -> Current: {report.current_version}")
+    click.echo(f"New version: {report.new_version}")
+    click.echo(f"Changes: {report.total_changes} ({report.breaking_count} breaking, {report.non_breaking_count} non-breaking)")
+    click.echo("")
+
+    if report.changes:
+        click.echo("Changes:")
+        for c in report.changes:
+            icon = "⚠" if c.breaking else "✓"
+            click.echo(f"  {icon} [{c.kind}] {c.path}")
+            click.echo(f"      {c.reason}")
+        click.echo("")
+
+    click.echo("Generated scripts:")
+    for name, content in report.scripts.items():
+        click.echo("")
+        click.echo(f"--- {name} ---")
+        click.echo(content)
+
+
+main.add_command(_migrate_group)
+
+
+_i18n_group = click.group("i18n")(lambda: None)
+_i18n_group.help = "Internationalization: extract strings and generate .pot/.po files."
+
+
+@_i18n_group.command("extract")
+@PROJECT_DIR_OPTION
+@click.option("--module-path", "-m", default=None, type=click.Path(exists=True, path_type=Path), help="Path to the Odoo module (default: current directory)")
+@click.option("--output", "-o", default=None, type=click.Path(path_type=Path), help="Output directory for i18n files (default: module_path/i18n)")
+@click.option("--module-name", "-n", default=None, help="Technical module name (auto-detected from __manifest__.py if not specified)")
+def i18n_extract(project_dir: str | None, module_path: Path | None, output: Path | None, module_name: str | None) -> None:
+    """Extract translatable strings and generate .pot/.po files.
+
+    Walks the module directory extracting strings from Python and XML files.
+    Generates three files in OCA i18n/ structure:
+      - <module>.pot (translation template)
+      - es_ES.po (Spanish Spain — identity translation)
+      - es_CL.po (Spanish Chile — with Chilean variants)
+
+    \b
+    Examples:
+      fba i18n extract -m ./my_module -n my_module
+      fba i18n extract --module-path ./my_module
+    """
+    if module_path is None:
+        module_path = Path.cwd()
+    else:
+        module_path = Path(module_path).resolve()
+
+    if module_name is None:
+        manifest_path = module_path / "__manifest__.py"
+        if manifest_path.exists():
+            try:
+                import ast
+                tree = ast.parse(manifest_path.read_text())
+                if isinstance(tree.body[0], ast.Expr) and isinstance(tree.body[0].value, ast.Dict):
+                    for key_node, value_node in zip(tree.body[0].value.keys, tree.body[0].value.values):
+                        if isinstance(key_node, ast.Constant) and key_node.value == "name":
+                            if isinstance(value_node, ast.Constant):
+                                module_name = str(value_node.value)
+                            break
+            except Exception:
+                pass
+        if module_name is None:
+            module_name = module_path.name
+
+    if output is None:
+        output = module_path / "i18n"
+
+    mgr = I18nManager()
+    report = mgr.generate_all(module_path, module_name, output_dir=output)
+
+    click.echo(f"=== i18n Extraction for {report.module_name} ===")
+    click.echo(f"Strings found: {report.strings_found}")
+    click.echo(f"Files generated ({report.file_count}):")
+    click.echo(f"  📄 {report.pot_path}")
+    for po_path in report.po_paths:
+        click.echo(f"  📄 {po_path}")
+    click.echo("")
+    click.echo("OCA i18n structure ready.")
+
+
+main.add_command(_i18n_group)
