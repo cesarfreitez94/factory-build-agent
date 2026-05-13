@@ -6,6 +6,308 @@
   "type": "object",
   "required": ["manifest", "models", "views", "security", "data"],
   "properties": {
+    "wizards": {
+      "type": "array",
+      "description": "Odoo TransientModel wizards defined in this module.",
+      "items": {
+        "type": "object",
+        "required": ["name", "description", "fields"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "pattern": "^[a-z][a-z0-9_.]+$",
+            "description": "Technical wizard model name (e.g., vehicle.wizard.import)."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 5,
+            "description": "Description of the wizard."
+          },
+          "display_name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Human-readable wizard name."
+          },
+          "fields": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Fields defined in this wizard.",
+            "items": {
+              "type": "object",
+              "required": ["name", "type", "label"],
+              "properties": {
+                "name": {"type": "string", "minLength": 1, "pattern": "^[a-z][a-z0-9_]*$"},
+                "type": {"type": "string", "enum": ["Char", "Text", "Integer", "Float", "Boolean", "Date", "Datetime", "Binary", "Selection", "Many2one", "One2many", "Many2many", "Html", "Monetary"]},
+                "label": {"type": "string", "minLength": 1},
+                "required": {"type": "boolean"},
+                "size": {"type": "integer", "minimum": 1},
+                "selection": {"type": "array", "items": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "string"}}},
+                "relation": {"type": "string", "minLength": 3},
+                "default": {},
+                "readonly": {"type": "boolean"},
+                "help": {"type": "string"},
+                "widget": {"type": "string"}
+              },
+              "additionalProperties": false
+            }
+          },
+          "view_type": {
+            "type": "string",
+            "enum": ["form"],
+            "description": "Wizard views are always form type."
+          },
+          "view_fields": {
+            "type": "array",
+            "description": "Fields to display in the wizard view.",
+            "items": {"type": "string", "minLength": 1}
+          },
+          "action_name": {
+            "type": "string",
+            "description": "Window action name for opening the wizard."
+          },
+          "methods": {
+            "type": "array",
+            "description": "Wizard action methods (e.g., action_confirm, action_cancel).",
+            "items": {
+              "type": "object",
+              "required": ["name"],
+              "properties": {
+                "name": {"type": "string", "minLength": 1},
+                "description": {"type": "string"},
+                "return_action": {"type": "boolean"}
+              },
+              "additionalProperties": false
+            }
+          },
+          "sdd_reference": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Reference to the SDD component this wizard implements."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "workflows": {
+      "type": "array",
+      "description": "Odoo automated actions (ir.actions.server) and scheduled jobs (ir.cron).",
+      "items": {
+        "type": "object",
+        "required": ["name", "kind", "model"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Technical name for the workflow action."
+          },
+          "kind": {
+            "type": "string",
+            "enum": ["server_action", "scheduled_job"],
+            "description": "server_action = ir.actions.server (manual/event-triggered), scheduled_job = ir.cron (time-based)."
+          },
+          "model": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Target model for the action."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 5,
+            "description": "Description of the workflow."
+          },
+          "state": {
+            "type": "string",
+            "enum": ["code", "object_create", "object_write", "multi"],
+            "description": "Server action execution type. Defaults to code."
+          },
+          "code": {
+            "type": "string",
+            "description": "Python code for code-type server actions."
+          },
+          "trigger": {
+            "type": "string",
+            "enum": ["on_create", "on_write", "on_create_or_write", "on_unlink", "on_time", "manual"],
+            "description": "Trigger event for the automation."
+          },
+          "interval_number": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Interval number for cron jobs."
+          },
+          "interval_type": {
+            "type": "string",
+            "enum": ["minutes", "hours", "days", "weeks", "months"],
+            "description": "Interval unit for cron jobs."
+          },
+          "active": {
+            "type": "boolean",
+            "description": "Whether the workflow is active."
+          },
+          "sdd_reference": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Reference to the SDD component this workflow implements."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "reports": {
+      "type": "array",
+      "description": "Odoo QWeb reports (ir.actions.report) with templates.",
+      "items": {
+        "type": "object",
+        "required": ["name", "model", "report_name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Technical name for the report."
+          },
+          "model": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Target model for the report."
+          },
+          "report_name": {
+            "type": "string",
+            "minLength": 3,
+            "pattern": "^[a-z][a-z0-9_.]+$",
+            "description": "Report service name (e.g., module.report_vehicle_card)."
+          },
+          "report_type": {
+            "type": "string",
+            "enum": ["qweb-pdf", "qweb-html"],
+            "description": "Report output type. Defaults to qweb-pdf."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 5,
+            "description": "Description of the report."
+          },
+          "template_name": {
+            "type": "string",
+            "minLength": 3,
+            "description": "QWeb template XML ID."
+          },
+          "paperformat_name": {
+            "type": "string",
+            "description": "Paper format name (e.g., A4, US Letter)."
+          },
+          "paperformat": {
+            "type": "object",
+            "description": "Custom paper format definition.",
+            "properties": {
+              "name": {"type": "string", "minLength": 1},
+              "format": {"type": "string", "enum": ["A3", "A4", "A5", "Letter", "Legal", "custom"]},
+              "dpi": {"type": "integer", "minimum": 72},
+              "margin_top": {"type": "number"},
+              "margin_bottom": {"type": "number"},
+              "margin_left": {"type": "number"},
+              "margin_right": {"type": "number"},
+              "orientation": {"type": "string", "enum": ["Portrait", "Landscape"]},
+              "page_width": {"type": "number"},
+              "page_height": {"type": "number"}
+            },
+            "additionalProperties": false
+          },
+          "menu": {
+            "type": "boolean",
+            "description": "Whether to create a menu item for this report."
+          },
+          "attachment": {
+            "type": "string",
+            "description": "Python expression for auto-attachment filename."
+          },
+          "attachment_use": {
+            "type": "boolean",
+            "description": "Whether to auto-save report as attachment."
+          },
+          "sdd_reference": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Reference to the SDD component this report implements."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "controllers": {
+      "type": "array",
+      "description": "Odoo HTTP controllers (web controllers).",
+      "items": {
+        "type": "object",
+        "required": ["name", "routes"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Controller class name."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 5,
+            "description": "Description of the controller."
+          },
+          "routes": {
+            "type": "array",
+            "minItems": 1,
+            "description": "HTTP routes defined in this controller.",
+            "items": {
+              "type": "object",
+              "required": ["path", "method", "auth"],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "URL path (e.g., /vehicle/export)."
+                },
+                "method": {
+                  "type": "string",
+                  "enum": ["GET", "POST", "PUT", "DELETE"],
+                  "description": "HTTP method."
+                },
+                "auth": {
+                  "type": "string",
+                  "enum": ["user", "public", "none"],
+                  "description": "Authentication type. Defaults to user."
+                },
+                "handler": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Python method name for this route."
+                },
+                "type": {
+                  "type": "string",
+                  "enum": ["http", "json"],
+                  "description": "Route type (http = HTML response, json = JSON response)."
+                },
+                "csrf": {
+                  "type": "boolean",
+                  "description": "Whether CSRF protection is required."
+                },
+                "cors": {
+                  "type": "string",
+                  "description": "CORS origin (for cross-origin requests)."
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Description of what this route does."
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "sdd_reference": {
+            "type": "string",
+            "minLength": 3,
+            "description": "Reference to the SDD component this controller implements."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
     "manifest": {
       "type": "object",
       "required": ["name", "version", "summary", "depends", "license"],
