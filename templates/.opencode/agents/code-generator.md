@@ -373,6 +373,244 @@ Data rules:
 - Use `eval()` for Python expressions: `<field name="groups" eval="[(4, ref('base.group_user'))]"/>`
 - File goes in `data/` directory, registered in `__manifest__.py` under `data` or `demo`
 
+### WIZARDS (TransientModel)
+
+**Wizard model** (mode: "new" TransientModel):
+```python
+from odoo import models, fields, api
+
+class VehicleImportWizard(models.TransientModel):
+    _name = "vehicle.import.wizard"
+    _description = "Import Vehicles"
+
+    file = fields.Binary(string="File", required=True)
+    brand_id = fields.Many2one("vehicle.brand", string="Brand")
+    note = fields.Text(string="Notes")
+
+    def action_import(self):
+        self.ensure_one()
+        # Process import logic
+        return {"type": "ir.actions.act_window_close"}
+```
+
+**Wizard view** (always form type):
+```xml
+<record id="vehicle_import_wizard_form" model="ir.ui.view">
+    <field name="name">vehicle.import.wizard.form</field>
+    <field name="model">vehicle.import.wizard</field>
+    <field name="arch" type="xml">
+        <form>
+            <group>
+                <field name="file"/>
+                <field name="brand_id"/>
+                <field name="note"/>
+            </group>
+            <footer>
+                <button name="action_import" string="Import" type="object" class="btn-primary"/>
+                <button string="Cancel" class="btn-secondary" special="cancel"/>
+            </footer>
+        </form>
+    </field>
+</record>
+```
+
+**Window action for wizard**:
+```xml
+<record id="action_vehicle_import_wizard" model="ir.actions.act_window">
+    <field name="name">Import Vehicles</field>
+    <field name="res_model">vehicle.import.wizard</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+</record>
+```
+
+Wizard rules:
+- Inherit from `models.TransientModel` (NOT `models.Model`)
+- Always use `target="new"` in the window action (opens as popup)
+- Wizards are temporary — records are automatically deleted after a period
+- Use `<footer>` for action buttons with `special="cancel"` for cancel
+
+### WORKFLOWS (Automation)
+
+**Server action** (`ir.actions.server`):
+```xml
+<record id="action_vehicle_confirm" model="ir.actions.server">
+    <field name="name">Confirm Vehicle</field>
+    <field name="model_id" ref="model_vehicle_vehicle"/>
+    <field name="state">code</field>
+    <field name="code">
+for record in records:
+    record.state = 'confirmed'
+    </field>
+</record>
+```
+
+**Automated action** (triggered by CRUD):
+```xml
+<record id="action_vehicle_on_create" model="ir.actions.server">
+    <field name="name">Set draft on create</field>
+    <field name="model_id" ref="model_vehicle_vehicle"/>
+    <field name="state">code</field>
+    <field name="code">
+for record in records:
+    if not record.state:
+        record.state = 'draft'
+    </field>
+</record>
+
+<record id="base_automation_vehicle_draft" model="base.automation">
+    <field name="name">Vehicle: Set draft on create</field>
+    <field name="model_id" ref="model_vehicle_vehicle"/>
+    <field name="trigger">on_create</field>
+    <field name="action_server_id" ref="action_vehicle_on_create"/>
+</record>
+```
+
+**Scheduled job** (`ir.cron`):
+```xml
+<record id="cron_vehicle_cleanup" model="ir.cron">
+    <field name="name">Vehicle: Daily Cleanup</field>
+    <field name="model_id" ref="model_vehicle_vehicle"/>
+    <field name="state">code</field>
+    <field name="code">model._cron_cleanup_inactive()</field>
+    <field name="interval_number">1</field>
+    <field name="interval_type">days</field>
+    <field name="numbercall">-1</field>
+    <field name="doall" eval="False"/>
+    <field name="active" eval="True"/>
+</record>
+```
+
+Workflow rules:
+- `ir.actions.server` with `state="code"` for Python code execution
+- `base.automation` for CRUD-triggered actions (Odoo v18 automated actions)
+- `ir.cron` for scheduled jobs with `interval_number` + `interval_type`
+- `numbercall="-1"` means run indefinitely
+- `doall="False"` means don't catch up on missed executions
+
+### REPORTS (QWeb)
+
+**Report action** (`ir.actions.report`):
+```xml
+<record id="action_report_vehicle_card" model="ir.actions.report">
+    <field name="name">Vehicle Card</field>
+    <field name="model">vehicle.vehicle</field>
+    <field name="report_type">qweb-pdf</field>
+    <field name="report_name">vehicle_registry.report_vehicle_card</field>
+    <field name="report_file">vehicle_registry.report_vehicle_card</field>
+    <field name="print_report_name">'Vehicle - %s' % object.plate</field>
+    <field name="binding_model_id" ref="model_vehicle_vehicle"/>
+    <field name="binding_type">report</field>
+    <field name="paperformat_id" ref="paperformat_a4_vehicle"/>
+</record>
+```
+
+**QWeb template** (`report/templates/`):
+```xml
+<odoo>
+    <template id="report_vehicle_card">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2>Vehicle Card</h2>
+                        <table class="table table-condensed">
+                            <tr>
+                                <th>Plate</th>
+                                <td><span t-field="doc.plate"/></td>
+                            </tr>
+                            <tr>
+                                <th>Brand</th>
+                                <td><span t-field="doc.brand_id"/></td>
+                            </tr>
+                            <tr>
+                                <th>Year</th>
+                                <td><span t-field="doc.year"/></td>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
+```
+
+**Paper format**:
+```xml
+<record id="paperformat_a4_vehicle" model="report.paperformat">
+    <field name="name">A4 Vehicle</field>
+    <field name="format">A4</field>
+    <field name="orientation">Portrait</field>
+    <field name="margin_top">15</field>
+    <field name="margin_bottom">15</field>
+    <field name="margin_left">20</field>
+    <field name="margin_right">10</field>
+    <field name="dpi">90</field>
+</record>
+```
+
+Report rules:
+- `report_type` is `qweb-pdf` (PDF) or `qweb-html` (HTML preview)
+- `report_name` is the service name: `module_name.report_id`
+- `binding_model_id` binds the report to the Print menu of the model
+- QWeb templates go in `report/templates/` directory
+- Use `<t t-foreach="docs" t-as="doc">` to iterate over records
+- `t-field` renders a field with proper formatting
+
+### CONTROLLERS (HTTP)
+
+**Controller class**:
+```python
+from odoo import http
+from odoo.http import request
+
+class VehicleController(http.Controller):
+
+    @http.route("/vehicle/export", type="http", auth="user", methods=["GET"])
+    def vehicle_export(self, **kw):
+        vehicles = request.env["vehicle.vehicle"].search([])
+        output = self._format_export(vehicles)
+        return request.make_response(
+            output,
+            headers=[("Content-Type", "text/csv; charset=utf-8"),
+                     ("Content-Disposition", "attachment; filename=vehicles.csv")]
+        )
+
+    def _format_export(self, vehicles):
+        return "plate,brand,year\n" + "\n".join(
+            f"{v.plate},{v.brand_id.name},{v.year}" for v in vehicles
+        )
+
+    @http.route("/vehicle/export/json", type="json", auth="user", methods=["POST"])
+    def vehicle_export_json(self, brand_id=None, **kw):
+        domain = []
+        if brand_id:
+            domain.append(("brand_id", "=", brand_id))
+        vehicles = request.env["vehicle.vehicle"].search_read(domain, ["plate", "brand_id", "year"])
+        return {"vehicles": vehicles}
+
+    @http.route("/vehicle/<int:vehicle_id>/card", type="http", auth="user")
+    def vehicle_card(self, vehicle_id, **kw):
+        vehicle = request.env["vehicle.vehicle"].browse(vehicle_id)
+        if not vehicle.exists():
+            return request.not_found()
+        return request.render("vehicle_registry.vehicle_card_template", {
+            "vehicle": vehicle,
+        })
+```
+
+Controller rules:
+- Inherit from `http.Controller` (NOT `models.Model`)
+- `@http.route(path, type="http"|"json", auth="user"|"public", methods=["GET"|"POST"])`
+- `type="http"` returns HTML/text; `type="json"` returns JSON
+- `auth="user"` requires login; `auth="public"` allows anonymous access
+- `request.env` provides access to Odoo models
+- `request.render(template, values)` renders QWeb templates
+- `request.make_response(body, headers)` creates raw HTTP responses
+- `request.not_found()` returns a 404 response
+- Files go in `controllers/` directory
+
 ### MANIFEST (`__manifest__.py`)
 
 ```python
@@ -447,18 +685,34 @@ Manifest rules:
 ├── models/
 │   ├── __init__.py
 │   └── <model_files>.py
+├── wizards/
+│   ├── __init__.py
+│   └── <wizard_files>.py
 ├── views/
 │   ├── <view_files>.xml
+│   ├── <wizard_view_files>.xml
 │   └── menu.xml
+├── report/
+│   ├── __init__.py
+│   └── <report_files>.py
+├── report/templates/
+│   └── <report_template_files>.xml
+├── controllers/
+│   ├── __init__.py
+│   └── <controller_files>.py
+├── data/
+│   └── <data_files>.xml
 ├── security/
 │   ├── groups.xml
 │   ├── ir.model.access.csv
 │   └── record_rules.xml
-├── data/
-│   └── <data_files>.xml
-└── static/
-    └── description/
-        └── icon.png
+├── static/
+│   └── description/
+│       └── icon.png
+└── i18n/
+    ├── <module>.pot
+    ├── es_ES.po
+    └── es_CL.po
 ```
 
 ### Iterative Protocol
@@ -484,7 +738,8 @@ Manifest rules:
 
 After all tasks complete:
 
-1. Update `.factory/state.json`: set `phases.construction.status` to `"complete"`
+1. Generate i18n files: `fba i18n extract -m ./<module_name> -n <module_name>`
+2. Update `.factory/state.json`: set `phases.construction.status` to `"complete"`
    Do NOT change `current_phase` — the orchestrator handles transitions
-2. Append a `build_complete` event to `.factory/events.jsonl`
-3. Report summary: number of models, views, files generated, git commits made
+3. Append a `build_complete` event to `.factory/events.jsonl`
+4. Report summary: number of models, views, files generated, git commits made
