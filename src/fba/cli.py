@@ -11,6 +11,7 @@ from fba.contract_engine import ContractEngine, ContractError
 from fba.dependency_analyzer import DependencyAnalyzer, DependencyError
 from fba.diff_engine import DiffEngine, DiffError
 from fba.gate import GateError
+from fba.migration_engine import MigrationEngine, MigrationError, SchemaDiff
 from fba.schema_manager import SchemaManager
 from fba.stable_ids import StableIdError, StableIdManager
 from fba.state import StateManager, _atomic_write
@@ -950,6 +951,81 @@ def diff(file_v1: Path, file_v2: Path, output_format: str) -> None:
     except DiffError as e:
         click.echo(f"Error: {e}", err=True)
         raise SystemExit(1)
+
+
+@main.command()
+@click.argument("file_v1", type=click.Path(exists=True, path_type=Path))
+@click.argument("file_v2", type=click.Path(exists=True, path_type=Path))
+@click.option("--check", "mode", flag_value="check", default=True, help="Check for changes without generating scripts")
+@click.option("--generate", "mode", flag_value="generate", help="Generate migration scripts")
+@click.option("--output-dir", "-o", type=click.Path(path_type=Path), default=None, help="Output directory for migration scripts")
+def migrate(file_v1: Path, file_v2: Path, mode: str, output_dir: Path | None) -> None:
+    """Detect schema changes and generate Odoo migration scripts.
+
+    FILE_V1 is the older schema version, FILE_V2 is the newer schema version.
+
+    \\b
+    Modes:
+      --check       Check for changes only (default)
+      --generate    Generate pre-migration.py and post-migration.xml
+
+    \\b
+    Examples:
+      fba migrate schema_v1.json schema_v2.json
+      fba migrate schema_v1.json schema_v2.json --generate --output-dir migrations/
+    """
+    try:
+        diff = SchemaDiff.detect(file_v1, file_v2)
+    except MigrationError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    if not diff.has_changes:
+        click.echo("No schema changes detected.")
+        raise SystemExit(0)
+
+    if mode == "check":
+        click.echo(f"Schema changes detected ({diff.version_old} -> {diff.version_new}):")
+        for fc in diff.field_changes:
+            action_icon = {"add": "+", "remove": "-", "modify": "~"}.get(fc.action, "?")
+            field_info = fc.field
+            if fc.action == "modify" and fc.field_type:
+                field_info += f" ({fc.field_type}: {fc.old_type} -> {fc.new_type})"
+            click.echo(f"  {action_icon} [{fc.action}] {fc.model}.{field_info}")
+        for mc in diff.model_changes:
+            action_icon = {"add": "+", "remove": "-"}.get(mc.get("action", ""), "?")
+            click.echo(f"  {action_icon} [model {mc.get('action')}] {mc.get('model')}")
+
+        engine = MigrationEngine()
+        issues = engine.validate_backward_compatibility(diff)
+        if issues:
+            click.echo("")
+            click.echo("Backward compatibility issues:")
+            for issue in issues:
+                icon = "❌" if issue["severity"] == "error" else "⚠"
+                click.echo(f"  {icon} [{issue['type']}] {issue['message']}")
+            raise SystemExit(1)
+        raise SystemExit(0)
+
+    engine = MigrationEngine()
+    scripts = engine.generate_migration_scripts(diff, "test_module")
+
+    if not scripts:
+        click.echo("No migration scripts needed.")
+        raise SystemExit(0)
+
+    if output_dir:
+        output_dir = Path(output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        for name, content in scripts.items():
+            (output_dir / name).write_text(content)
+            click.echo(f"Generated: {output_dir / name}")
+    else:
+        for name, content in scripts.items():
+            click.echo(f"=== {name} ===")
+            click.echo(content)
+
+    raise SystemExit(0)
 
 
 _deps_group = click.group("deps")(lambda: None)
