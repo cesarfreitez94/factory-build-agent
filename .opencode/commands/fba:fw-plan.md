@@ -1,6 +1,7 @@
 ---
-description: Planifica una mejora del framework FBA generando un brief ejecutable (fw-brief.md) con instrucciones, no soluciones. Delega al framework-planner.
+description: Genera fw-brief.md desde intencion del usuario
 agent: framework-orchestrator
+subtask: true
 ---
 
 # fba:fw-plan

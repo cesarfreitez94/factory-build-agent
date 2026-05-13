@@ -1,6 +1,7 @@
 ---
-description: Ejecuta un brief de mejora del framework FBA. Delega al framework-builder, que a su vez delega git a framework-git y state a framework-registry.
+description: Ejecuta brief de mejora del framework FBA
 agent: framework-orchestrator
+subtask: true
 ---
 
 # fba:fw-build
