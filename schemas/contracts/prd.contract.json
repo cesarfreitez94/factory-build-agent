@@ -1,0 +1,64 @@
+{
+  "artifact_type": "prd",
+  "version": "1.0",
+  "description": "Contract for Product Requirements Document (PRD) artifacts.",
+  "invariants": [
+    {
+      "id": "prd-has-vision",
+      "description": "PRD must have a non-empty vision statement",
+      "check": {"field": "vision", "op": "min_length", "value": 10}
+    },
+    {
+      "id": "prd-has-stakeholders",
+      "description": "PRD must have at least one stakeholder",
+      "check": {"field": "stakeholders", "op": "min_items", "value": 1}
+    },
+    {
+      "id": "prd-has-objectives",
+      "description": "PRD must have at least one objective",
+      "check": {"field": "objectives", "op": "min_items", "value": 1}
+    },
+    {
+      "id": "prd-has-functional-requirements",
+      "description": "PRD must have at least one functional requirement",
+      "check": {"field": "functional_requirements", "op": "min_items", "value": 1}
+    },
+    {
+      "id": "prd-requirements-have-ids",
+      "description": "All functional requirements must have an id field",
+      "check": {"field": "functional_requirements", "op": "all_items_have_field", "value": "id"}
+    },
+    {
+      "id": "prd-stakeholders-have-required-fields",
+      "description": "All stakeholders must have name, role, and interest fields",
+      "check": {"field": "stakeholders", "op": "all_items_have_fields", "value": ["name", "role", "interest"]}
+    }
+  ],
+  "ownership": {
+    "vision": {"agent": "elicitador", "phase": "elicitation"},
+    "stakeholders": {"agent": "elicitador", "phase": "elicitation"},
+    "objectives": {"agent": "elicitador", "phase": "elicitation"},
+    "functional_requirements": {"agent": "elicitador", "phase": "elicitation"},
+    "non_functional_requirements": {"agent": "elicitador", "phase": "elicitation"},
+    "acceptance_criteria": {"agent": "elicitador", "phase": "elicitation"},
+    "glossary": {"agent": "documentador", "phase": "documentation"}
+  },
+  "allowed_mutations": [
+    {
+      "id": "prd-no-delete-req-if-referenced",
+      "description": "Cannot delete a functional requirement if any SDD model references it",
+      "rule": "no_delete_if_referenced",
+      "source_field": "functional_requirements",
+      "reference_artifact": "sdd",
+      "reference_field": "traceability_matrix.mappings"
+    },
+    {
+      "id": "prd-no-delete-stakeholder-if-referenced",
+      "description": "Cannot delete a stakeholder if referenced in SDD",
+      "rule": "no_delete_if_referenced",
+      "source_field": "stakeholders",
+      "reference_artifact": "sdd",
+      "reference_field": "stakeholders"
+    }
+  ]
+}

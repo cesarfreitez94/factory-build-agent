@@ -1,22 +1,22 @@
 {
   "schema_version": "1.0",
-  "last_updated": "2026-05-12T23:30:00Z",
+  "last_updated": "2026-05-12T23:55:00Z",
   "last_session": {
     "date": "2026-05-12",
     "agent": "framework-orchestrator",
-    "action": "Apertura de PR de M11 a main",
-    "completed_feats": ["11.1", "11.2", "11.3", "11.4", "11.5"],
-    "pending_feats": [],
+    "action": "Apertura de PR de M11 a main | feat/12.1 completado: diff engine core implementado",
+    "completed_feats": ["12.1"],
+    "pending_feats": ["12.2", "12.3", "12.4"],
     "blockers": []
   },
   "active_milestone": {
     "id": "M12",
     "name": "Diff, Dependencies & Trazabilidad",
     "branch": "milestone/12.0-diff-deps-traza",
-    "status": "planned",
-    "feats_total": 0,
-    "feats_done": 0,
-    "feats_pending": [],
+    "status": "in_progress",
+    "feats_total": 4,
+    "feats_done": 1,
+    "feats_pending": ["12.2", "12.3", "12.4"],
     "ready_for_user_review": false,
     "end_date": null
   },
@@ -29,7 +29,7 @@
     "M5": "completed",
     "M10": "completed",
     "M11": "completed",
-    "M12": "planned",
+    "M12": "in_progress",
     "M13": "planned",
     "M14": "planned",
     "M15": "planned"
@@ -43,7 +43,7 @@
     {"milestone":"M5","name":"Bug Fixes & Stability","status":"completed","start_date":"2026-05-06","end_date":"2026-05-08"},
     {"milestone":"M10","name":"Framework Meta-Development","status":"completed","start_date":"2026-05-09","end_date":"2026-05-09"},
     {"milestone":"M11","name":"Foundation Hardening (Capa 1)","status":"completed","start_date":"2026-05-10","end_date":"2026-05-12","caps":"Bugs criticos + fba doctor + atomicidad + rollback + wizard schema alignment"},
-    {"milestone":"M12","name":"Diff, Dependencies & Trazabilidad (Capa 1 avanzada)","status":"planned","caps":"Diff engine + dependency integrity + artifact contracts + stable IDs"},
+    {"milestone":"M12","name":"Diff, Dependencies & Trazabilidad (Capa 1 avanzada)","status":"in_progress","caps":"Diff engine + dependency integrity + artifact contracts + stable IDs"},
     {"milestone":"M13","name":"Reliability & Quality (Capa 2)","status":"planned","caps":"Security scans + cache + pre-commit + mypy"},
     {"milestone":"M14","name":"Odoo Depth (Capa 3)","status":"planned","caps":"Wizards/workflows + migraciones + i18n"},
     {"milestone":"M15","name":"Advanced QA (Capa 4)","status":"planned","caps":"Playwright + performance benchmarks + concurrency"}

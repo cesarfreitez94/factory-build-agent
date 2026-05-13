@@ -6,6 +6,7 @@ from pathlib import Path
 import click
 
 from fba import __version__
+from fba.contract_engine import ContractEngine, ContractError
 from fba.diff_engine import DiffEngine, DiffError
 from fba.gate import GateError
 from fba.schema_manager import SchemaManager
@@ -560,11 +561,18 @@ def gate(phase, all_gates, project_dir):
 @main.command()
 @click.argument("artifact", required=False)
 @PROJECT_DIR_OPTION
-def validate(artifact, project_dir):
-    """Validate project artifacts against their JSON schemas.
+@click.option("--contract", "contract_type", default=None, help="Validate against artifact contract (prd, sdd, schema) instead of JSON schema")
+def validate(artifact, project_dir, contract_type):
+    """Validate project artifacts against their JSON schemas or contracts.
 
     If no artifact is specified, validates all artifacts found in state.json.
+    Use --contract to validate business rules (invariants, ownership, mutations)
+    instead of structural JSON schema validation.
     """
+    if contract_type:
+        _validate_contract(contract_type, project_dir)
+        return
+
     target = _resolve_project_dir(project_dir)
 
     schemas_available = _list_schemas(target)
@@ -620,6 +628,40 @@ def validate(artifact, project_dir):
 
     if not all_valid:
         raise SystemExit(1)
+
+
+def _validate_contract(contract_type, project_dir):
+    """Validate an artifact against its business contract."""
+    target = _resolve_project_dir(project_dir)
+
+    art_path = target / ".factory" / f"{contract_type}.json"
+    if not art_path.exists():
+        click.echo(f"Error: Artifact file not found: {art_path}")
+        raise SystemExit(1)
+
+    try:
+        artifact_data = json.loads(art_path.read_text())
+    except json.JSONDecodeError as e:
+        click.echo(f"Error: Invalid JSON in {art_path}: {e}")
+        raise SystemExit(1)
+
+    engine = ContractEngine()
+
+    try:
+        violations = engine.validate_invariants(contract_type, artifact_data)
+    except ContractError as e:
+        click.echo(f"Error: {e}")
+        raise SystemExit(1)
+
+    if not violations:
+        click.echo(f"✅ Contract '{contract_type}': all invariants pass")
+        return
+
+    click.echo(f"❌ Contract '{contract_type}': {len(violations)} violation(s) found")
+    for v in violations:
+        click.echo(f"  - [{v['id']}] {v['description']}")
+        click.echo(f"    Field: {v['field']} — {v['detail']}")
+    raise SystemExit(1)
 
 
 _schema_group = click.group("schema")(lambda: None)

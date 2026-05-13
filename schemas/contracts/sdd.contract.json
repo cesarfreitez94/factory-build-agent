@@ -1,0 +1,62 @@
+{
+  "artifact_type": "sdd",
+  "version": "1.0",
+  "description": "Contract for Software Design Document (SDD) artifacts.",
+  "invariants": [
+    {
+      "id": "sdd-has-module-name",
+      "description": "SDD must have a non-empty module name",
+      "check": {"field": "module_name", "op": "min_length", "value": 3}
+    },
+    {
+      "id": "sdd-has-models",
+      "description": "SDD must define at least one model",
+      "check": {"field": "models", "op": "min_items", "value": 1}
+    },
+    {
+      "id": "sdd-has-traceability",
+      "description": "SDD must have a traceability matrix",
+      "check": {"field": "traceability_matrix", "op": "exists"}
+    },
+    {
+      "id": "sdd-models-have-name",
+      "description": "All models must have a name field",
+      "check": {"field": "models", "op": "all_items_have_field", "value": "name"}
+    },
+    {
+      "id": "sdd-has-architecture-description",
+      "description": "SDD architecture must have a description of at least 10 chars",
+      "check": {"field": "architecture.description", "op": "min_length", "value": 10}
+    }
+  ],
+  "ownership": {
+    "module_name": {"agent": "documentador", "phase": "documentation"},
+    "module_display_name": {"agent": "documentador", "phase": "documentation"},
+    "version": {"agent": "documentador", "phase": "documentation"},
+    "architecture": {"agent": "planificador", "phase": "planning"},
+    "models": {"agent": "planificador", "phase": "planning"},
+    "views": {"agent": "planificador", "phase": "planning"},
+    "security": {"agent": "code-generator", "phase": "construction"},
+    "dependencies": {"agent": "planificador", "phase": "planning"},
+    "file_structure": {"agent": "planificador", "phase": "planning"},
+    "traceability_matrix": {"agent": "planificador", "phase": "planning"}
+  },
+  "allowed_mutations": [
+    {
+      "id": "sdd-no-delete-model-with-views",
+      "description": "Cannot delete a model that has associated views",
+      "rule": "cross_field_no_delete",
+      "source_field": "models",
+      "cross_field": "views",
+      "cross_match": "model"
+    },
+    {
+      "id": "sdd-no-delete-model-with-security",
+      "description": "Cannot delete a model that has associated security rules",
+      "rule": "cross_field_no_delete",
+      "source_field": "models",
+      "cross_field": "security.access_rights",
+      "cross_match": "model_name"
+    }
+  ]
+}
