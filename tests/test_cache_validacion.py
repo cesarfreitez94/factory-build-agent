@@ -8,11 +8,10 @@ Tests:
 
 import hashlib
 import json
-from pathlib import Path
 
 import pytest
 
-from fba.cache_validacion import ValidationCache, ValidationCacheError
+from fba.cache_validacion import ValidationCache
 
 
 @pytest.fixture

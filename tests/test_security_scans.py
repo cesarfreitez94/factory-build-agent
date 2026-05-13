@@ -1,18 +1,15 @@
 """Tests for security scanning module (bandit, pip-audit, secret detection)."""
 
-import json
-from pathlib import Path
 
-import pytest
 
 from fba.security import (
     _SECRET_PATTERNS,
     ScanResult,
     SecurityReport,
+    run_security_scan,
     scan_bandit,
     scan_pip_audit,
     scan_secrets,
-    run_security_scan,
 )
 
 
@@ -220,7 +217,7 @@ class TestRunSecurityScan:
         factory_dir = tmp_path / ".factory"
         factory_dir.mkdir()
 
-        report = run_security_scan(tmp_path)
+        _ = run_security_scan(tmp_path)
 
         report_path = tmp_path / ".factory" / "security_report.md"
         assert report_path.exists()

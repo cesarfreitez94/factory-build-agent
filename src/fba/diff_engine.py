@@ -8,7 +8,7 @@ modifications with field/section granularity.
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 
 class DiffError(Exception):
@@ -137,7 +137,7 @@ class DiffEngine:
         """
         result: dict[str, list[dict[str, Any]]] = {"added": [], "removed": [], "modified": []}
 
-        if type(old) != type(new):
+        if type(old) is not type(new):
             result["modified"].append({
                 "path": path,
                 "old_value": old,

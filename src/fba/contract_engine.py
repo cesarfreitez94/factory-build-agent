@@ -115,7 +115,7 @@ class ContractEngine:
         violations = []
 
         for mutation_rule in contract.get("allowed_mutations", []):
-            rule_type = mutation_rule["rule"]
+            _ = mutation_rule["rule"]
             violations.extend(
                 self._check_mutation_rule(
                     mutation_rule, old_data, new_data, context
@@ -276,7 +276,7 @@ class ContractEngine:
         context: Optional[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """Check that deleted items are not referenced in another artifact."""
-        violations: list[dict[str, Any]] = []
+        _: list[dict[str, Any]] = []
         source_field = rule["source_field"]
 
         old_items = old_data.get(source_field, [])

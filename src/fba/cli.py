@@ -11,8 +11,8 @@ from fba.contract_engine import ContractEngine, ContractError
 from fba.dependency_analyzer import DependencyAnalyzer, DependencyError
 from fba.diff_engine import DiffEngine, DiffError
 from fba.gate import GateError
-from fba.stable_ids import StableIdManager, StableIdError
 from fba.schema_manager import SchemaManager
+from fba.stable_ids import StableIdError, StableIdManager
 from fba.state import StateManager, _atomic_write
 
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent.parent / "templates"
@@ -476,7 +476,7 @@ def transition(phase: str, force: bool, project_dir: str | None) -> None:
     state_mgr = StateManager(target)
 
     try:
-        state = state_mgr.transition_to(phase, skip_gates=force)
+        state_mgr.transition_to(phase, skip_gates=force)
         click.echo(f"Transitioned to '{phase}'")
         if force:
             click.echo("⚠️  Gate validation was skipped (--force)")
@@ -904,7 +904,7 @@ def doctor(project_dir: str | None, verbose: bool, json_output: bool) -> None:
     for symbol, label, detail in checks:
         click.echo(f"{symbol} {label}: {detail}")
 
-    ok_count = len(results) - len(errors) - len(checks)
+    _ = len(results) - len(errors) - len(checks)
     if not errors and not checks:
         for r in results:
             click.echo(f"✅ {r['label']}: {r['detail']}")

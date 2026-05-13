@@ -469,6 +469,7 @@ class TestDiffEngineCli:
 
     def test_diff_cli_text_output(self, tmp_path):
         from click.testing import CliRunner
+
         from fba.cli import main
 
         v1 = tmp_path / "v1.json"
@@ -487,6 +488,7 @@ class TestDiffEngineCli:
 
     def test_diff_cli_json_output(self, tmp_path):
         from click.testing import CliRunner
+
         from fba.cli import main
 
         v1 = tmp_path / "v1.json"
@@ -504,6 +506,7 @@ class TestDiffEngineCli:
 
     def test_diff_cli_file_not_found(self, tmp_path):
         from click.testing import CliRunner
+
         from fba.cli import main
 
         runner = CliRunner()
@@ -514,6 +517,7 @@ class TestDiffEngineCli:
 
     def test_diff_cli_malformed_json(self, tmp_path):
         from click.testing import CliRunner
+
         from fba.cli import main
 
         v1 = tmp_path / "v1.json"

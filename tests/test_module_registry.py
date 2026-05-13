@@ -1,6 +1,5 @@
 """Tests for the ModuleRegistry class."""
 
-import json
 from pathlib import Path
 
 import pytest

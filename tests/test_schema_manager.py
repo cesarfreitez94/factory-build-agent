@@ -3,11 +3,9 @@
 import json
 from pathlib import Path
 
-import pytest
 from click.testing import CliRunner
 
 from fba.cli import main
-from fba.module_registry import ModuleRegistry
 from fba.schema_manager import SchemaManager
 
 
@@ -184,7 +182,7 @@ class TestSchemaManagerAssembly:
         _setup_project_with_tasks(tmp_path)
         output = tmp_path / ".factory" / "schema.json"
         manager = SchemaManager(tmp_path)
-        result = manager.assemble(output_path=output)
+        _ = manager.assemble(output_path=output)
 
         assert output.exists()
         written = json.loads(output.read_text())
@@ -552,8 +550,9 @@ class TestCLISchemaAssemble:
         assert "Errors" in result.output
 
     def test_cli_schema_assemble_generates_valid_schema(self, tmp_path):
+        from pathlib import Path
+
         import jsonschema
-        from pathlib import Path as P
 
         runner = CliRunner()
         init_result = runner.invoke(main, ["init", "-d", str(tmp_path)])
@@ -569,7 +568,7 @@ class TestCLISchemaAssemble:
         result = runner.invoke(main, ["schema", "assemble", "-d", str(tmp_path)])
         assert result.exit_code == 0
 
-        schema_path = P(__file__).resolve().parent.parent / "schemas" / "schema.schema.json"
+        schema_path = Path(__file__).resolve().parent.parent / "schemas" / "schema.schema.json"
         schema_obj = json.loads(schema_path.read_text())
         artifact = json.loads((tmp_path / ".factory" / "schema.json").read_text())
         jsonschema.validate(artifact, schema_obj)

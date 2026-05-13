@@ -182,7 +182,7 @@ class TestCircularDependencies:
 
     def test_circular_simple_detected(self, tmp_path):
         mod_a = _make_module(tmp_path, "module_a", depends=["base", "module_b"])
-        mod_b = _make_module(tmp_path, "module_b", depends=["base", "module_a"])
+        _ = _make_module(tmp_path, "module_b", depends=["base", "module_a"])
 
         analyzer = DependencyAnalyzer()
         result = analyzer.analyze_module(
@@ -194,8 +194,8 @@ class TestCircularDependencies:
 
     def test_circular_transitive_detected(self, tmp_path):
         mod_a = _make_module(tmp_path, "module_a", depends=["base", "module_b"])
-        mod_b = _make_module(tmp_path, "module_b", depends=["base", "module_c"])
-        mod_c = _make_module(tmp_path, "module_c", depends=["base", "module_a"])
+        _ = _make_module(tmp_path, "module_b", depends=["base", "module_c"])
+        _ = _make_module(tmp_path, "module_c", depends=["base", "module_a"])
 
         analyzer = DependencyAnalyzer()
         result = analyzer.analyze_module(
@@ -207,7 +207,7 @@ class TestCircularDependencies:
 
     def test_no_circular_when_clean(self, tmp_path):
         mod_a = _make_module(tmp_path, "module_a", depends=["base", "module_b"])
-        mod_b = _make_module(tmp_path, "module_b", depends=["base"])
+        _ = _make_module(tmp_path, "module_b", depends=["base"])
 
         analyzer = DependencyAnalyzer()
         result = analyzer.analyze_module(
@@ -318,6 +318,7 @@ class TestDependencyCli:
 
     def test_deps_check_clean(self, tmp_path):
         from click.testing import CliRunner
+
         from fba.cli import main
 
         factory = tmp_path / ".factory"
@@ -332,6 +333,7 @@ class TestDependencyCli:
 
     def test_deps_check_with_issues(self, tmp_path):
         from click.testing import CliRunner
+
         from fba.cli import main
 
         factory = tmp_path / ".factory"
@@ -346,6 +348,7 @@ class TestDependencyCli:
 
     def test_deps_check_no_modules(self, tmp_path):
         from click.testing import CliRunner
+
         from fba.cli import main
 
         factory = tmp_path / ".factory"

@@ -150,7 +150,7 @@ class SchemaManager:
             task_path = self.tasks_dir / file_name
             if not task_path.exists():
                 self._warnings.append(AssemblyWarning(
-                    "warning", f"Task file not found",
+                    "warning", "Task file not found",
                     f"{file_name} (task {task_id})",
                 ))
                 continue
@@ -158,7 +158,7 @@ class SchemaManager:
                 tasks[task_id] = cast(dict[str, Any], json.loads(task_path.read_text()))
             except json.JSONDecodeError as e:
                 self._warnings.append(AssemblyWarning(
-                    "warning", f"Task file is invalid JSON",
+                    "warning", "Task file is invalid JSON",
                     f"{file_name}: {e}",
                 ))
         return tasks
@@ -364,12 +364,12 @@ class SchemaManager:
 
         for model in models:
             model_name = model["name"]
-            for field in model.get("fields", []):
-                ftype = field.get("type", "")
+            for _field in model.get("fields", []):
+                ftype = _field.get("type", "")
                 if ftype not in self.RELATIONAL_TYPES:
                     continue
 
-                relation = field.get("relation", "")
+                relation = _field.get("relation", "")
                 if not relation:
                     continue
 

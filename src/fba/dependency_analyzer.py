@@ -167,7 +167,6 @@ class DependencyAnalyzer:
         Uses the diff engine from feat/12.1 to produce a structured
         changelog of dependency changes.
         """
-        from fba.diff_engine import DiffEngine, DiffError
 
         try:
             old_data = json.loads(old_manifest_path.read_text()) if old_manifest_path.suffix == ".json" else {}

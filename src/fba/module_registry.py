@@ -64,8 +64,8 @@ class ModuleRegistry:
 
         if not modules_data:
             warnings.warn(
-                f"ModuleRegistry: el archivo de registry esta vacio "
-                f"(no contiene modulos).",
+                "ModuleRegistry: el archivo de registry esta vacio "
+                "(no contiene modulos).",
                 UserWarning,
             )
 

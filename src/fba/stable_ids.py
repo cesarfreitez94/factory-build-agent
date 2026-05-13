@@ -10,7 +10,6 @@ import uuid
 from pathlib import Path
 from typing import Any, Optional
 
-
 ENTITY_TYPES = ("requirement", "model", "field")
 
 

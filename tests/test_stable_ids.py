@@ -2,12 +2,10 @@
 
 import json
 import re
-from pathlib import Path
 
 import pytest
 
-from fba.stable_ids import StableIdManager, StableIdError
-
+from fba.stable_ids import StableIdError, StableIdManager
 
 UUID4_RE = re.compile(
     r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
@@ -198,6 +196,7 @@ class TestStableIdsCli:
 
     def test_trace_cli_found(self, tmp_path):
         from click.testing import CliRunner
+
         from fba.cli import main
 
         factory = tmp_path / ".factory"
@@ -218,6 +217,7 @@ class TestStableIdsCli:
 
     def test_trace_cli_not_found(self, tmp_path):
         from click.testing import CliRunner
+
         from fba.cli import main
 
         factory = tmp_path / ".factory"
