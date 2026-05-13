@@ -38,27 +38,6 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [0.9.0] - 2026-05-14
-
-### M13: Reliability & Quality (Capa 2) — En progreso
-
-**Fix de meta-desarrollo (pre-parte del milestone):**
-- #127: Corregir flujo de meta-desarrollo del framework FBA
-  - Commands: add `subtask: true` to `/fba:fw`, `/fba:fw-plan`, `/fba:fw-build`
-  - Commands: add `/fba:fw-test` para testing parcial por scope
-  - Orchestrator: permissions edit/bash deny, task allow, git confirmation flow
-  - Planner: permissions edit/bash/task deny, read allow, output textual only
-  - Builder: task deny, report to orchestrator (no direct subagent calls)
-  - Scripts: add `scripts/fba-milestone-close.sh` helper
-
-### Features planificadas
-- #1: Security scans: bandit + pip-audit + detect-secrets como gates
-- #5: Pre-commit hooks (ruff, black, bandit)
-- #6: Mypy strict mode progresivo
-- #8: Cache de validacion hash-based
-
----
-
 ## [0.8.0] - 2026-05-13
 
 ### M12: Diff, Dependencies & Trazabilidad (Capa 1 avanzada) — ✅ Completado

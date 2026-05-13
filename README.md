@@ -61,25 +61,71 @@ opencode .
 /fba:ship ◄── /fba:review ◄── /fba:test ◄── /fba:construct ◄───────────┘
 ```
 
+## Current Status
+
+**11/13 milestones completados** | **719 tests** | **0 failures**
+
+| Milestone | Status |
+|-----------|--------|
+| M0: Foundation | ✅ |
+| M1: Elicitation + Docs | ✅ |
+| M2: Planning + SDD | ✅ |
+| M3: Construction + MVP | ✅ |
+| M4: Gates System | ✅ |
+| M5: Bug Fixes | ✅ |
+| M10: Framework Meta-Dev | ✅ |
+| M11: Foundation Hardening | ✅ |
+| M12: Diff & Trazabilidad | ✅ |
+| M13: Reliability & Quality | ✅ |
+| M14: Odoo Depth | ✅ |
+| M15: Advanced QA | ⏳ |
+
+### M14: Odoo Depth (latest)
+Enterprise-grade Odoo v18 module generation:
+- **Wizards** — TransientModel + form/action views
+- **Workflows** — ir.actions.server + cron automation
+- **Reports** — QWeb templates + paperformat
+- **Controllers** — http.Controller + @http.route
+- **Migrations** — DiffEngine-based schema change detection → pre/post/end-migrate.py
+- **i18n** — .pot + .po generation (es_ES, es_CL), OCA-ready
+
 ## Arquitectura
 
-Factory Build Agent esta compuesto por un **orquestador** y **9 sub-agentes**
-especializados, cada uno definido declarativamente en Markdown:
+### Agent System
 
-| Agente | Responsabilidad |
-|--------|----------------|
-| Elicitador | Elicitar requisitos con metodologia BABOK |
-| Documentador | Generar PRD.md y SDD.md |
-| Planificador | Crear plan tecnico y arquitectura Odoo v18 |
-| Revisor de Artefactos | Validar artefactos contra schemas y coherencia cross-artifact |
-| Validador Semantico | Validar alineacion semantica contra solicitud original |
-| Code Generator | Generar codigo del modulo Odoo v18 |
-| Tester/QA | Generar y ejecutar pruebas |
-| Revisor de Codigo | Revisar calidad, seguridad y adherencia |
-| CI/CD Manager | Generar workflows de GitHub Actions |
+FBA has **two orchestrator levels**:
+
+#### Framework Orchestrator (meta-development)
+1 orchestrator + 5 meta-agents for autonomous framework development:
+- **framework-orchestrator** — Entry point for all framework improvements since M10
+- **framework-explorer** — Read-only repo exploration
+- **framework-registry** — State persistence (.factory/framework-state.json)
+- **framework-planner** — Decomposes intent into executable briefs (fw-brief.md)
+- **framework-builder** — Implements briefs following CONTRIBUTING.md
+- **framework-git** — Git operations with validations
+
+#### Project Orchestrator (Odoo module generation)
+1 orchestrator + 9 sub-agents for Odoo v18 module lifecycle:
+- **Orchestrator** — Coordinates phases, validates artifacts, invokes sub-agents
+- **Elicitador** — BABOK-based requirements elicitation
+- **Documentador** — PRD.md + SDD.md generation
+- **Planificador** — Technical plan + Odoo v18 architecture
+- **Code Generator** — Schema Manager (SSOT) + Code Renderer
+- **Tester/QA** — Test generation and execution
+- **Revisor de Codigo** — Code quality, security, spec-adherence
+- **CI/CD Manager** — GitHub Actions workflows + releases
+- **Revisor de Artefactos** — Artifact validation against schemas
+- **Validador Semantico** — Semantic alignment validation
 
 Los agentes se comunican mediante un sistema hibrido: artefactos en archivos
 (.factory/) + registro de eventos (events.jsonl) + git.
+
+## Development Phases
+
+See [ROADMAP.md](ROADMAP.md) for full details.
+
+- **M0-M5, M10-M14**: ✅ Completed (11 milestones)
+- **M15: Advanced QA**: ⏳ Planned — Playwright E2E, performance, concurrency
 
 ## Documentacion
 
