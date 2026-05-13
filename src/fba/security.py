@@ -73,7 +73,7 @@ _SECRET_PATTERNS = [
     (re.compile(r"Bearer\s+[A-Za-z0-9_\-]{20,}"), "Bearer token pattern"),
     (re.compile(r"github_token\s*[=:]\s*'?[A-Za-z0-9_\-]+'?"), "GitHub token pattern"),
     (re.compile(r"aws_access_key\s*[=:]\s*'?[A-Z0-9]{16,}'?"), "AWS access key pattern"),
-    (re.compile(r"sk_live_[A-Za-z0-9_\-]{20,}"), "Stripe secret key pattern"),
+    (re.compile(r"sk_(test|live)_[A-Za-z0-9_\-]{20,}"), "Stripe secret key pattern"),
 ]
 
 
