@@ -10,6 +10,7 @@ from fba.contract_engine import ContractEngine, ContractError
 from fba.dependency_analyzer import DependencyAnalyzer, DependencyError
 from fba.diff_engine import DiffEngine, DiffError
 from fba.gate import GateError
+from fba.stable_ids import StableIdManager, StableIdError
 from fba.schema_manager import SchemaManager
 from fba.state import StateManager, _atomic_write
 
@@ -992,6 +993,36 @@ def deps_check(project_dir):
         raise SystemExit(1)
 
     click.echo(f"\nAll {len(results)} module(s) have clean dependencies.")
+
+
+@main.command()
+@click.argument("entity_id")
+@PROJECT_DIR_OPTION
+def trace(entity_id, project_dir):
+    """Trace a stable UUID across all project artifacts.
+
+    Searches PRD, SDD, and schema.json for the given UUID and reports
+    where the entity is referenced.
+    """
+    target = _resolve_project_dir(project_dir)
+    factory_dir = target / ".factory"
+
+    try:
+        result = StableIdManager.trace(entity_id, factory_dir)
+    except StableIdError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    if result is None:
+        click.echo(f"UUID '{entity_id[:16]}...' not found in any artifact.")
+        raise SystemExit(1)
+
+    click.echo(f"🔍 Tracing UUID: {entity_id}")
+    click.echo(f"   Found in {result['found_in']} location(s):")
+    for loc in result["locations"]:
+        click.echo(f"   - [{loc['entity_type']}] {loc['entity_id']}")
+        click.echo(f"     Artifact: {loc['artifact']}")
+        click.echo(f"     Path: {loc['path']}")
 
 
 main.add_command(_deps_group)

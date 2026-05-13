@@ -1,6 +1,7 @@
 """Tests for artifact contract validation — invariants, ownership, and allowed mutations."""
 
 import json
+import uuid
 from pathlib import Path
 
 import pytest
@@ -17,7 +18,7 @@ def _make_prd(requirements=None, stakeholders=None):
         ],
         "objectives": ["Obj 1"],
         "functional_requirements": requirements if requirements is not None else [
-            {"id": "RF-001", "description": "Login screen"},
+            {"id": "RF-001", "description": "Login screen", "uuid": str(uuid.uuid4())},
         ],
         "non_functional_requirements": [],
         "acceptance_criteria": [],

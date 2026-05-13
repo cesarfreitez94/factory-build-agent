@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "last_updated": "2026-05-12T23:59:00Z",
+  "last_updated": "2026-05-13T00:26:30Z",
   "last_session": {
     "date": "2026-05-12",
     "agent": "framework-registry",
-    "action": "feat/12.2 completado: artifact contracts con invariantes implementados | 12.1 y 12.2 finalizados, pendientes 12.3 y 12.4",
-    "completed_feats": ["12.1", "12.2"],
-    "pending_feats": ["12.3", "12.4"],
+    "action": "feat/12.3 completado: dependency integrity implemented | 12.1, 12.2, 12.3 finalizados, pendiente 12.4",
+    "completed_feats": ["12.1", "12.2", "12.3"],
+    "pending_feats": ["12.4"],
     "blockers": []
   },
   "active_milestone": {
@@ -15,8 +15,8 @@
     "branch": "milestone/12.0-diff-deps-traza",
     "status": "in_progress",
     "feats_total": 4,
-    "feats_done": 2,
-    "feats_pending": ["12.3", "12.4"],
+    "feats_done": 3,
+    "feats_pending": ["12.4"],
     "ready_for_user_review": false,
     "end_date": null
   },
