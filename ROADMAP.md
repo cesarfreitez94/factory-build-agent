@@ -18,7 +18,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M11: Foundation Hardening | ✅ Completado | 2026-05-09 / 2026-05-12 |
 | M12: Diff, Dependencies & Trazabilidad | ✅ Completado | 2026-05-12 / 2026-05-13 |
 | M13: Reliability & Quality | ✅ Completado | 2026-05-14 / 2026-05-13 |
-| M14: Odoo Depth | ⏳ Planificado | — / — |
+| M14: Odoo Depth | ✅ Completado | 2026-05-13 / 2026-05-13 |
 | M15: Advanced QA | ⏳ Planificado | — / — |
 
 ---
@@ -502,7 +502,9 @@ pytest tests/test_security_scans.py tests/test_cache_validacion.py
 
 ---
 
-## M14: Odoo Depth (Capa 3)
+## M14: Odoo Depth (Capa 3) ✅
+
+**Estado**: Completado (2026-05-13) — 3/3 feats mergeados.
 
 **Objetivo**: Completar la implementacion de wizards/workflows/reports (#9 full), agregar soporte
 de migraciones de schema (#3), e internacionalizacion i18n (#4). Lleva la generacion de modulos
@@ -513,13 +515,16 @@ controller. Deteccion de cambios de schema con migraciones. Generacion .pot/.po 
 
 **Branch**: `milestone/14.0-odoo-depth`
 
+**Resumen**: Wizards (TransientModel), workflows (ir.actions.server + cron), reports (QWeb + paperformat),
+controllers (http.Controller), migraciones con DiffEngine, e i18n (es_ES + es_CL, OCA-ready).
+
 ### Feats
 
-| Orden | Feat | Depende de | Descripcion |
-|-------|------|------------|-------------|
-| 1 | feat/14.1-wizards-workflows | M11 feat/11.5 | #9: Implementacion completa en SchemaManager + Code Renderer de wizard, workflow, report, controller |
-| 2 | feat/14.2-migraciones | feat/12.1 | #3: Deteccion de cambios de schema, produccion de migraciones Odoo, validacion de compatibilidad |
-| 3 | feat/14.3-i18n | — | #4: Internacionalizacion — generacion de .pot/.po, es_ES default, OCA readiness |
+| Orden | Feat | Depende de | Descripcion | Estado |
+|-------|------|------------|-------------|--------|
+| 1 | feat/14.1-wizards-workflows | M11 feat/11.5 | #9: Implementacion completa en SchemaManager + Code Renderer de wizard, workflow, report, controller | ✅ |
+| 2 | feat/14.2-migraciones | feat/12.1 | #3: Deteccion de cambios de schema, produccion de migraciones Odoo, validacion de compatibilidad | ✅ |
+| 3 | feat/14.3-i18n | — | #4: Internacionalizacion — generacion de .pot/.po, es_ES default, OCA readiness | ✅ |
 
 **Depende de**: M11 feat/11.5 (schema alignment), M12 feat/12.1 (diff engine para migraciones)
 
