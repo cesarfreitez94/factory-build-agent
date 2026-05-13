@@ -1,6 +1,7 @@
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any, cast
 
 from fba.module_registry import ModuleRegistry
 from fba.state import _atomic_write
@@ -15,9 +16,9 @@ class AssemblyWarning:
 
 @dataclass
 class AssemblyResult:
-    schema: dict
-    warnings: list = field(default_factory=list)
-    errors: list = field(default_factory=list)
+    schema: dict[str, Any]
+    warnings: list[AssemblyWarning] = field(default_factory=list)
+    errors: list[AssemblyWarning] = field(default_factory=list)
 
     @property
     def success(self) -> bool:
@@ -123,7 +124,7 @@ class SchemaManager:
 
         return AssemblyResult(schema, warnings=self._warnings, errors=self._errors)
 
-    def _load_task_index(self) -> dict | None:
+    def _load_task_index(self) -> dict[str, Any] | None:
         index_path = self.tasks_dir / "index.json"
         if not index_path.exists():
             self._errors.append(AssemblyWarning(
@@ -132,7 +133,7 @@ class SchemaManager:
             ))
             return None
         try:
-            return json.loads(index_path.read_text())
+            return cast(dict[str, Any], json.loads(index_path.read_text()))
         except json.JSONDecodeError as e:
             self._errors.append(AssemblyWarning(
                 "error", "Task index is invalid JSON",
@@ -140,9 +141,9 @@ class SchemaManager:
             ))
             return None
 
-    def _load_all_tasks(self, task_index: dict) -> dict[str, dict]:
+    def _load_all_tasks(self, task_index: dict[str, Any]) -> dict[str, dict[str, Any]]:
         """Load all individual task files keyed by task ID."""
-        tasks = {}
+        tasks: dict[str, dict[str, Any]] = {}
         for entry in task_index.get("tasks", []):
             task_id = entry.get("id", "")
             file_name = entry.get("file", "")
@@ -154,7 +155,7 @@ class SchemaManager:
                 ))
                 continue
             try:
-                tasks[task_id] = json.loads(task_path.read_text())
+                tasks[task_id] = cast(dict[str, Any], json.loads(task_path.read_text()))
             except json.JSONDecodeError as e:
                 self._warnings.append(AssemblyWarning(
                     "warning", f"Task file is invalid JSON",
@@ -162,7 +163,7 @@ class SchemaManager:
                 ))
         return tasks
 
-    def _load_sdd(self) -> dict:
+    def _load_sdd(self) -> dict[str, Any]:
         sdd_path = self.factory_dir / "sdd.json"
         if not sdd_path.exists():
             self._warnings.append(AssemblyWarning(
@@ -171,7 +172,7 @@ class SchemaManager:
             ))
             return {}
         try:
-            return json.loads(sdd_path.read_text())
+            return cast(dict[str, Any], json.loads(sdd_path.read_text()))
         except json.JSONDecodeError:
             self._warnings.append(AssemblyWarning(
                 "warning", "SDD is invalid JSON",
@@ -179,7 +180,7 @@ class SchemaManager:
             ))
             return {}
 
-    def _detect_unknown_types(self, tasks_data: dict[str, dict]) -> None:
+    def _detect_unknown_types(self, tasks_data: dict[str, dict[str, Any]]) -> None:
         """Warn about component types that are in the schema enum but not yet implemented."""
         for task_id, task in tasks_data.items():
             for component in task.get("components", []):
@@ -192,7 +193,7 @@ class SchemaManager:
                         f"Task: {task_id}, component: {component.get('name', 'unnamed')}",
                     ))
 
-    def _assemble_manifest(self, sdd_data: dict, task_index: dict) -> dict:
+    def _assemble_manifest(self, sdd_data: dict[str, Any], task_index: dict[str, Any]) -> dict[str, Any]:
         module_name = sdd_data.get("module_name", "") or task_index.get("module_name", "unknown")
         manifest = {
             "name": module_name,
@@ -207,9 +208,9 @@ class SchemaManager:
             manifest["description"] = sdd_data.get("summary", "")
         return manifest
 
-    def _assemble_models(self, tasks_data: dict[str, dict]) -> list[dict]:
+    def _assemble_models(self, tasks_data: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
         """Extract model components from all tasks, merge, normalize, and set mode."""
-        models_raw: dict[str, dict] = {}
+        models_raw: dict[str, dict[str, Any]] = {}
 
         for task_id, task in tasks_data.items():
             for component in task.get("components", []):
@@ -250,7 +251,8 @@ class SchemaManager:
 
         models = []
         for model_name, model_data in models_raw.items():
-            model_data["mode"] = self._determine_mode(model_name)
+            lookup = self.registry.lookup(model_name)
+            model_data["mode"] = self._determine_mode(model_name, lookup)
             models.append(model_data)
 
         models.sort(key=lambda m: m["name"])
@@ -263,8 +265,8 @@ class SchemaManager:
         return models
 
     def _normalize_fields(
-        self, fields: list[dict], model_name: str, task_id: str
-    ) -> list[dict]:
+        self, fields: list[dict[str, Any]], model_name: str, task_id: str
+    ) -> list[dict[str, Any]]:
         """Normalize field names following Odoo conventions."""
         normalized = []
         for f in fields:
@@ -311,9 +313,9 @@ class SchemaManager:
         return normalized
 
     def _merge_fields(
-        self, existing: list[dict], incoming: list[dict],
+        self, existing: list[dict[str, Any]], incoming: list[dict[str, Any]],
         model_name: str, task_id: str,
-    ) -> list[dict]:
+    ) -> list[dict[str, Any]]:
         """Merge incoming fields into existing, deduplicating by name."""
         merged = {f["name"]: dict(f) for f in existing}
 
@@ -337,15 +339,15 @@ class SchemaManager:
 
         return list(merged.values())
 
-    def _determine_mode(self, model_name: str) -> str:
+    def _determine_mode(self, model_name: str, lookup: dict[str, Any] | None) -> str:
         """Determine if a model is new or extends a core Odoo model."""
         if self.registry.is_core(model_name):
-            lookup = self.registry.lookup(model_name)
-            self._warnings.append(AssemblyWarning(
-                "warning",
-                f"Model '{model_name}' extends core model from module "
-                f"'{lookup['module']}' — mode set to 'extend'",
-            ))
+            if lookup is not None:
+                self._warnings.append(AssemblyWarning(
+                    "warning",
+                    f"Model '{model_name}' extends core model from module "
+                    f"'{lookup['module']}' — mode set to 'extend'",
+                ))
             return "extend"
         if not self.registry.modules and "registry_empty" not in self._emitted_warnings:
             self._emitted_warnings.add("registry_empty")
@@ -356,7 +358,7 @@ class SchemaManager:
             ))
         return "new"
 
-    def _validate_relations(self, models: list[dict]) -> None:
+    def _validate_relations(self, models: list[dict[str, Any]]) -> None:
         """Validate that all relational fields reference existing models."""
         all_models = {m["name"] for m in models}
 
@@ -384,7 +386,7 @@ class SchemaManager:
                     f"found in schema models or module registry",
                 ))
 
-    def _assemble_views(self, tasks_data: dict[str, dict]) -> list[dict]:
+    def _assemble_views(self, tasks_data: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
         """Extract view components from all tasks."""
         views = []
         seen = set()
@@ -420,7 +422,7 @@ class SchemaManager:
 
         return views
 
-    def _assemble_security(self, tasks_data: dict[str, dict]) -> dict:
+    def _assemble_security(self, tasks_data: dict[str, dict[str, Any]]) -> dict[str, Any]:
         """Extract security components from all tasks."""
         groups = []
         access_rights = []
@@ -480,7 +482,7 @@ class SchemaManager:
             "record_rules": record_rules,
         }
 
-    def _assemble_data(self, tasks_data: dict[str, dict]) -> list[dict]:
+    def _assemble_data(self, tasks_data: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
         """Extract data components from all tasks."""
         data_entries = []
 

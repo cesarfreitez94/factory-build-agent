@@ -11,6 +11,7 @@ import re
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 
 @dataclass
@@ -18,10 +19,10 @@ class ScanResult:
     passed: bool
     scanner: str
     message: str = ""
-    findings: list = field(default_factory=list)
-    details: dict = field(default_factory=dict)
+    findings: list[str] = field(default_factory=list)
+    details: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         return {
             "passed": self.passed,
             "scanner": self.scanner,
@@ -33,11 +34,11 @@ class ScanResult:
 
 @dataclass
 class SecurityReport:
-    scanner_results: list = field(default_factory=list)
+    scanner_results: list[ScanResult] = field(default_factory=list)
     overall_passed: bool = True
     total_findings: int = 0
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         return {
             "overall_passed": self.overall_passed,
             "total_findings": self.total_findings,
@@ -76,7 +77,7 @@ _SECRET_PATTERNS = [
 ]
 
 
-def scan_bandit(target_path: Path, exclude_paths: list | None = None) -> ScanResult:
+def scan_bandit(target_path: Path, exclude_paths: list[str] | None = None) -> ScanResult:
     exclude_args = []
     if exclude_paths:
         for ep in exclude_paths:
@@ -219,7 +220,7 @@ def scan_pip_audit(target_path: Path) -> ScanResult:
         )
 
 
-def scan_secrets(target_path: Path, file_extensions: list | None = None) -> ScanResult:
+def scan_secrets(target_path: Path, file_extensions: list[str] | None = None) -> ScanResult:
     if file_extensions is None:
         file_extensions = [".py", ".yaml", ".yml", ".json", ".txt", ".md", ".rst", ".conf", ".cfg", ".ini", ".env"]
 
@@ -270,7 +271,7 @@ def scan_secrets(target_path: Path, file_extensions: list | None = None) -> Scan
     )
 
 
-def run_security_scan(project_dir: Path, exclude_paths: list | None = None) -> SecurityReport:
+def run_security_scan(project_dir: Path, exclude_paths: list[str] | None = None) -> SecurityReport:
     results = []
 
     bandit_result = scan_bandit(project_dir, exclude_paths=exclude_paths)

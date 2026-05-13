@@ -2,6 +2,7 @@ import json
 import shutil
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 import click
 
@@ -23,7 +24,7 @@ PROJECT_DIR_OPTION = click.option(
 )
 
 
-def _resolve_project_dir(project_dir):
+def _resolve_project_dir(project_dir: str | None) -> Path:
     target = Path(project_dir).resolve() if project_dir else Path.cwd()
     if not (target / ".factory").exists():
         click.echo(f"Error: No .factory/ found in {target}. Run 'fba init' first.")
@@ -33,13 +34,13 @@ def _resolve_project_dir(project_dir):
 
 @click.group()
 @click.version_option(version=__version__)
-def main():
+def main() -> None:
     """Factory Build Agent - Multi-agent framework for Odoo v18 module development."""
 
 
 @main.command()
 @click.option("--project-dir", "-d", default=None, help="Target project directory (default: current directory)")
-def init(project_dir):
+def init(project_dir: str | None) -> None:
     """Initialize a project with Factory Build Agent structure.
 
     Creates .factory/, .opencode/, and .github/ directories with
@@ -68,7 +69,7 @@ def init(project_dir):
 
 @main.command()
 @click.option("--project-dir", "-d", default=None, help="Target project directory (default: current directory)")
-def update(project_dir):
+def update(project_dir: str | None) -> None:
     """Update project templates without touching state or artifacts.
 
     Overwrites .opencode/, .github/workflows/, and AGENTS.md with
@@ -87,7 +88,7 @@ def update(project_dir):
     click.echo(f"✅ Factory Build Agent templates updated in {target}")
 
 
-def _copy_templates(target: Path):
+def _copy_templates(target: Path) -> None:
     templates_src = TEMPLATES_DIR
     if not templates_src.exists():
         click.echo(f"⚠  Templates directory not found: {templates_src}")
@@ -100,7 +101,7 @@ def _copy_templates(target: Path):
     )
 
 
-def _cleanup_obsolete(target: Path):
+def _cleanup_obsolete(target: Path) -> None:
     """Remove known obsolete files from project after template update."""
     agents_dir = target / ".opencode" / "agents"
     if agents_dir.is_dir():
@@ -109,7 +110,7 @@ def _cleanup_obsolete(target: Path):
             click.echo(f"  🗑  Removed obsolete: agents/{yaml_file.name}")
 
 
-def _copy_schemas(target: Path):
+def _copy_schemas(target: Path) -> None:
     schemas_src = SCHEMAS_DIR
     if not schemas_src.exists():
         return
@@ -123,7 +124,7 @@ def _copy_schemas(target: Path):
             shutil.copy2(schema_file, dest)
 
 
-def _copy_registry(target: Path):
+def _copy_registry(target: Path) -> None:
     registry_src = TEMPLATES_DIR / ".factory" / "module_registry.json"
     if not registry_src.exists():
         click.echo("Warning: Module registry not found in templates. All models will be treated as new.")
@@ -134,7 +135,7 @@ def _copy_registry(target: Path):
     _atomic_write(dest, registry_src.read_text())
 
 
-def _init_factory_state(target: Path):
+def _init_factory_state(target: Path) -> None:
     factory_dir = target / ".factory"
     factory_dir.mkdir(parents=True, exist_ok=True)
 
@@ -412,7 +413,7 @@ def _init_factory_state(target: Path):
     _atomic_write(state_path, json.dumps(state, indent=2, ensure_ascii=False))
 
 
-def _init_events_log(target: Path):
+def _init_events_log(target: Path) -> None:
     factory_dir = target / ".factory"
     events_path = factory_dir / "events.jsonl"
 
@@ -429,7 +430,7 @@ def _init_events_log(target: Path):
 
 @main.command()
 @PROJECT_DIR_OPTION
-def status(project_dir):
+def status(project_dir: str | None) -> None:
     """Show the current state of the Factory Build Agent project."""
     target = _resolve_project_dir(project_dir)
     state_mgr = StateManager(target)
@@ -465,7 +466,7 @@ def status(project_dir):
 @click.argument("phase")
 @click.option("--force", is_flag=True, help="Skip gate validation (force transition)")
 @PROJECT_DIR_OPTION
-def transition(phase, force, project_dir):
+def transition(phase: str, force: bool, project_dir: str | None) -> None:
     """Transition the project to a new development phase.
 
     By default, validates gates for the current phase before allowing
@@ -495,7 +496,7 @@ def transition(phase, force, project_dir):
 @click.argument("event_type")
 @click.option("--data", default=None, help="JSON string with event data")
 @PROJECT_DIR_OPTION
-def record(event_type, data, project_dir):
+def record(event_type: str, data: str | None, project_dir: str | None) -> None:
     """Record an event in the append-only event log."""
     target = _resolve_project_dir(project_dir)
     state_mgr = StateManager(target)
@@ -512,7 +513,7 @@ def record(event_type, data, project_dir):
 @click.argument("phase", required=False)
 @click.option("--all", "all_gates", is_flag=True, help="Check all defined gates")
 @PROJECT_DIR_OPTION
-def gate(phase, all_gates, project_dir):
+def gate(phase: str | None, all_gates: bool, project_dir: str | None) -> None:
     """Check validation gates for the current or a specific phase.
 
     Runs gate validation rules and reports pass/fail for each rule.
@@ -564,7 +565,7 @@ def gate(phase, all_gates, project_dir):
 @click.argument("artifact", required=False)
 @PROJECT_DIR_OPTION
 @click.option("--contract", "contract_type", default=None, help="Validate against artifact contract (prd, sdd, schema) instead of JSON schema")
-def validate(artifact, project_dir, contract_type):
+def validate(artifact: str | None, project_dir: str | None, contract_type: str | None) -> None:
     """Validate project artifacts against their JSON schemas or contracts.
 
     If no artifact is specified, validates all artifacts found in state.json.
@@ -632,7 +633,7 @@ def validate(artifact, project_dir, contract_type):
         raise SystemExit(1)
 
 
-def _validate_contract(contract_type, project_dir):
+def _validate_contract(contract_type: str, project_dir: str | None) -> None:
     """Validate an artifact against its business contract."""
     target = _resolve_project_dir(project_dir)
 
@@ -673,7 +674,7 @@ _schema_group.help = "Schema assembly and validation commands (SSOT)."
 @_schema_group.command("assemble")
 @PROJECT_DIR_OPTION
 @click.option("--output", "-o", default=None, help="Output path for schema.json (default: .factory/schema.json)")
-def schema_assemble(project_dir, output):
+def schema_assemble(project_dir: str | None, output: str | None) -> None:
     """Assemble schema.json (SSOT) from task files, SDD, and module registry.
 
     Runs the deterministic Schema Manager: loads task index + individual task
@@ -714,7 +715,7 @@ def schema_assemble(project_dir, output):
     click.echo(f"   ACLs:   {len(result.schema.get('security', {}).get('access_rights', []))}")
 
 
-def _check_traceability(target: Path, sdd: dict) -> bool:
+def _check_traceability(target: Path, sdd: dict[str, Any]) -> bool:
     """Verify PRD→SDD traceability completeness.
 
     Returns True if all PRD requirements are mapped in the SDD.
@@ -756,8 +757,8 @@ def _check_traceability(target: Path, sdd: dict) -> bool:
     return True
 
 
-def _list_schemas(target: Path) -> list:
-    schemas = []
+def _list_schemas(target: Path) -> list[str]:
+    schemas: list[str] = []
     project_schemas = target / ".factory" / "schemas"
     if project_schemas.is_dir():
         schemas.extend(
@@ -784,7 +785,7 @@ def _find_schema(target: Path, schema_name: str) -> Path | None:
 @PROJECT_DIR_OPTION
 @click.option("--verbose", "-v", is_flag=True, help="Detailed diagnostic output")
 @click.option("--json", "json_output", is_flag=True, help="Output in JSON format (for CI)")
-def doctor(project_dir, verbose, json_output):
+def doctor(project_dir: str | None, verbose: bool, json_output: bool) -> None:
     """Diagnose the health of a Factory Build Agent project.
 
     Checks: registry health, state file integrity, writability, and schema alignment.
@@ -805,7 +806,7 @@ def doctor(project_dir, verbose, json_output):
             click.echo(f"❌ {msg}")
         raise SystemExit(2)
 
-    def _check(label, fn):
+    def _check(label: str, fn: Any) -> None:
         try:
             ok, detail, severity = fn()
             results.append({"label": label, "ok": ok, "detail": detail, "severity": severity or ("error" if not ok else "ok")})
@@ -818,7 +819,7 @@ def doctor(project_dir, verbose, json_output):
             results.append({"label": label, "ok": False, "detail": str(e), "severity": "error"})
             errors.append(("❌", label, str(e)))
 
-    def _d1_check():
+    def _d1_check() -> tuple[bool, str, str | None]:
         try:
             import warnings as _w
             with _w.catch_warnings(record=True) as caught:
@@ -838,13 +839,13 @@ def doctor(project_dir, verbose, json_output):
         except Exception as e:
             return False, f"Registry error: {e}", "error"
 
-    def _d2_check():
+    def _d2_check() -> tuple[bool, str, str | None]:
         state_path = factory_dir / "state.json"
         if state_path.exists():
             return True, f"Found at {state_path}", None
         return False, "state.json not found", "error"
 
-    def _d3_check():
+    def _d3_check() -> tuple[bool, str, str | None]:
         state_path = factory_dir / "state.json"
         if not state_path.exists():
             return False, "state.json does not exist", "error"
@@ -855,7 +856,7 @@ def doctor(project_dir, verbose, json_output):
         except json.JSONDecodeError as e:
             return False, f"Invalid JSON: {e}", "error"
 
-    def _d4_check():
+    def _d4_check() -> tuple[bool, str, str | None]:
         test_file = factory_dir / ".doctor_write_test"
         try:
             test_file.write_text("test")
@@ -864,7 +865,7 @@ def doctor(project_dir, verbose, json_output):
         except Exception as e:
             return False, f"Not writable: {e}", "error"
 
-    def _d5_check():
+    def _d5_check() -> tuple[bool, str, str | None]:
         implemented_types = set(SchemaManager.IMPLEMENTED_TYPES)
         schema_path = factory_dir / "schemas" / "task_item.schema.json"
         if not schema_path.exists():
@@ -932,7 +933,7 @@ def doctor(project_dir, verbose, json_output):
 @click.argument("file_v1", type=click.Path(exists=True, path_type=Path))
 @click.argument("file_v2", type=click.Path(exists=True, path_type=Path))
 @click.option("--format", "-f", "output_format", type=click.Choice(["text", "json"]), default="text", help="Output format (text or json)")
-def diff(file_v1, file_v2, output_format):
+def diff(file_v1: Path, file_v2: Path, output_format: str) -> None:
     """Compare two JSON artifact versions and produce a structured changelog.
 
     FILE_V1 is the older version, FILE_V2 is the newer version.
@@ -957,7 +958,7 @@ _deps_group.help = "Odoo dependency integrity analysis."
 
 @_deps_group.command("check")
 @PROJECT_DIR_OPTION
-def deps_check(project_dir):
+def deps_check(project_dir: str | None) -> None:
     """Analyze Odoo module dependencies for integrity issues.
 
     Checks:
@@ -998,7 +999,7 @@ def deps_check(project_dir):
 @main.command()
 @click.argument("entity_id")
 @PROJECT_DIR_OPTION
-def trace(entity_id, project_dir):
+def trace(entity_id: str, project_dir: str | None) -> None:
     """Trace a stable UUID across all project artifacts.
 
     Searches PRD, SDD, and schema.json for the given UUID and reports

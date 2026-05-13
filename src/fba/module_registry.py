@@ -1,6 +1,7 @@
 import json
 import warnings
 from pathlib import Path
+from typing import Any
 
 
 class ModuleRegistry:
@@ -11,7 +12,7 @@ class ModuleRegistry:
     """
 
     def __init__(self, project_dir: Path | None = None):
-        self._modules: dict[str, dict] = {}
+        self._modules: dict[str, dict[str, Any]] = {}
         self._model_index: dict[str, str] = {}
 
         registry_path = self._find_registry(project_dir)
@@ -83,10 +84,10 @@ class ModuleRegistry:
         return getattr(self, "_odoo_version", "18.0")
 
     @property
-    def modules(self) -> dict:
+    def modules(self) -> dict[str, Any]:
         return dict(self._modules)
 
-    def lookup(self, model_name: str) -> dict | None:
+    def lookup(self, model_name: str) -> dict[str, Any] | None:
         """Return the module info that owns the given model name, or None."""
         module_name = self._model_index.get(model_name)
         if module_name:

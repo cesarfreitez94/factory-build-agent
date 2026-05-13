@@ -3,6 +3,7 @@ import os
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, cast
 
 
 def _atomic_write(dest: Path, content: str) -> None:
@@ -46,20 +47,20 @@ class StateManager:
     @property
     def current_phase(self) -> str:
         state = self.load()
-        return state["current_phase"]
+        return cast(str, state["current_phase"])
 
-    def load(self) -> dict:
+    def load(self) -> dict[str, Any]:
         if not self.state_path.exists():
             raise FileNotFoundError(
                 f"State file not found: {self.state_path}. Run 'fba init' first."
             )
-        return json.loads(self.state_path.read_text())
+        return cast(dict[str, Any], json.loads(self.state_path.read_text()))
 
-    def save(self, state: dict) -> None:
+    def save(self, state: dict[str, Any]) -> None:
         content = json.dumps(state, indent=2, ensure_ascii=False)
         _atomic_write(self.state_path, content)
 
-    def transition_to(self, phase: str, skip_gates: bool = False) -> dict:
+    def transition_to(self, phase: str, skip_gates: bool = False) -> dict[str, Any]:
         state = self.load()
         current = state["current_phase"]
         valid = self._get_valid_transitions()
@@ -127,7 +128,7 @@ class StateManager:
                         pass
             raise
 
-    def has_gate_passed(self, phase: str = None) -> bool:
+    def has_gate_passed(self, phase: str | None = None) -> bool:
         if phase is None:
             phase = self.current_phase
         from fba.gate import GateRunner
@@ -136,8 +137,8 @@ class StateManager:
         result = runner.check_phase(phase)
         return result.passed
 
-    def record_event(self, event_type: str, data: dict = None) -> None:
-        event = {
+    def record_event(self, event_type: str, data: dict[str, Any] | None = None) -> None:
+        event: dict[str, Any] = {
             "ts": datetime.now(timezone.utc).isoformat(),
             "type": event_type,
         }
@@ -170,6 +171,6 @@ class StateManager:
         state["artifacts"][name]["version"] = current + 1
         self.save(state)
 
-    def _get_valid_transitions(self) -> dict:
+    def _get_valid_transitions(self) -> dict[str, list[str]]:
         state = self.load()
-        return state.get("valid_transitions", {})
+        return cast(dict[str, list[str]], state.get("valid_transitions", {}))
