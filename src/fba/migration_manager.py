@@ -138,7 +138,7 @@ class MigrationManager:
         result: list[SchemaChange] = []
 
         current_models = {m["name"]: m for m in current.get("models", [])}
-        all_model_names = set(current_models.keys())
+        _all_model_names = set(current_models.keys())
 
         for entry in diff_changes.get("added", []):
             path = entry["path"]
@@ -212,7 +212,7 @@ class MigrationManager:
                 sc.reason = f"'{attr}' change is non-breaking"
             elif attr in ("required",) and old_val is not True and new_val is True:
                 sc.breaking = True
-                sc.reason = f"Field made required — may break existing records without defaults"
+                sc.reason = "Field made required — may break existing records without defaults"
             elif attr in ("mode",) and old_val == "new" and new_val == "extend":
                 sc.breaking = True
                 sc.reason = f"Model mode changed from '{old_val}' to '{new_val}'"
@@ -263,7 +263,7 @@ class MigrationManager:
                 field_match = re.match(r"fields\.(\d+)\.(.+)", rest)
                 if field_match:
                     field_idx = field_match.group(1)
-                    field_attr = field_match.group(2)
+                    _field_attr = field_match.group(2)
                     return ("field", f"<model_{idx}>", f"<field_{field_idx}>")
                 return ("field", f"<model_{idx}>", "")
             if rest == "name":

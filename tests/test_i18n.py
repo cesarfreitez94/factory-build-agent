@@ -1,6 +1,5 @@
 """Tests for M14 feat/14.3: i18n string extraction and .pot/.po generation."""
 
-import os
 from pathlib import Path
 
 from fba.i18n_manager import I18nManager, I18nReport
@@ -245,7 +244,7 @@ def test_generate_all_creates_correct_files(tmp_path):
 def test_generate_all_oca_structure(tmp_path):
     mod = _create_module(tmp_path)
     mgr = I18nManager()
-    report = mgr.generate_all(mod, "test_module")
+    _report = mgr.generate_all(mod, "test_module")
 
     i18n_dir = mod / "i18n"
     pot_content = (i18n_dir / "test_module.pot").read_text()

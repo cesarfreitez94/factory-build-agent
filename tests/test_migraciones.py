@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 
-from fba.migration_manager import MigrationManager, MigrationError, MigrationReport
+from fba.migration_manager import MigrationError, MigrationManager, MigrationReport
 
 
 def _make_schema(version="18.0.1.0.0", models=None, views=None, security=None):
