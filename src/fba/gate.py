@@ -132,6 +132,8 @@ class GateRunner:
             return self._check_view_field_check(rule)
         elif rule_type == "acl_coverage":
             return self._check_acl_coverage(rule)
+        elif rule_type == "security_scan":
+            return self._check_security_scan(rule)
         else:
             return RuleResult(
                 passed=False,
@@ -754,4 +756,47 @@ class GateRunner:
             rule=rule_name,
             message=f"All {len(model_names)} models have ACL entries",
             details={"path": schema_path_str, "models_covered": len(model_names)},
+        )
+
+    def _check_security_scan(self, rule: dict) -> RuleResult:
+        from fba.security import run_security_scan
+
+        rule_name = rule.get("rule_name", "security_scan")
+        project_path_str = rule.get("path", ".")
+        exclude_paths = rule.get("exclude_paths", [])
+
+        project_path = self._resolve_path(project_path_str)
+
+        try:
+            report = run_security_scan(project_path, exclude_paths=exclude_paths)
+        except Exception as e:
+            return RuleResult(
+                passed=False,
+                rule=rule_name,
+                message=f"Security scan failed: {e}",
+                details={"error": str(e)},
+            )
+
+        if not report.overall_passed:
+            failed_scanners = [
+                r.scanner for r in report.scanner_results if not r.passed
+            ]
+            return RuleResult(
+                passed=False,
+                rule=rule_name,
+                message=f"Security scan failed: {', '.join(failed_scanners)} ({report.total_findings} total findings)",
+                details={
+                    "total_findings": report.total_findings,
+                    "scanner_results": [r.to_dict() for r in report.scanner_results],
+                },
+            )
+
+        return RuleResult(
+            passed=True,
+            rule=rule_name,
+            message=f"Security scan passed: 0 findings across {len(report.scanner_results)} scanners",
+            details={
+                "total_findings": report.total_findings,
+                "scanners_passed": len(report.scanner_results),
+            },
         )
