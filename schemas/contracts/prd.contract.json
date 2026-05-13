@@ -29,6 +29,11 @@
       "check": {"field": "functional_requirements", "op": "all_items_have_field", "value": "id"}
     },
     {
+      "id": "prd-requirements-have-uuids",
+      "description": "All functional requirements should have a stable UUID (uuid field)",
+      "check": {"field": "functional_requirements", "op": "all_items_have_field", "value": "uuid"}
+    },
+    {
       "id": "prd-stakeholders-have-required-fields",
       "description": "All stakeholders must have name, role, and interest fields",
       "check": {"field": "stakeholders", "op": "all_items_have_fields", "value": ["name", "role", "interest"]}
@@ -44,6 +49,14 @@
     "glossary": {"agent": "documentador", "phase": "documentation"}
   },
   "allowed_mutations": [
+    {
+      "id": "prd-uuids-are-immutable",
+      "description": "UUIDs must not change between versions — once assigned, immutable",
+      "rule": "uuid_immutability",
+      "source_field": "functional_requirements",
+      "stable_id_field": "uuid",
+      "id_field": "id"
+    },
     {
       "id": "prd-no-delete-req-if-referenced",
       "description": "Cannot delete a functional requirement if any SDD model references it",

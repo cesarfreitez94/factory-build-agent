@@ -261,6 +261,10 @@ class ContractEngine:
             violations.extend(
                 self._check_cross_field_no_delete(rule, old_data, new_data)
             )
+        elif rule_type == "uuid_immutability":
+            violations.extend(
+                self._check_uuid_immutability(rule, old_data, new_data)
+            )
 
         return violations
 
@@ -371,6 +375,48 @@ class ContractEngine:
                     "detail": (
                         f"Deleted items from '{source_field}' are still "
                         f"referenced in '{cross_field}'"
+                    ),
+                })
+
+        return violations
+
+    def _check_uuid_immutability(
+        self, rule: dict, old_data: dict, new_data: dict
+    ) -> list[dict]:
+        """Check that UUID stable IDs are immutable across versions."""
+        source_field = rule["source_field"]
+        stable_id_field = rule.get("stable_id_field", "uuid")
+        id_field = rule.get("id_field", "id")
+
+        old_items = old_data.get(source_field, [])
+        new_items = new_data.get(source_field, [])
+
+        if not isinstance(old_items, list) or not isinstance(new_items, list):
+            return []
+
+        old_map = {
+            item.get(id_field, ""): item.get(stable_id_field)
+            for item in old_items
+            if isinstance(item, dict) and item.get(stable_id_field)
+        }
+
+        violations = []
+        for item in new_items:
+            if not isinstance(item, dict):
+                continue
+            logical_id = item.get(id_field, "")
+            old_uuid = old_map.get(logical_id)
+            new_uuid = item.get(stable_id_field)
+            if old_uuid and new_uuid and old_uuid != new_uuid:
+                violations.append({
+                    "id": rule["id"],
+                    "description": rule["description"],
+                    "logical_id": logical_id,
+                    "old_uuid": old_uuid,
+                    "new_uuid": new_uuid,
+                    "detail": (
+                        f"UUID for '{logical_id}' changed: "
+                        f"{old_uuid[:8]}... → {new_uuid[:8]}..."
                     ),
                 })
 
