@@ -17,7 +17,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M10: Framework Meta-Development | ✅ Completado | 2026-05-09 / 2026-05-09 |
 | M11: Foundation Hardening | ✅ Completado | 2026-05-09 / 2026-05-12 |
 | M12: Diff, Dependencies & Trazabilidad | ✅ Completado | 2026-05-12 / 2026-05-13 |
-| M13: Reliability & Quality | ⏳ En progreso | 2026-05-14 / — |
+| M13: Reliability & Quality | ✅ Completado | 2026-05-14 / 2026-05-13 |
 | M14: Odoo Depth | ⏳ Planificado | — / — |
 | M15: Advanced QA | ⏳ Planificado | — / — |
 
@@ -466,7 +466,7 @@ pytest tests/test_dependency_integrity.py tests/test_stable_ids.py
 
 ---
 
-## M13: Reliability & Quality (Capa 2)
+## M13: Reliability & Quality (Capa 2) ✅
 
 **Objetivo**: Agregar seguridad (#1 bandit + pip-audit + detect-secrets), cache de validacion (#8 hash-based),
 pre-commit hooks (#5), y type checking con mypy (#6).

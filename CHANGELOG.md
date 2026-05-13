@@ -7,6 +7,21 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [Unreleased] - 2026-05-13
+
+### M13: Reliability & Quality (Capa 2) — ✅ Completado
+- #129 feat/13.5: `ValidationCache` — cache de validacion hash-based en `.factory/.cache/`. Skip de re-validacion si el hash del artefacto no cambio (SHA256). Coexiste con diff engine de M12. Comando: `fba gate --verbose` muestra cache hits/misses. 22 tests.
+- #127 feat/13.1: Fix meta-desarrollo (pre-parte del milestone): permissions, subtask, git flow corregidos
+- #1 feat/13.2: Security scans: bandit + pip-audit + detect-secrets como gates fail-fast en construction
+- #5 feat/13.3: Pre-commit hooks (ruff, black, bandit) con `.pre-commit-config.yaml`
+- #6 feat/13.4: Mypy strict mode en `pyproject.toml` (exclude vendor/), `mypy src/fba/` pasa sin errores
+- Documentacion: `docs/testing/m13-reliability-quality.md`
+
+### Branch
+`milestone/13.0-reliability-quality` (5/5 feats mergeados)
+
+---
+
 ## [0.9.0] - 2026-05-14
 
 ### M13: Reliability & Quality (Capa 2) — En progreso
