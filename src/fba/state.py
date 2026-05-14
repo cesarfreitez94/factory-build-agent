@@ -1,7 +1,9 @@
 import json
 import os
 import tempfile
+import warnings
 from datetime import datetime, timezone
+from hashlib import sha256
 from pathlib import Path
 from typing import Any, cast
 
@@ -29,12 +31,17 @@ def _atomic_write(dest: Path, content: str) -> None:
         raise
 
 
+class StateConcurrencyWarning(UserWarning):
+    """Warns that state.json may have been modified by another writer."""
+
+
 class StateManager:
     """Manages the Factory Build Agent state machine for a project."""
 
     def __init__(self, project_dir: Path):
         self.project_dir = Path(project_dir).resolve()
         self._factory_dir = self.project_dir / ".factory"
+        self._last_loaded_hash: str | None = None
 
     @property
     def state_path(self) -> Path:
@@ -54,11 +61,49 @@ class StateManager:
             raise FileNotFoundError(
                 f"State file not found: {self.state_path}. Run 'fba init' first."
             )
-        return cast(dict[str, Any], json.loads(self.state_path.read_text()))
+        content = self.state_path.read_text()
+        self._last_loaded_hash = sha256(content.encode()).hexdigest()
+        return cast(dict[str, Any], json.loads(content))
 
     def save(self, state: dict[str, Any]) -> None:
+        if self._last_loaded_hash is not None and self.state_path.exists():
+            current_hash = sha256(self.state_path.read_bytes()).hexdigest()
+            if current_hash != self._last_loaded_hash:
+                warnings.warn(
+                    "state.json changed since it was loaded; concurrent write may overwrite newer state",
+                    StateConcurrencyWarning,
+                    stacklevel=2,
+                )
         content = json.dumps(state, indent=2, ensure_ascii=False)
         _atomic_write(self.state_path, content)
+        self._last_loaded_hash = sha256(content.encode()).hexdigest()
+
+    def concurrency_diagnostics(self) -> tuple[bool, str, str | None]:
+        state_path = self.state_path
+        if not state_path.exists():
+            return False, "state.json not found", "error"
+
+        try:
+            before = sha256(state_path.read_bytes()).hexdigest()
+            json.loads(state_path.read_text())
+            after = sha256(state_path.read_bytes()).hexdigest()
+        except json.JSONDecodeError as e:
+            return False, f"state.json invalid JSON: {e}", "error"
+        except OSError as e:
+            return False, f"state.json could not be read: {e}", "error"
+
+        if before != after:
+            return False, "state.json changed while doctor was reading it", "warning"
+
+        rollback_path = self._factory_dir / ".rollback_state.json"
+        if rollback_path.exists():
+            return False, f"rollback marker present: {rollback_path}", "warning"
+
+        temp_files = sorted(p.name for p in self._factory_dir.glob(".tmp*"))
+        if temp_files:
+            return False, f"atomic temp files present: {', '.join(temp_files)}", "warning"
+
+        return True, "No concurrent write markers detected", None
 
     def transition_to(self, phase: str, skip_gates: bool = False) -> dict[str, Any]:
         state = self.load()

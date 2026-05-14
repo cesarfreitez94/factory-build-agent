@@ -13,6 +13,8 @@ from fba.diff_engine import DiffEngine, DiffError
 from fba.gate import GateError
 from fba.i18n_manager import I18nManager
 from fba.migration_manager import MigrationError, MigrationManager
+from fba.performance import PerformanceError, PerformanceRunner
+from fba.playwright_manager import PlaywrightError, PlaywrightManager
 from fba.schema_manager import SchemaManager
 from fba.stable_ids import StableIdError, StableIdManager
 from fba.state import StateManager, _atomic_write
@@ -789,9 +791,61 @@ def _find_schema(target: Path, schema_name: str) -> Path | None:
 
 @main.command()
 @PROJECT_DIR_OPTION
+@click.option("--output", "-o", default=None, type=click.Path(path_type=Path), help="Output directory for performance reports")
+@click.option("--json", "json_output", is_flag=True, help="Print JSON report to stdout")
+def perf(project_dir: str | None, output: Path | None, json_output: bool) -> None:
+    """Run performance benchmarks for Factory Build Agent artifacts."""
+    target = _resolve_project_dir(project_dir)
+
+    try:
+        report = PerformanceRunner(target).run(output_dir=output)
+    except PerformanceError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    if json_output:
+        click.echo(report.json_path.read_text())
+        return
+
+    click.echo("Performance benchmarks completed.")
+    click.echo(f"  Benchmarks: {report.total_benchmarks}")
+    click.echo(f"  Warnings: {report.warning_count}")
+    click.echo(f"  Report: {report.md_path}")
+
+
+@main.command()
+@click.option("--playwright", is_flag=True, help="Generate Playwright browser automation for Odoo views")
+@click.option("--base-url", default="http://localhost:8069", help="Default Odoo URL used in generated Playwright specs")
+@click.option("--output", "-o", default=None, type=click.Path(path_type=Path), help="Output directory for Playwright artifacts")
+@PROJECT_DIR_OPTION
+def test(playwright: bool, base_url: str, output: Path | None, project_dir: str | None) -> None:
+    """Generate or run advanced QA artifacts for a Factory Build Agent project."""
+    target = _resolve_project_dir(project_dir)
+
+    if not playwright:
+        click.echo("No test backend selected. Use --playwright for browser automation artifacts.")
+        raise SystemExit(1)
+
+    try:
+        manager = PlaywrightManager(target)
+        report = manager.generate(base_url=base_url, output_dir=output)
+    except PlaywrightError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    click.echo("Playwright browser automation generated.")
+    click.echo(f"  Spec: {report.spec_path}")
+    click.echo(f"  Cases: {report.total_cases}")
+    if report.warnings:
+        click.echo(f"  Warnings: {len(report.warnings)}")
+
+
+@main.command()
+@PROJECT_DIR_OPTION
 @click.option("--verbose", "-v", is_flag=True, help="Detailed diagnostic output")
 @click.option("--json", "json_output", is_flag=True, help="Output in JSON format (for CI)")
-def doctor(project_dir: str | None, verbose: bool, json_output: bool) -> None:
+@click.option("--concurrency", is_flag=True, help="Check state.json concurrency safety markers")
+def doctor(project_dir: str | None, verbose: bool, json_output: bool, concurrency: bool) -> None:
     """Diagnose the health of a Factory Build Agent project.
 
     Checks: registry health, state file integrity, writability, and schema alignment.
@@ -888,11 +942,16 @@ def doctor(project_dir: str | None, verbose: bool, json_output: bool) -> None:
             return False, f"Unimplemented types: {', '.join(unimplemented)}", "warning"
         return True, "All schema types have implementations", None
 
+    def _d6_check() -> tuple[bool, str, str | None]:
+        return StateManager(target).concurrency_diagnostics()
+
     _check("registry", _d1_check)
     _check("state_exists", _d2_check)
     _check("state_json", _d3_check)
     _check("writable", _d4_check)
     _check("schema_alignment", _d5_check)
+    if concurrency:
+        _check("concurrency", _d6_check)
 
     if json_output:
         output = {
@@ -1090,7 +1149,7 @@ def migrate_check(project_dir: str | None, previous: Path | None, json_output: b
         click.echo(json.dumps(output, indent=2, ensure_ascii=False))
         raise SystemExit(0)
 
-    click.echo(f"=== Schema Migration Analysis ===")
+    click.echo("=== Schema Migration Analysis ===")
     click.echo(f"Previous: {report.previous_version} -> Current: {report.current_version}")
     click.echo(f"New version: {report.new_version}")
     click.echo(f"Changes: {report.total_changes} ({report.breaking_count} breaking, {report.non_breaking_count} non-breaking)")

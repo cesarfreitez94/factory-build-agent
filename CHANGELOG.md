@@ -7,6 +7,20 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
+## M15: Advanced QA (Capa 4) — 2026-05-13
+
+### Nuevas Capacidades
+- **Playwright**: `fba test --playwright` genera specs browser automation para vistas Odoo form, list y kanban desde `schema.json`
+- **Performance**: `fba perf` ejecuta benchmarks de carga de schema, generacion con `SchemaManager`, escaneo de artefactos, tiempo y memoria pico
+- **Concurrency**: `StateManager` emite warnings si `state.json` cambio desde el ultimo load antes de save
+- **Doctor**: `fba doctor --concurrency` detecta marcadores de rollback, temp files atomicos y cambios durante lectura de `state.json`
+
+### Tests
+- 12 nuevos tests (`test_playwright.py`, `test_performance.py`, `test_concurrency.py`)
+- Issues: #139, #138, #137; epic #140
+
+---
+
 ## M14: Odoo Depth (Capa 3) — 2026-05-13
 
 ### Nuevas Capacidades

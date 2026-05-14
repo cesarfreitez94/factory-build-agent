@@ -19,7 +19,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M12: Diff, Dependencies & Trazabilidad | ✅ Completado | 2026-05-12 / 2026-05-13 |
 | M13: Reliability & Quality | ✅ Completado | 2026-05-14 / 2026-05-13 |
 | M14: Odoo Depth | ✅ Completado | 2026-05-13 / 2026-05-13 |
-| M15: Advanced QA | ⏳ Planificado | — / — |
+| M15: Advanced QA | ✅ Completado | 2026-05-13 / 2026-05-13 |
 
 ---
 
@@ -541,6 +541,8 @@ pytest tests/test_wizards_workflows.py tests/test_migraciones.py tests/test_i18n
 
 ## M15: Advanced QA (Capa 4)
 
+**Estado**: Completado (2026-05-13) — 3/3 feats implementados.
+
 **Objetivo**: Agregar testing avanzado: Playwright para browser automation (#11), performance
 benchmarks (#13), y concurrency safety warnings (#14).
 
@@ -553,9 +555,9 @@ benchmarks de generacion/memoria/tiempo, y deteccion de escrituras concurrentes 
 
 | Orden | Feat | Depende de | Descripcion |
 |-------|------|------------|-------------|
-| 1 | feat/15.1-playwright | M14 feat/14.1 | #11: Browser automation con Playwright para vistas Odoo (form, list, kanban) |
-| 2 | feat/15.2-performance | — | #13: Performance test suite — benchmarks de generacion, memoria, tiempo |
-| 3 | feat/15.3-concurrency | M11 | #14: Concurrency safety warnings — detectar escrituras concurrentes en state.json |
+| 1 | feat/15.1-playwright | M14 feat/14.1 | #139: Browser automation con Playwright para vistas Odoo (form, list, kanban) |
+| 2 | feat/15.2-performance | — | #138: Performance test suite — benchmarks de generacion, memoria, tiempo |
+| 3 | feat/15.3-concurrency | M11 | #137: Concurrency safety warnings — detectar escrituras concurrentes en state.json |
 
 **Depende de**: M14 feat/14.1 (wizards/workflows), M11 (atomicidad para concurrency)
 

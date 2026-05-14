@@ -33,3 +33,9 @@ Los artefactos generados se almacenan en `.factory/`:
 - `sdd.md` - Documento de Diseno del Software
 - `plan.md` - Plan tecnico
 - `tasks.md` - Lista de tareas implementables
+- `playwright/` - Specs y reportes de browser automation generados por `fba test --playwright`
+- `perf/` - Reportes de benchmarks generados por `fba perf`
+
+## Diagnostico
+
+- `fba doctor --concurrency` revisa marcadores de rollback/temp files asociados a escrituras concurrentes de `state.json`.
