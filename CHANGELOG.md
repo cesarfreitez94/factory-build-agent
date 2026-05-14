@@ -9,6 +9,12 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Agent Observer Plugin (M16.4)
+- Plugin de seguimiento y trazabilidad de agentes meta del framework. Observa `.opencode/agents/`, registra hashes de prompts, tokens/costo por agente, invocaciones agente-a-agente, y genera reportes Markdown y JSONL por sesión en `.factory/observability/`.
+
+### Observabilidad OpenCode
+- #154: Agregado plugin local `.opencode/plugins/fba-agent-observer.ts` para monitorear agentes del framework en `.opencode/agents`, atribuir tokens/costo por agente observado, registrar invocaciones agente-a-agente, herramientas y acceso observable a archivos, generando reportes en `.factory/observability/`.
+
 ### Infraestructura de colaboracion
 - #146: Creado marco `.codex/` para trabajar con Codex en el meta-desarrollo del framework, con roles operativos, checklist de inicio M16 y plantilla de brief sin modificar runtime ni templates.
 
