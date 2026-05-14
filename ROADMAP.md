@@ -17,559 +17,248 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M10: Framework Meta-Development | ✅ Completado | 2026-05-09 / 2026-05-09 |
 | M11: Foundation Hardening | ✅ Completado | 2026-05-09 / 2026-05-12 |
 | M12: Diff, Dependencies & Trazabilidad | ✅ Completado | 2026-05-12 / 2026-05-13 |
-| M13: Reliability & Quality | ✅ Completado | 2026-05-14 / 2026-05-13 |
+| M13: Reliability & Quality | ✅ Completado | 2026-05-13 / 2026-05-13 |
 | M14: Odoo Depth | ✅ Completado | 2026-05-13 / 2026-05-13 |
 | M15: Advanced QA | ✅ Completado | 2026-05-13 / 2026-05-13 |
+| M16: Foundation Intelligence | ⏳ Planificado | Pendiente |
+| M17: Semantic Core | ⏳ Planificado | Pendiente |
+| M18: Input & Extension Layer | ⏳ Planificado | Pendiente |
+| M19: Governance & Observability | ⏳ Planificado | Pendiente |
+| M20: Graph Enforcement Gates | ⏳ Planificado | Pendiente |
+| M21: Learning Loop | ⏳ Planificado | Pendiente |
+| M22: Sustainability & Cost Control | ⏳ Planificado | Pendiente |
 
 ---
 
-## M0: Fundacion
-**Objetivo**: Esqueleto del framework funcionando en OpenCode.
+## Milestones completados
 
-**Alcance**: El framework puede inicializar un proyecto Odoo con toda la estructura
-necesaria para empezar a trabajar con agentes.
-
-### Tareas
-
-- [x] Definicion de arquitectura y decisiones de diseno
-- [x] Documentos raiz: AGENTS.md, README.md, ROADMAP.md
-- [x] Repositorio GitHub + git init (incluye issues, templates, workflows)
-- [x] `pyproject.toml` con dependencias (Click, pytest, jsonschema, PyYAML)
-- [x] Estructura de directorios: `src/fba/`, `templates/`, `schemas/`, `tests/`, `docs/`
-- [x] CLI: comando `fba init` que genera estructura `.factory/` y `.opencode/`
-- [x] Templates: `state.json`, `events.jsonl`, comandos slash base, agentes YAML
-- [x] Schemas: `state.schema.json`
-- [x] Orquestador base: slash command `/fba:init` y `orchestrator.yaml`
-- [x] AGENTS.md para proyecto Odoo destino (template que `fba init` copia)
-- [x] CI del framework: GitHub Actions para tests + lint (ci.yml y main-guard.yml)
-- [x] Tests unitarios de CLI y sistema de estado (10 tests, cobertura > 80%)
-- [x] `docs/PRD.md` del propio framework
-
-### Verificacion (M8)
-
-```bash
-# Paralelizacion
-fba construct --parallel 4  # models en paralelo, XML secuencial
-
-# Pipeline resumible
-fba resume                  # continua desde ultima fase completada
-
-# Cache
-fba gate --verbose          # muestra cache hits/misses
-
-# Multi-modulo
-fba init --multi-module
-fba module add fleet_management
-fba module add vehicle_registry --depends fleet_management
-fba module build --all
-```
+El detalle historico de M0-M15 esta archivado en [ROADMAP_CHECK.md](ROADMAP_CHECK.md).
 
 ---
 
-## M1: Elicitacion BABOK + Documentacion
-**Objetivo**: Elicitar requisitos con BABOK y generar PRD.md valido.
+## Roadmap Post-M15: Evolucion por Dependencias
 
-**Alcance**: Un usuario puede describir su idea de modulo Odoo y el framework
-genera un PRD estructurado siguiendo la metodologia BABOK.
+**Fuente**: [fba-mejoras-post-roadmap.md](fba-mejoras-post-roadmap.md)
 
-### Tareas
+**Criterio de integracion**: los bloques del documento se convierten en milestones futuros
+sin marcar completitud prematura. La secuencia prioriza prerrequisitos arquitectonicos:
+primero conocimiento versionado de Odoo, luego grafo semantico, despues ingesta externa,
+gobernanza humana, gates sobre grafo, aprendizaje y control de costo.
 
-- [x] Sub-agente Elicitador (BABOK Elicitation & Collaboration, Requirements Life Cycle)
-- [x] Slash command `/fba:elicit` con flujo completo BABOK single-pass
-- [x] Flujo de preguntas estructurado BABOK:
-  - Contexto del negocio y stakeholders
-  - Objetivos y metas
-  - Requisitos funcionales
-  - Requisitos no funcionales
-  - Restricciones y dependencias
-  - Criterios de aceptacion
-- [x] Sub-agente Documentador: toma output del elicitador y genera PRD.md + prd.json
-- [x] Template PRD.md (Vision, Stakeholders, Requisitos, Criterios, Glosario)
-- [x] Schema JSON para validar PRD (`schemas/prd.schema.json`)
-- [x] State management (`src/fba/state.py`) con StateManager
-- [x] Comandos CLI: `fba status`, `fba transition`, `fba record`, `fba validate`
-- [x] Tests unitarios + integracion (101 tests, flujo elicitacion completo)
+### M16: Foundation Intelligence
 
-### Verificacion
+**Estado**: Planificado.
 
-```
-fba init
-fba transition elicitation   # simula /fba:elicit
-fba transition documentation # simula /fba:specify
-fba validate prd             # valida PRD contra schema
-```
+**Objetivo**: Dar al framework una base de conocimiento version-aware antes de pedirle
+decisiones mas complejas. El Constructor y el Planificador deben saber que existe en un
+modulo Odoo antes de generar o extender codigo.
 
----
+**Alcance**: ModuleRegistry autoindexado, Odoo Pattern Knowledge Base, y aislamiento inicial
+de conocimiento por version de Odoo.
 
-## M2: Planificacion + SDD
-**Objetivo**: Generar SDD y plan tecnico desde PRD.
-
-**Alcance**: A partir de un PRD valido, el framework genera el diseno tecnico
-especifico para Odoo v18 con trazabilidad completa.
-
-### Tareas
-
-- [x] Sub-agente Planificador (arquitectura Odoo v18)
-- [x] Slash command `/fba:plan`
-- [x] Template SDD.md (Arquitectura, Modelos, Vistas, Seguridad, Dependencias, API)
-- [x] Template plan.md (Stack, Fases, Riesgos, Estimaciones)
-- [x] Schema JSON para validar SDD
-- [x] Trazabilidad PRD -> SDD (cada requisito mapeado a componente de diseno)
-- [x] Tests
-
-### Verificacion
-
-```
-/fba:plan  # produce SDD.md + plan.md validos con trazabilidad al PRD
-```
-
----
-
-## M3: Construccion + MVP Completo
-**Objetivo**: Flujo E2E completo con un modulo Odoo v18 funcional.
-
-**Alcance**: El framework completa el ciclo entero: elicitacion -> diseno ->
-construccion -> pruebas -> revision -> CI/CD, produciendo un modulo Odoo v18
-instalable y funcional de "Registro de Vehiculos" (CRUD con modelo + vistas).
-
-M3 se divide en 5 sub-milestones secuenciales para facilitar la implementacion
-incremental. Cada sub-milestone es un deliverable independiente y demostrable.
-
-### Branching
-
-```
-main
-  └── milestone/3.0-construccion-mvp        ← creado desde main
-        ├── feat/3.0a-task-files            ← desde milestone/3.0 (sistema de tasks rediseñado)
-        ├── feat/3.1-constructor-core        ← desde milestone/3.0
-        ├── feat/3.2-constructor-completo    ← desde milestone/3.0 (mergea M3.1 a M3.0 primero)
-        ├── feat/3.3-tester-reviewer         ← desde milestone/3.0 (mergea M3.2 a M3.0 primero)
-        └── feat/3.4-cicd-e2e               ← desde milestone/3.0 (mergea M3.3 a M3.0 primero)
-```
-
-Flujo: `feat/3.0a → PR → merge a milestone/3.0 → feat/3.1 → PR → merge a milestone/3.0 → ...`
-
----
-
-### M3.0a: Task System Redesign — Archivos por Task
-**Objetivo**: Rediseñar el sistema de tasks para generar un archivo por task
-en lugar de un solo `tasks.md`, permitiendo construccion iterativa con commits
-por task.
-
-**Entregables**:
-- [x] Schema `task_index.schema.json` y `task_item.schema.json`
-- [x] Gate `tasks` con rule type `task_files_exist`
-- [x] Comando `/fba:tasks` actualizado: genera `index.json` + `T*.json`
-- [x] Comando `/fba:construct` rediseñado: flujo iterativo task-por-task con sesiones frescas
-- [x] Orquestador actualizado con nueva tabla de fases
-- [x] Tests unitarios del nuevo sistema de tasks
-- [x] Documentacion de testing: `docs/testing/m3-tasks-files.md`
-
-**Depende de**: M2 (SDD + plan)
-
----
-
-### M3.1: Constructor Core — Schema Manager + Modulo Skeleton + Modelos
-**Objetivo**: Introducir el Schema Manager como capa de determinismo entre tasks
-y codigo. Producir `schema.json` (SSOT) y generar `__manifest__.py`, `__init__.py`,
-y modelos Odoo v18 funcionales.
-
-**Arquitectura interna del code-generator**:
-```
-tasks/index.json + T*.json + SDD.md + module_registry.json
-        │
-        ▼
-  Schema Manager (assembly + normalization + registry lookup)
-        │
-        ▼
-  schema.json (SSOT — single source of truth)
-        │
-        ▼
-  Code Renderer (iterative per task, zero interpretation)
-        │
-        ▼
-  odoo_module/
-```
-
-**Entregables**:
-- [x] Agente `code-generator.md` con Schema Manager + Code Renderer
-- [x] Schema `schema.schema.json` para validar el SSOT deterministico
-- [x] Module Registry (`module_registry.json`) con modulos core de Odoo v18
-- [x] Normalizacion de nombres: many2one → `*_id`, many2many → `*_ids`, etc.
-- [x] Comando `/fba:construct` con flujo: assembly schema → validate → render iterativo
-- [x] Gate `schema` validando schema.json contra schema.schema.json
-- [x] Gate `construction` extendido con validacion de consistencia schema ↔ codigo
-- [x] Builder contract: code renderer no interpreta, no renombra, no reestructura
-- [x] Tests unitarios del Schema Manager, Module Registry, y Code Renderer
-- [x] Prueba manual: modulo minimo instalable en Odoo v18
-
-**Depende de**: SDD valido + tasks/index.json (fase `tasks`)
-
----
-
-### M3.2: Constructor Completo — Vistas, Seguridad, Datos
-**Objetivo**: Constructor completo genera todo el modulo Odoo v18 (vistas,
-seguridad, datos demo).
-
-**Entregables**:
-- [x] Constructor extendido para generar vistas (form, list, search, kanban)
-- [x] Constructor extendido para generar seguridad (grupos, ACL, record rules)
-- [x] Constructor extendido para generar datos demo
-- [x] Gate `construction` extendido con validacion de vistas y seguridad (view_coverage, view_field_check, acl_coverage)
-- [x] Esquemas actualizados a Odoo v18: `tree` → `list`, `attrs` deprecado, atributos directos (`invisible`, `widget`, `groups`, `tracking`, `states`)
-- [x] Schema.schema.json extendido con `mail_thread`, `mail_activity`, `manifest.data`, `manifest.demo`, `noupdate`, `category_id`
-- [x] Bugs corregidos: security group assembly, record rule domain, data type hardcodeado, field type case normalization
-- [x] Tests del constructor completo (15 nuevos, 386 total)
-- [x] Documentacion de testing: `docs/testing/m3.2-constructor-completo.md`
-
-**Depende de**: M3.1 (constructor core)
-
----
-
-### M3.3: Tester QA + Code Reviewer
-**Objetivo**: El framework puede probar y revisar el modulo generado automaticamente.
-
-**Entregables**:
-- [x] Agente `tester_qa.md` + comando `/fba:test`
-  - Genera tests Odoo TestCase: modelos, vistas, seguridad
-  - Ejecuta tests y genera `test_report.md`
-  - Gate `testing`
-- [x] Agente `revisor_codigo.md` + comando `/fba:review`
-  - Revisa calidad (PEP8, Odoo conventions)
-  - Revisa seguridad (ACL, validacion, datos sensibles)
-  - Revisa adherencia a specs (PRD/SDD)
-  - Genera `review_report.md`
-  - Gate `review`
-- [x] Tests de los agentes tester y revisor
-- [x] Integracion con el orquestador
-
-**Depende de**: M3.2 (constructor completo — necesita codigo generado)
-
----
-
-### M3.4: CI/CD Manager + Integracion E2E + Docs
-**Objetivo**: Framework completo E2E funcionando, probado y documentado.
-
-**Entregables**:
-- [x] Agente `ci_cd_manager.md` + comando `/fba:ship`
-  - Genera GitHub Actions workflow para el modulo Odoo
-  - Gate `ci_cd`
-- [x] Flujo E2E completo con modulo "Registro de Vehiculos":
-  ```
-  fba init → /fba:elicit → /fba:specify → /fba:plan → /fba:tasks
-  → /fba:construct → /fba:test → /fba:review → /fba:ship
-  ```
-- [x] Tests E2E del framework completo
-- [x] Documentacion de usuario final: `docs/testing/m3-construccion.md`
-- [x] Actualizacion de ROADMAP, CHANGELOG, version (bump a 0.5.0)
-
-**Depende de**: M3.3 (tester y revisor completos)
-
----
-
-### Verificacion Final
-
-```bash
-# Flujo completo desde cero
-fba init
-/fba:elicit "modulo de registro de vehiculos con marca, modelo, ano, placa"
-/fba:specify
-/fba:plan
-/fba:tasks
-/fba:construct
-/fba:test
-/fba:review
-/fba:ship
-# Resultado: modulo Odoo v18 instalable, probado, con PR para merge
-```
-
----
-
-## M4: Sistema de Gates con Agente Revisor de Artefactos
-
-**Objetivo**: Implementar un sistema de gates que bloquee automaticamente
-cualquier transicion de fase si los artefactos de la fase actual no pasan
-validacion. Ninguna fase avanza sin artefactos validados.
-
-**Alcance**: El `StateManager` ejecuta validaciones forzosas antes de cada
-transicion. Si un artefacto no pasa, la transicion se rechaza. Un nuevo agente
-Revisor de Artefactos diagnostica fallos y orquesta el ciclo de correccion.
-El sistema de gates es declarativo: las reglas de validacion se definen en
-`state.json` y son extensibles sin modificar codigo.
-
-### Tareas
-
-- [x] Modulo `src/fba/gate.py`: GateRunner con definiciones de gates declarativas
-  - Gate por fase: schema, content, traceability, cross-artifact, semantic_check
-  - Resultado estructurado con mensajes de error descriptivos
-  - Carga de reglas desde `state.json`
-- [x] Integrar gates en `StateManager.transition_to()`: bloquea transicion si gate falla
-- [x] Comando CLI `fba gate`: validacion manual de gates para diagnostico
-- [x] Sub-agente Revisor de Artefactos (`revisor_artefactos.md`)
-  - Valida artefactos contra sus schemas
-  - Verifica coherencia cross-artifact (ej. trazabilidad PRD→SDD)
-  - Genera reporte de validacion
-  - Soporta ciclo: generar → validar → fallo → corregir → revalidar
-- [x] Sub-agente Validador Semantico (`validador_semantico.md`)
-  - Valida alineacion semantica de artefactos contra la solicitud original
-  - Evalua 5 dimensiones: dominio, objetivos, terminologia, stakeholders, requisitos
-  - Correcciones delegadas al agente dueno en sesion fresca (sin task_id)
-- [x] Slash commands `/fba:gate` y `/fba:semantic-check`
-- [x] Actualizar orquestador: flujo incluye validacion de gates + semantica en cada transicion
-- [x] Actualizar slash commands existentes: cada comando ejecuta `fba validate` + gate check
-- [x] Actualizar `state.schema.json` con seccion `gates` y rule types `semantic_check`
-- [x] Tests unitarios + integracion de gates (incluyendo semantic_check)
-- [x] Guia de testing: `docs/testing/m4-gates.md`
-
-### Verificacion
-
-```bash
-# Gates bloquean transiciones invalidas
-fba transition planning   # sin PRD valido → ERROR: gate documentation failed
-fba gate                   # diagnostica que gate falla y por que
-
-# Flujo con gates
-/fba:specify               # genera PRD
-fba gate                   # ✅ PRD valid
-fba transition planning    # ✅ gate documentation passed, transicion ok
-/fba:plan                  # genera SDD
-fba gate                   # ✅ SDD valid + traceability
-fba transition tasks       # ✅ gate planning passed, transicion ok
-```
-
----
-
-## M5: Bug Fixes & Stability
-
-**Objetivo**: Corregir bugs encontrados post-release de los milestones core (M0-M4).
-
-**Estado**: ✅ Completado
-
-### Tareas
-
-- [x] fix(#71): renombrar agente `constructor` → `code-generator` (JS `constructor` readonly property)
-- [x] fix(#71): renombrar comando `fba:build` → `fba:construct` (`build` es built-in de OpenCode)
-
-### Verificacion
-
-```bash
-fba init --project-dir ../fba-test/v3/
-opencode .  # debe abrir sin error
-```
-
----
-
-## M10: Framework Meta-Development System
-
-**Objetivo**: Implementar un sistema de 3 agentes meta (orchestrator, planner, builder) que
-gestiona el desarrollo del propio framework FBA de forma autonoma, eliminando la friccion
-entre sesiones y permitiendo ejecucion de milestones sin intervencion constante del usuario.
-
-**Alcance**: Los meta-agentes coordinan, planifican y construyen mejoras del framework.
-M11-M15 se ejecutaran usando este sistema (reemplaza a M6-M9 originales).
-
-### Tareas
-
-- [x] `.factory/framework-state.json` — estado persistente entre sesiones
-- [x] `schemas/framework-state.schema.json` — validacion del archivo de estado
-- [x] `.opencode/agents/framework-orchestrator.md` — coordinador (solo delega, no implementa)
-- [x] `.opencode/agents/framework-planner.md` — arquitecto de mejoras (zero suposiciones)
-- [x] `.opencode/agents/framework-builder.md` — constructor autonomo (respeta CONTRIBUTING.md)
-- [x] `.opencode/commands/fba:fw.md` — punto de entrada del sistema meta
-- [x] `.opencode/commands/fba:fw-plan.md` — acceso directo a planificacion
-- [x] `.opencode/commands/fba:fw-build.md` — acceso directo a construccion
-- [x] `docs/fw-brief-template.md` — template de referencia del brief
-- [x] `docs/testing/m10-framework-meta-dev.md` — instrucciones de testing
-- [x] Documentacion actualizada: AGENTS.md, ROADMAP.md, CHANGELOG.md
-
-### Verificacion
-
-```bash
-opencode .                    # abrir el framework en OpenCode
-/fba:fw                       # orchestrator presenta resumen del roadmap
-/fba:fw-plan "[mejora]"       # planner genera fw-brief.md (pregunta si hay ambiguedad)
-/fba:fw-build                 # builder ejecuta el brief segun CONTRIBUTING.md
-pytest                        # todos los tests pasan
-```
-
----
-
-## M11: Foundation Hardening (Capa 1 — inmediato)
-
-**Objetivo**: Corregir bugs criticos (#10 atomicidad, #2 rollback, #7 registry, #9 schema alignment)
-y proporcionar herramienta de diagnostico (`fba doctor`). Este milestone sienta las bases de robustez
-sin las cuales ningun feature nuevo es confiable.
-
-**Alcance**: Atomic writes en state.py/cli.py, rollback en StateManager, validacion de ModuleRegistry,
-comando `fba doctor`, y alineacion de schema con SchemaManager.
-
-**Branch**: `milestone/11.0-foundation-hardening`
+**Branch sugerido**: `milestone/16.0-foundation-intelligence`
 
 ### Feats
 
 | Orden | Feat | Depende de | Descripcion | Estado |
 |-------|------|------------|-------------|--------|
-| 1 | feat/11.1-atomicity-writes | — | #10: Atomic writes en state.py y cli.py con temp file + fsync + os.replace | ✅ |
-| 2 | feat/11.2-rollback-state | feat/11.1 | #2: Rollback en StateManager.transition_to() — revertir state si operacion post-save falla | ✅ |
-| 3 | feat/11.3-registry-robustez | — | #7: ModuleRegistry con validacion, warnings explicitos si no carga, _copy_registry con advertencias | ✅ |
-| 4 | feat/11.4-fba-doctor | feat/11.3 | Comando `fba doctor`: diagnostica registry, state integrity, writability, schema alignment | ✅ |
-| 5 | feat/11.5-wizard-schema-alignment | — | #9: Alinear task_item.schema.json con SchemaManager — deteccion de tipos no implementados con warning | ✅ |
+| 1 | feat/16.1-module-registry-autoindexado | M15 | Indexar modulos Odoo existentes: modelos, vistas, controllers, reportes, seguridad, data, crons, wizards y OWL | ⏳ |
+| 2 | feat/16.2-odoo-version-layer | feat/16.1 | Separar conocimiento `base/`, `v18/`, `v17/` para patrones, deprecaciones y novedades | ⏳ |
+| 3 | feat/16.3-pattern-knowledge-base | feat/16.2 | YAML estructurado de patrones Odoo, ejemplos, naming conventions y anti-patrones consultables por agentes | ⏳ |
 
-**Depende de**: M10 (framework meta-dev system, en uso para construir M11)
-
-### Verificacion
+**Verificacion esperada**
 
 ```bash
-fba doctor                  # diagnostica registry, state integrity, writability
-fba doctor --verbose        # output detallado con todos los componentes
-pytest tests/test_state_atomicity.py tests/test_state_rollback.py
-pytest tests/test_registry_robustez.py tests/test_fba_doctor.py
-pytest tests/test_schema_manager_unknown_types.py
+fba registry index addons/my_module --odoo-version 18.0
+fba registry inspect my_module
+fba patterns query wizard.confirmation --odoo-version 18.0
+pytest tests/test_registry_autoindex.py tests/test_odoo_patterns.py
 ```
 
 ---
 
-## M12: Diff, Dependencies & Trazabilidad (Capa 1 avanzada) ✅
+### M17: Semantic Core
 
-**Estado**: Completado (2026-05-13) — 4/4 feats mergeados.
+**Estado**: Planificado.
 
-**Objetivo**: Implementar diff engine (#15) para trazabilidad de cambios entre artefactos,
-analisis de integridad de dependencias (#12), y formalizar artifact contracts con stable IDs basicos.
+**Objetivo**: Introducir el grafo semantico como memoria compartida y trazable del sistema,
+sin infraestructura externa en la primera iteracion.
 
-**Alcance**: Core diff engine para artefactos JSON, contracts layer, dependency integrity analysis,
-y fundacion de stable IDs (UUID).
+**Alcance**: Ontologia tipada, persistencia en `.factory/graph.json`, queries fundamentales,
+y emision gradual desde agentes existentes.
 
-**Branch**: `milestone/12.0-diff-deps-traza`
-
-### Feats
-
-| Orden | Feat | Depende de | Descripcion |
-|-------|------|------------|-------------|
-| 1 | feat/12.1-diff-engine-core | M11 | #15: Core diff engine para artefactos JSON (PRD, SDD, schema, tasks). Output: changelog estructurado |
-| 2 | feat/12.2-artifact-contracts | M11 | Contracts layer: invariantes, ownership, allowed mutations por artefacto (extiende JSON schemas) |
-| 3 | feat/12.3-dependency-integrity | feat/12.1 | #12: Analisis semantico de dependencias Odoo — detecta modulos innecesarios, mixins sin depends, dependencias circulares |
-| 4 | feat/12.4-stable-ids-foundation | feat/12.2 | Stable IDs (UUID) para entidades clave: requisitos (RF-*), modelos, campos. Solo fundacion |
-
-**Depende de**: M11 (Foundation Hardening)
-
-**Conceptos absorbidos de M6-M9**: Artifact Contracts (old M6.5), Stable IDs (old M6.6)
-
-### Verificacion
-
-```bash
-fba diff prd_v1.json prd_v2.json  # diff engine output: changelog estructurado
-fba validate --contract prd       # valida invariantes de contrato PRD
-fba deps check                    # analiza dependencias Odoo
-pytest tests/test_diff_engine.py tests/test_artifact_contracts.py
-pytest tests/test_dependency_integrity.py tests/test_stable_ids.py
-```
-
----
-
-## M13: Reliability & Quality (Capa 2) ✅
-
-**Objetivo**: Agregar seguridad (#1 bandit + pip-audit + detect-secrets), cache de validacion (#8 hash-based),
-pre-commit hooks (#5), y type checking con mypy (#6).
-
-**Alcance**: Security scans integrados como gates, configuracion pre-commit, mypy strict mode progresivo,
-y cache de validacion hash-based en `.factory/.cache/`.
-
-**Branch**: `milestone/13.0-reliability-quality`
+**Branch sugerido**: `milestone/17.0-semantic-core`
 
 ### Feats
 
 | Orden | Feat | Depende de | Descripcion | Estado |
 |-------|------|------------|-------------|--------|
-| 1 | feat/13.1-fix-meta-flow | M11 | #127: Corregir flujo meta-desarrollo (permissions, subtask: true, git flow) | ✅ |
-| 2 | feat/13.2-security-scans | M11 | #1: Bandit + pip-audit + detect-secrets como gates en construction | ⏳ |
-| 3 | feat/13.3-pre-commit | — | #5: Configuracion de pre-commit hooks (ruff, black, bandit) | ⏳ |
-| 4 | feat/13.4-mypy | — | #6: Configuracion mypy con strict mode progresivo | ⏳ |
-| 5 | feat/13.5-cache-validacion | M11, feat/12.1 | #8: Cache de validacion hash-based en `.factory/.cache/` | ⏳ |
+| 1 | feat/17.1-graph-ontology | M16 | NodeType y EdgeType para BABOK, Impact Mapping, Event Storming, Example Mapping, Odoo, integraciones y calidad | ⏳ |
+| 2 | feat/17.2-graph-store-queries | feat/17.1 | Persistencia JSON + queries: impact_of, is_covered, orphan_nodes, dependents, governing_adrs, full_trace | ⏳ |
+| 3 | feat/17.3-agent-graph-emission | feat/17.2 | Protocolo para que Elicitador, Documentador, Planificador, Constructor, Tester y Revisores emitan nodos/aristas | ⏳ |
+| 4 | feat/17.4-elicitation-method-stack | feat/17.3 | Encadenar BABOK + Impact Mapping + Event Storming + Example Mapping dentro de `/fba:elicit` | ⏳ |
 
-**Depende de**: M11 (Foundation Hardening) y parcialmente M12 feat/12.1 (diff engine para deteccion de cambios)
-
-**Conceptos absorbidos de M6-M9**: Cache de validacion (old M8.3)
-
-### Verificacion
+**Verificacion esperada**
 
 ```bash
-fba gate --security           # ejecuta bandit + pip-audit + detect-secrets
-pre-commit run --all-files    # ruff + black + bandit
-mypy src/fba/                 # strict mode progresivo
-fba gate --verbose            # muestra cache hits/misses
-pytest tests/test_security_scans.py tests/test_cache_validacion.py
+fba graph validate
+fba graph trace req_001
+fba graph impact req_001
+pytest tests/test_semantic_graph.py tests/test_graph_emission.py
 ```
 
 ---
 
-## M14: Odoo Depth (Capa 3) ✅
+### M18: Input & Extension Layer
 
-**Estado**: Completado (2026-05-13) — 3/3 feats mergeados.
+**Estado**: Planificado.
 
-**Objetivo**: Completar la implementacion de wizards/workflows/reports (#9 full), agregar soporte
-de migraciones de schema (#3), e internacionalizacion i18n (#4). Lleva la generacion de modulos
-Odoo a nivel enterprise-grade.
+**Objetivo**: Permitir que FBA consuma conocimiento externo y trabaje tanto sobre modulos
+nuevos como sobre modulos Odoo existentes.
 
-**Alcance**: Implementacion completa en SchemaManager + Code Renderer de wizard, workflow, report,
-controller. Deteccion de cambios de schema con migraciones. Generacion .pot/.po con es_ES default.
+**Alcance**: Connector Specification Layer, Connector Knowledge Model (CKM), modo `CREATE`
+versus `EXTEND`, y compatibilidad de generacion incremental sobre `_inherit`.
 
-**Branch**: `milestone/14.0-odoo-depth`
-
-**Resumen**: Wizards (TransientModel), workflows (ir.actions.server + cron), reports (QWeb + paperformat),
-controllers (http.Controller), migraciones con DiffEngine, e i18n (es_ES + es_CL, OCA-ready).
+**Branch sugerido**: `milestone/18.0-input-extension-layer`
 
 ### Feats
 
 | Orden | Feat | Depende de | Descripcion | Estado |
 |-------|------|------------|-------------|--------|
-| 1 | feat/14.1-wizards-workflows | M11 feat/11.5 | #9: Implementacion completa en SchemaManager + Code Renderer de wizard, workflow, report, controller | ✅ |
-| 2 | feat/14.2-migraciones | feat/12.1 | #3: Deteccion de cambios de schema, produccion de migraciones Odoo, validacion de compatibilidad | ✅ |
-| 3 | feat/14.3-i18n | — | #4: Internacionalizacion — generacion de .pot/.po, es_ES default, OCA readiness | ✅ |
+| 1 | feat/18.1-connector-spec-layer | M17 | Ingesta OpenAPI/Swagger, Postman, GraphQL SDL, HTML/PDF docs, cURL y SDK docs con confidence_score | ⏳ |
+| 2 | feat/18.2-connector-knowledge-model | feat/18.1 | CKM tipado: auth, entities, endpoints, flows, errors, rate limits y retry policy | ⏳ |
+| 3 | feat/18.3-create-extend-mode | M16, feat/18.2 | Detectar `CREATE`/`EXTEND`, indexar modulo base y generar deltas seguros con `_inherit` | ⏳ |
 
-**Depende de**: M11 feat/11.5 (schema alignment), M12 feat/12.1 (diff engine para migraciones)
-
-### Verificacion
+**Verificacion esperada**
 
 ```bash
-fba construct --with-wizards    # genera wizard, workflow, report, controller
-fba migrate --check             # detecta cambios de schema y genera migraciones
-fba i18n extract                # genera .pot/.po con es_ES default
-pytest tests/test_wizards_workflows.py tests/test_migraciones.py tests/test_i18n.py
+fba connector ingest openapi.yaml
+fba init --extend sale
+fba construct --mode extend
+pytest tests/test_connector_ingest.py tests/test_extend_mode.py
 ```
 
 ---
 
-## M15: Advanced QA (Capa 4)
+### M19: Governance & Observability
 
-**Estado**: Completado (2026-05-13) — 3/3 feats implementados.
+**Estado**: Planificado.
 
-**Objetivo**: Agregar testing avanzado: Playwright para browser automation (#11), performance
-benchmarks (#13), y concurrency safety warnings (#14).
+**Objetivo**: Formalizar los puntos donde el humano decide y registrar por que los agentes
+toman decisiones relevantes.
 
-**Alcance**: Browser automation con Playwright para vistas Odoo, performance test suite con
-benchmarks de generacion/memoria/tiempo, y deteccion de escrituras concurrentes en state.json.
+**Alcance**: Checkpoints POST-ELICIT, POST-SPECIFY, POST-PLAN y PRE-SHIP; registro
+`.factory/decisions.jsonl`; exposicion de decisiones para revisores y usuarios.
 
-**Branch**: `milestone/15.0-advanced-qa`
+**Branch sugerido**: `milestone/19.0-governance-observability`
 
 ### Feats
 
-| Orden | Feat | Depende de | Descripcion |
-|-------|------|------------|-------------|
-| 1 | feat/15.1-playwright | M14 feat/14.1 | #139: Browser automation con Playwright para vistas Odoo (form, list, kanban) |
-| 2 | feat/15.2-performance | — | #138: Performance test suite — benchmarks de generacion, memoria, tiempo |
-| 3 | feat/15.3-concurrency | M11 | #137: Concurrency safety warnings — detectar escrituras concurrentes en state.json |
+| Orden | Feat | Depende de | Descripcion | Estado |
+|-------|------|------------|-------------|--------|
+| 1 | feat/19.1-human-checkpoints | M17 | Modelo HumanCheckpoint con resumen, decisiones, riesgos, gaps, accion requerida e impacto estimado | ⏳ |
+| 2 | feat/19.2-agent-decision-log | feat/19.1 | AgentDecision JSONL con rationale, alternativas, nodos del grafo y confidence | ⏳ |
+| 3 | feat/19.3-checkpoint-cli | feat/19.2 | Comandos para presentar/aprobar/corregir checkpoints sin obligar al usuario a leer artefactos completos | ⏳ |
 
-**Depende de**: M14 feat/14.1 (wizards/workflows), M11 (atomicidad para concurrency)
-
-**Conceptos absorbidos de M6-M9**: Playwright (old M9.2)
-
-### Verificacion
+**Verificacion esperada**
 
 ```bash
-fba test --playwright          # browser automation para vistas Odoo
-fba perf                       # ejecuta performance benchmarks
-fba doctor --concurrency       # verifica escrituras concurrentes en state.json
-pytest tests/test_playwright.py tests/test_performance.py tests/test_concurrency.py
+fba checkpoint show POST-PLAN
+fba checkpoint approve POST-PLAN
+fba decisions list --agent planificador
+pytest tests/test_checkpoints.py tests/test_agent_decisions.py
+```
+
+---
+
+### M20: Graph Enforcement Gates
+
+**Estado**: Planificado.
+
+**Objetivo**: Evolucionar los gates actuales hacia validaciones ejecutables sobre grafo
+semantico, codigo y resultados de calidad.
+
+**Alcance**: Architectural Gates, Semantic Gates y Delivery Gates. Estos gates bloquean
+transiciones cuando falta trazabilidad, cobertura, estructura Odoo o confianza suficiente.
+
+**Branch sugerido**: `milestone/20.0-graph-enforcement-gates`
+
+### Feats
+
+| Orden | Feat | Depende de | Descripcion | Estado |
+|-------|------|------------|-------------|--------|
+| 1 | feat/20.1-architectural-gates | M17, M18 | Dependencias circulares, estructura de modulo, bounded contexts, naming y encapsulacion | ⏳ |
+| 2 | feat/20.2-semantic-gates | feat/20.1 | Cobertura requisito-test, criterio-test, riesgo-test y codigo sin trazabilidad | ⏳ |
+| 3 | feat/20.3-delivery-gates | feat/20.2, M19 | Quality score, regression risk e indicadores de baja confianza del agente | ⏳ |
+
+**Verificacion esperada**
+
+```bash
+fba gate --graph
+fba gate --quality-score
+fba graph orphan-nodes SOURCE_CODE
+pytest tests/test_graph_gates.py tests/test_delivery_gates.py
+```
+
+---
+
+### M21: Learning Loop
+
+**Estado**: Planificado.
+
+**Objetivo**: Capturar fallos como senales estructuradas y convertir patrones recurrentes
+en restricciones futuras para Planificador y Constructor.
+
+**Alcance**: FailureSignal, FailurePattern, persistencia en `.factory/failure_patterns.json`,
+reduccion/restauracion de confidence y uso de patrones como contexto de regeneracion.
+
+**Branch sugerido**: `milestone/21.0-learning-loop`
+
+### Feats
+
+| Orden | Feat | Depende de | Descripcion | Estado |
+|-------|------|------------|-------------|--------|
+| 1 | feat/21.1-failure-signals | M20 | Emitir fallos desde tests, gates, compilacion y revision con contexto y version Odoo | ⏳ |
+| 2 | feat/21.2-failure-patterns | feat/21.1 | Consolidar fallos recurrentes con frecuencia, last_seen y mitigacion inyectable | ⏳ |
+| 3 | feat/21.3-regeneration-feedback | feat/21.2 | Planificador y Constructor consultan failure_patterns antes de ejecutar | ⏳ |
+
+**Verificacion esperada**
+
+```bash
+fba failures list
+fba failures explain pattern_001
+fba construct --use-failure-patterns
+pytest tests/test_failure_signals.py tests/test_learning_loop.py
+```
+
+---
+
+### M22: Sustainability & Cost Control
+
+**Estado**: Planificado.
+
+**Objetivo**: Evitar que el framework colapse por costo, tokens o complejidad interna.
+
+**Alcance**: Estimacion previa de tokens/costo, politica de asignacion de modelos por agente,
+presupuestos por fase, y reglas anti-complejidad verificables en documentacion y templates.
+
+**Branch sugerido**: `milestone/22.0-sustainability-cost-control`
+
+### Feats
+
+| Orden | Feat | Depende de | Descripcion | Estado |
+|-------|------|------------|-------------|--------|
+| 1 | feat/22.1-token-cost-estimator | M19 | Estimar tokens/costo antes de ejecutar fases y mostrarlo en checkpoints | ⏳ |
+| 2 | feat/22.2-model-routing-policy | feat/22.1 | Politica configurable por agente: modelos pesados para decisiones, ligeros para tareas repetitivas | ⏳ |
+| 3 | feat/22.3-anti-complexity-contracts | feat/22.2 | Reglas: progressive disclosure, contratos minimos de agentes, YAML para config y Python para logica | ⏳ |
+
+**Verificacion esperada**
+
+```bash
+fba cost estimate --phase all
+fba models policy validate
+fba doctor --complexity
+pytest tests/test_cost_estimator.py tests/test_model_policy.py
 ```
 
 ---
@@ -585,24 +274,29 @@ pytest tests/test_playwright.py tests/test_performance.py tests/test_concurrency
 | Cache de validacion | M8.3 | M13 feat/13.4 |
 | Playwright | M9.2 | M15 feat/15.1 |
 
-### No Transferidos (depriorizados/pospuestos)
+### Reactivados en Roadmap Post-M15
 
 | Concepto old | Milestone old | Razon |
 |-------------|---------------|-------|
-| Orquestador ligero | M6.1 | Posponer — requiere analisis de token consumption post-M11 |
-| Instrucciones agentes <200L | M6.2 | Posponer — sin bloqueo funcional |
-| Knowledge base granular | M6.3 | Posponer — los agentes actuales funcionan |
-| Separacion runtime vs knowledge | M6.4 | Posponer |
-| User Stories | M7.1 | Posponer — BABOK funciona |
-| Code Gen Dual (model/xml) | M7.2, M7.3 | Posponer — code-generator actual funciona |
-| Domain IR en SDD | M7.0 | Posponer |
-| Paralelizacion | M8.1 | Posponer |
-| Pipeline resumible | M8.2 | Posponer |
-| Multi-modulo | M8.4 | Posponer |
-| Testing ORM real | M9.1 | Posponer |
-| Feedback loop | M9.3 | Depende de diff (M12) — podria reactivarse post-M12 |
-| Gate diagnostics | M9.4 | Posponer |
-| Execution sandbox | M9.5 | Posponer |
+| Knowledge base granular | M6.3 | Reactivado en M16 como Odoo Pattern Knowledge Base version-aware |
+| Separacion runtime vs knowledge | M6.4 | Reactivado en M16 mediante `odoo_versions/base` y capas por version |
+| User Stories | M7.1 | Reactivado en M17 como nodo del grafo semantico |
+| Domain IR en SDD | M7.0 | Replanteado en M17 como Semantic Graph + ontologia compartida |
+| Multi-modulo | M8.4 | Reactivado parcialmente en M18 y M20 mediante `CREATE`/`EXTEND`, dependencias y bounded contexts |
+| Feedback loop | M9.3 | Reactivado en M21 sobre FailureSignal y FailurePattern |
+| Gate diagnostics | M9.4 | Reactivado en M19-M20 via checkpoints, decisions log y graph gates |
+
+### Siguen Pospuestos
+
+| Concepto old | Milestone old | Razon |
+|-------------|---------------|-------|
+| Orquestador ligero | M6.1 | Se evaluara despues de M22 con datos reales de costo/tokens |
+| Instrucciones agentes <200L | M6.2 | No bloquea funcionalidad; se mantiene como criterio de sostenibilidad, no como milestone aislado |
+| Code Gen Dual (model/xml) | M7.2, M7.3 | El code-generator actual sigue siendo suficiente; M20 cubrira calidad via gates |
+| Paralelizacion | M8.1 | Pospuesto hasta medir impacto real despues de M22 |
+| Pipeline resumible | M8.2 | Pospuesto; M19 checkpoints y M21 learning reducen primero el riesgo operativo |
+| Testing ORM real | M9.1 | Sigue fuera del alcance inmediato; requiere entorno Odoo real y decision de infraestructura |
+| Execution sandbox | M9.5 | Sigue fuera del alcance del framework core |
 
 ---
 

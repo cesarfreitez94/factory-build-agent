@@ -28,6 +28,9 @@ of this framework is Odoo addons; the framework itself is a development tool.
 - `.factory/events.jsonl` — Append-only event log for audit trail.
 - Concurrency safety: `StateManager` warns when `state.json` changed since load; `fba doctor --concurrency` checks rollback/temp markers.
 - Communication: Hybrid (file-based artifacts + event log + git).
+- Post-M15 planned state artifacts: `.factory/graph.json` for semantic graph persistence,
+  `.factory/decisions.jsonl` for agent decision observability, and
+  `.factory/failure_patterns.json` for structured learning from recurring failures.
 
 ### Agent System
 
@@ -179,6 +182,7 @@ main (PROTEGIDO - solo PR merge)
 | OpenSpec/SpecKit | Native compatibility | Artifact format compatibility, no hard dependencies |
 | Extensibility | Markdown declarative | Add agents/methodologies without modifying core code |
 | SSOT | schema.json | Single source of truth for module structure, eliminates ambiguity between tasks and code |
+| Semantic Memory | Planned graph.json | Post-M15 roadmap introduces a typed semantic graph as shared memory before graph-based gates and learning |
 
 ## Development Phases
 
@@ -196,6 +200,13 @@ See [ROADMAP.md](ROADMAP.md) for full milestone details and progress tracking.
 - **M13: Reliability & Quality** — COMPLETED. Security scans, pre-commit, mypy strict mode, validation cache.
 - **M14: Odoo Depth** — COMPLETED. Wizards, workflows, reports, controllers, migrations, i18n.
 - **M15: Advanced QA** — COMPLETED. Playwright browser automation, performance benchmarks, concurrency safety warnings.
+- **M16: Foundation Intelligence** — PLANNED. ModuleRegistry autoindexado, Odoo Pattern Knowledge Base, version-aware Odoo knowledge.
+- **M17: Semantic Core** — PLANNED. Typed semantic graph, ontology, graph queries, agent graph emission, methodology stack.
+- **M18: Input & Extension Layer** — PLANNED. Connector specification ingestion, CKM, `CREATE` vs `EXTEND` mode.
+- **M19: Governance & Observability** — PLANNED. Human checkpoints and agent decision logs.
+- **M20: Graph Enforcement Gates** — PLANNED. Architectural, semantic, and delivery gates backed by graph queries.
+- **M21: Learning Loop** — PLANNED. Failure signals, failure patterns, and regeneration feedback.
+- **M22: Sustainability & Cost Control** — PLANNED. Token/cost estimation, model routing policy, anti-complexity contracts.
 
 ## Tech Stack
 
