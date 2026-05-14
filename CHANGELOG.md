@@ -11,6 +11,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ### Planificacion
 - #144: Integrado `fba-mejoras-post-roadmap.md` al roadmap oficial como milestones planificados M16-M22.
+- #144: Movido el detalle historico de milestones completados M0-M15 a `ROADMAP_CHECK.md`, dejando `ROADMAP.md` enfocado en el roadmap activo.
 - M16-M22 quedan ordenados por dependencias: Foundation Intelligence, Semantic Core, Input & Extension Layer, Governance & Observability, Graph Enforcement Gates, Learning Loop, y Sustainability & Cost Control.
 - Reactivados conceptos pospuestos de M6-M9 cuando ahora tienen prerequisitos cubiertos; los restantes quedan explicitamente pospuestos.
 
