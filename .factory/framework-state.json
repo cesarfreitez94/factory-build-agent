@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "last_updated": "2026-05-14T03:30:00Z",
+  "last_updated": "2026-05-14T12:00:00Z",
   "last_session": {
     "date": "2026-05-14",
     "agent": "codex",
-    "action": "Implementacion feat/16.1: ModuleRegistry autoindexado con registry_index.json y CLI fba registry index/inspect.",
-    "completed_feats": ["16.1 (#147)"],
-    "pending_feats": ["16.2", "16.3"],
+    "action": "Implementacion local feat/16.3 (#152): Odoo Pattern Knowledge Base poblado en base/v18, schema knowledge_entry.schema.json, tests de integridad y suite completa pasando. Sin push.",
+    "completed_feats": ["16.1 mergeado", "16.2 mergeado", "16.3 implementado localmente"],
+    "pending_feats": ["Merge/PR de feat/16.3 hacia milestone/16.0 segun flujo CONTRIBUTING.md"],
     "blockers": []
   },
   "active_milestone": {
@@ -15,8 +15,13 @@
     "branch": "milestone/16.0-foundation-intelligence",
     "status": "in_progress",
     "feats_total": 3,
-    "feats_done": 1,
-    "feats_pending": ["16.2", "16.3"],
+    "feats_done": 3,
+    "feats_pending": [],
+    "feats": {
+      "16.1": { "status": "merged_to_milestone" },
+      "16.2": { "status": "merged_to_milestone" },
+      "16.3": { "status": "implemented_local", "pr": "#152", "branch": "feat/16.3-pattern-knowledge-base" }
+    },
     "ready_for_user_review": false,
     "start_date": "2026-05-14"
   },

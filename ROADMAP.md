@@ -63,8 +63,8 @@ de conocimiento por version de Odoo.
 | Orden | Feat | Depende de | Descripcion | Estado |
 |-------|------|------------|-------------|--------|
 | 1 | feat/16.1-module-registry-autoindexado | M15 | Indexar modulos Odoo existentes: modelos, vistas, controllers, reportes, seguridad, data, crons, wizards y OWL | ✅ |
-| 2 | feat/16.2-odoo-version-layer | feat/16.1 | Separar conocimiento `base/`, `v18/`, `v17/` para patrones, deprecaciones y novedades | ⏳ |
-| 3 | feat/16.3-pattern-knowledge-base | feat/16.2 | YAML estructurado de patrones Odoo, ejemplos, naming conventions y anti-patrones consultables por agentes | ⏳ |
+| 2 | feat/16.2-odoo-version-layer | feat/16.1 | Separar conocimiento `base/`, `v18/`, `v17/` para patrones, deprecaciones y novedades | ✅ |
+| 3 | feat/16.3-pattern-knowledge-base | feat/16.2 | JSON estructurado de patrones Odoo, ejemplos, naming conventions y anti-patrones consultables por agentes | ✅ |
 
 **Verificacion esperada**
 
@@ -73,7 +73,7 @@ fba registry index addons/my_module --odoo-version 18.0
 fba registry inspect my_module
 test -f .factory/registry_index.json
 fba patterns query wizard.confirmation --odoo-version 18.0
-pytest tests/test_registry_autoindex.py tests/test_odoo_patterns.py
+pytest tests/test_registry_autoindex.py tests/test_odoo_version_layer.py tests/test_knowledge_schema_validation.py
 ```
 
 ---
