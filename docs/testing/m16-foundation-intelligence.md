@@ -14,6 +14,7 @@ M16 introduce la base de conocimiento version-aware del framework:
 - ModuleRegistry autoindexado desde un modulo Odoo existente
 - Capa de conocimiento por version de Odoo (`base/`, `v18/`, `v17/`)
 - Odoo Pattern Knowledge Base consultable por Planificador, Constructor y Revisor
+- Observabilidad local de agentes del framework via plugin OpenCode
 
 ## Pasos para Probar
 
@@ -132,6 +133,9 @@ pytest tests/test_odoo_version_layer.py -v
 # Tests existentes no deben romperse
 pytest tests/test_registry_autoindex.py tests/test_registry_robustez.py tests/test_schema_manager.py -v
 
+# Plugin local de observabilidad OpenCode
+pytest tests/test_opencode_agent_observer_plugin.py -v
+
 # Suite completa
 pytest
 ```
@@ -140,6 +144,17 @@ pytest
 
 ```text
 Todos los tests pasan sin fallos.
+```
+
+### 5. Probar observabilidad local de agentes
+
+**Objetivo**: Confirmar que el plugin OpenCode monitorea solo `.opencode/agents` y genera
+metricas por agente.
+
+**Guia detallada**:
+
+```bash
+docs/testing/m16.4-agent-observer-plugin.md
 ```
 
 ## Troubleshooting

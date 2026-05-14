@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FBA Observability Ledger Entry",
+  "description": "Schema for JSONL ledger entries in observability/sessions/",
+  "type": "object",
+  "required": ["recordedAt", "rootSessionID", "sessionID", "type"],
+  "properties": {
+    "recordedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when entry was recorded"
+    },
+    "rootSessionID": {
+      "type": "string",
+      "pattern": "^ses_[a-zA-Z0-9]+$",
+      "description": "Root session ID (top-level parent)"
+    },
+    "sessionID": {
+      "type": "string",
+      "pattern": "^ses_[a-zA-Z0-9]+$",
+      "description": "Session ID for this entry"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "session.created",
+        "session.updated",
+        "message_agent",
+        "tokens",
+        "tool",
+        "invocation",
+        "ignored_invocation",
+        "observed_agent_invoked_by_unobserved_agent",
+        "reasoning_visible",
+        "unattributed_tokens"
+      ],
+      "description": "Event type discriminator"
+    },
+    "agent": {
+      "type": "string",
+      "description": "Agent name (present for agent-scoped events)"
+    },
+    "messageID": {
+      "type": "string",
+      "description": "Message ID (present for message-scoped events)"
+    },
+    "callID": {
+      "type": "string",
+      "description": "Tool call ID (present for tool events)"
+    },
+    "tool": {
+      "type": "string",
+      "description": "Tool name (present for tool events)"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["completed", "error"],
+      "description": "Tool completion status"
+    },
+    "tokens": {
+      "type": "object",
+      "description": "Token usage breakdown",
+      "properties": {
+        "input": { "type": "integer", "minimum": 0 },
+        "output": { "type": "integer", "minimum": 0 },
+        "reasoning": { "type": "integer", "minimum": 0 },
+        "cacheRead": { "type": "integer", "minimum": 0 },
+        "cacheWrite": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "cost": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Calculated cost in USD"
+    },
+    "chars": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Character count (for reasoning events)"
+    },
+    "text": {
+      "type": "string",
+      "description": "Optional captured text content"
+    },
+    "from": {
+      "type": "string",
+      "description": "Invocation source agent"
+    },
+    "to": {
+      "type": "string",
+      "description": "Invocation target agent"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable invocation description"
+    },
+    "promptHash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{16}$",
+      "description": "Hash of invocation prompt"
+    },
+    "parentID": {
+      "type": "string",
+      "description": "Parent session ID for child sessions"
+    },
+    "title": {
+      "type": "string",
+      "description": "Session title"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason for unattributed tokens"
+    },
+    "input": {
+      "type": "object",
+      "description": "Tool input (only captured if CONFIG.captureToolOutput is true)"
+    }
+  }
+}
