@@ -168,7 +168,9 @@ const isLikelyFilePath = (token: string): boolean => {
   if (!token || token.length < 2) return false
   if (token.startsWith("-")) return false
   if (token.includes("=")) return false
-  return /^\.{0,2}\/[^\s]+$/.test(token) || /\.[a-zA-Z]{2,6}$/.test(token)
+  if (/^\.{1,2}\//.test(token)) return true
+  if (/^\/[^\s]+/.test(token)) return true
+  return /^[a-zA-Z]:\\[^\s]+/.test(token)
 }
 
 const inferBashFiles = (command: string): string[] => {
@@ -336,7 +338,6 @@ export const FbaAgentObserver = async ({ worktree, directory, client }: any) => 
     const dedupKey = `${message.sessionID}:${message.id}`
     if (processedTokenMessages.has(dedupKey)) return
     processedTokenMessages.add(dedupKey)
-
     const agent = messageAgents.get(message.parentID) ?? sessions.get(message.sessionID)?.agent
     const tokens = normalizeTokens(message.tokens)
     const cost = asNumber(message.cost)
