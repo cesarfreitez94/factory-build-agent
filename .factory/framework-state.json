@@ -4,9 +4,9 @@
   "last_session": {
     "date": "2026-05-14",
     "agent": "codex",
-    "action": "Issue #144: integrado fba-mejoras-post-roadmap.md como roadmap post-M15 planificado (M16-M22), sin marcar features futuras como completadas.",
+    "action": "Preparacion M16: creados label milestone/16, epic #148, issue #147 para feat/16.1 y brief local .factory/fw-brief-m16.md.",
     "completed_feats": [],
-    "pending_feats": ["16.1", "16.2", "16.3"],
+    "pending_feats": ["16.1 (#147)", "16.2", "16.3"],
     "blockers": []
   },
   "active_milestone": {
@@ -86,6 +86,12 @@
       "description": "M14 Odoo Depth: 3 feats (wizards/workflows, migraciones, i18n)",
       "created": "2026-05-13T00:00:00Z",
       "status": "completed"
+    },
+    {
+      "file": ".factory/fw-brief-m16.md",
+      "description": "M16 Foundation Intelligence: preparacion de epic #148 y primer feat #147 (ModuleRegistry autoindexado)",
+      "created": "2026-05-14T00:00:00Z",
+      "status": "ready"
     }
   ],
   "pending_decisions": [
