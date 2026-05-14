@@ -1,22 +1,22 @@
 {
   "schema_version": "1.0",
-  "last_updated": "2026-05-13T18:00:00Z",
+  "last_updated": "2026-05-14T00:00:00Z",
   "last_session": {
-    "date": "2026-05-13",
-    "agent": "framework-builder",
-    "action": "M14 Odoo Depth completado: 3/3 feats mergeados (wizards/workflows, migraciones, i18n). 719 tests, 0 fallos.",
-    "completed_feats": ["14.1", "14.2", "14.3"],
-    "pending_feats": [],
+    "date": "2026-05-14",
+    "agent": "codex",
+    "action": "Issue #144: integrado fba-mejoras-post-roadmap.md como roadmap post-M15 planificado (M16-M22), sin marcar features futuras como completadas.",
+    "completed_feats": [],
+    "pending_feats": ["16.1", "16.2", "16.3"],
     "blockers": []
   },
   "active_milestone": {
-    "id": "M15",
-    "name": "Advanced QA (Capa 4)",
-    "branch": "milestone/15.0-advanced-qa",
+    "id": "M16",
+    "name": "Foundation Intelligence",
+    "branch": "milestone/16.0-foundation-intelligence",
     "status": "planned",
     "feats_total": 3,
     "feats_done": 0,
-    "feats_pending": ["15.1", "15.2", "15.3"],
+    "feats_pending": ["16.1", "16.2", "16.3"],
     "ready_for_user_review": false,
     "start_date": null
   },
@@ -32,7 +32,14 @@
     "M12": "completed",
     "M13": "completed",
     "M14": "completed",
-    "M15": "planned"
+    "M15": "completed",
+    "M16": "planned",
+    "M17": "planned",
+    "M18": "planned",
+    "M19": "planned",
+    "M20": "planned",
+    "M21": "planned",
+    "M22": "planned"
   },
   "roadmap_summary": [
     {"milestone":"M0","name":"Fundacion","status":"completed","start_date":"2026-05-02","end_date":"2026-05-02"},
@@ -46,7 +53,14 @@
     {"milestone":"M12","name":"Diff, Dependencies & Trazabilidad (Capa 1 avanzada)","status":"completed","end_date":"2026-05-13","caps":"Diff engine + dependency integrity + artifact contracts + stable IDs"},
     {"milestone":"M13","name":"Reliability & Quality (Capa 2)","status":"completed","start_date":"2026-05-13","end_date":"2026-05-13","caps":"Security scans + cache + pre-commit + mypy"},
     {"milestone":"M14","name":"Odoo Depth (Capa 3)","status":"completed","start_date":"2026-05-13","end_date":"2026-05-13","caps":"Wizards/workflows + migraciones + i18n"},
-    {"milestone":"M15","name":"Advanced QA (Capa 4)","status":"planned","caps":"Playwright + performance benchmarks + concurrency"}
+    {"milestone":"M15","name":"Advanced QA (Capa 4)","status":"completed","start_date":"2026-05-13","end_date":"2026-05-13","caps":"Playwright + performance benchmarks + concurrency"},
+    {"milestone":"M16","name":"Foundation Intelligence","status":"planned","caps":"ModuleRegistry autoindexado + Odoo Pattern Knowledge Base + version-aware knowledge"},
+    {"milestone":"M17","name":"Semantic Core","status":"planned","caps":"Semantic graph + ontologia + graph queries + agent emission"},
+    {"milestone":"M18","name":"Input & Extension Layer","status":"planned","caps":"Connector specification ingestion + CKM + CREATE/EXTEND mode"},
+    {"milestone":"M19","name":"Governance & Observability","status":"planned","caps":"Human checkpoints + agent decision observability"},
+    {"milestone":"M20","name":"Graph Enforcement Gates","status":"planned","caps":"Architectural + semantic + delivery gates over graph/code/results"},
+    {"milestone":"M21","name":"Learning Loop","status":"planned","caps":"Failure signals + failure patterns + regeneration feedback"},
+    {"milestone":"M22","name":"Sustainability & Cost Control","status":"planned","caps":"Token/cost estimation + model routing + anti-complexity contracts"}
   ],
   "open_briefs": [
     {
