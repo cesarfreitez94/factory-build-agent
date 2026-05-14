@@ -7,12 +7,21 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [Unreleased] - 2026-05-14
+## [Unreleased]
 
 ### Infraestructura de colaboracion
 - #146: Creado marco `.codex/` para trabajar con Codex en el meta-desarrollo del framework, con roles operativos, checklist de inicio M16 y plantilla de brief sin modificar runtime ni templates.
 
-### M16: Foundation Intelligence
+---
+
+## M16: Foundation Intelligence — 2026-05-14
+
+### Resumen
+- ModuleRegistry autoindexado con `fba registry index/inspect`
+- Odoo version layer (`base/`, `v18/`, `v17/`) + CLI patterns
+- Odoo Pattern Knowledge Base con JSON patterns, schema y tests
+
+### Feats completados
 - #147 feat/16.1: `fba registry index/inspect` autoindexa addons Odoo individuales o carpetas `addons/`, mezcla resultados con `.factory/module_registry.json` dando prioridad al indice nuevo, y persiste el detalle profundo en `.factory/registry_index.json`.
 - #151 feat/16.2: Capa version-aware `src/fba/odoo_versions/` con resolver `base/` + `v18/`/`v17/`, merge version-sobre-base y CLI `fba patterns query/list`.
 - #152 feat/16.3: Odoo Pattern Knowledge Base poblado con entradas JSON de patrones, deprecaciones y novedades para Odoo, schema `knowledge_entry.schema.json` y tests de integridad/cobertura.

@@ -20,7 +20,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M13: Reliability & Quality | ✅ Completado | 2026-05-13 / 2026-05-13 |
 | M14: Odoo Depth | ✅ Completado | 2026-05-13 / 2026-05-13 |
 | M15: Advanced QA | ✅ Completado | 2026-05-13 / 2026-05-13 |
-| M16: Foundation Intelligence | 🔄 En progreso | 2026-05-14 |
+| M16: Foundation Intelligence | ✅ Completado | 2026-05-14 / 2026-05-14 |
 | M17: Semantic Core | ⏳ Planificado | Pendiente |
 | M18: Input & Extension Layer | ⏳ Planificado | Pendiente |
 | M19: Governance & Observability | ⏳ Planificado | Pendiente |
@@ -47,7 +47,7 @@ gobernanza humana, gates sobre grafo, aprendizaje y control de costo.
 
 ### M16: Foundation Intelligence
 
-**Estado**: En progreso.
+**Estado**: Completado.
 
 **Objetivo**: Dar al framework una base de conocimiento version-aware antes de pedirle
 decisiones mas complejas. El Constructor y el Planificador deben saber que existe en un
