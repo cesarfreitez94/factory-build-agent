@@ -1,0 +1,14 @@
+{
+  "orm.batch.operations": {
+    "key": "orm.batch.operations",
+    "category": "novelties",
+    "title": "ORM Batch Operations en Odoo 18",
+    "description": "Odoo 18 introduce operaciones batch en el ORM para crear/actualizar multiples registros de forma eficiente usando write_batch y create_batch.",
+    "applies_to": ["model"],
+    "since_version": "18.0",
+    "deprecated_in": null,
+    "examples": ["model.write_batch(vals_list)", "model.create_batch(vals_list)"],
+    "anti_patterns": ["for record in records: record.write(vals)"],
+    "related_keys": ["model.naming", "performance.optimization"]
+  }
+}

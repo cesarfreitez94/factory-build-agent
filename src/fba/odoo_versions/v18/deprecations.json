@@ -1,0 +1,14 @@
+{
+  "ir.actions.todo": {
+    "key": "ir.actions.todo",
+    "category": "deprecations",
+    "title": "ir.actions.todo deprecado en Odoo 18",
+    "description": "El modelo ir.actions.todo fue removido en Odoo 18. Usar ir.actions.server con estado 'code' o actividades del sistema en su lugar.",
+    "applies_to": ["model", "workflow"],
+    "since_version": null,
+    "deprecated_in": "18.0",
+    "examples": [],
+    "anti_patterns": ["ir.actions.todo"],
+    "related_keys": ["ir.actions.server", "mail.activity"]
+  }
+}

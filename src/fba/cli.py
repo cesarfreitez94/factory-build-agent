@@ -1332,3 +1332,93 @@ def i18n_extract(project_dir: str | None, module_path: Path | None, output: Path
 
 
 main.add_command(_i18n_group)
+
+
+_patterns_group = click.group("patterns")(lambda: None)
+_patterns_group.help = "Odoo version-aware knowledge queries."
+
+
+@_patterns_group.command("query")
+@click.argument("key")
+@click.option("--odoo-version", default="18.0", help="Odoo version for knowledge resolution (default: 18.0)")
+@click.option("--format", "-f", "output_format", type=click.Choice(["text", "json"]), default="text", help="Output format (text or json)")
+def patterns_query(key: str, odoo_version: str, output_format: str) -> None:
+    """Query a knowledge entry by key from the version-aware Odoo knowledge base.
+
+    \b
+    Examples:
+      fba patterns query model.naming
+      fba patterns query ir.actions.todo --odoo-version 18.0 --format json
+    """
+    from fba.odoo_versions import VersionKnowledgeResolver
+
+    resolver = VersionKnowledgeResolver(odoo_version=odoo_version)
+    entry = resolver.query(key)
+
+    if entry is None:
+        click.echo(f"Key '{key}' not found for Odoo {odoo_version}.")
+        raise SystemExit(1)
+
+    if output_format == "json":
+        click.echo(json.dumps(entry, indent=2, ensure_ascii=False))
+        return
+
+    click.echo(f"Key:         {entry.get('key', key)}")
+    click.echo(f"Category:    {entry.get('category', 'unknown')}")
+    click.echo(f"Title:       {entry.get('title', '')}")
+    click.echo(f"Description: {entry.get('description', '')}")
+    if entry.get("applies_to"):
+        click.echo(f"Applies to:  {', '.join(entry['applies_to'])}")
+    if entry.get("since_version"):
+        click.echo(f"Since:       {entry['since_version']}")
+    if entry.get("deprecated_in"):
+        click.echo(f"Deprecated:  {entry['deprecated_in']}")
+    if entry.get("examples"):
+        click.echo("Examples:")
+        for ex in entry["examples"]:
+            click.echo(f"  - {ex}")
+    if entry.get("anti_patterns"):
+        click.echo("Anti-patterns:")
+        for ap in entry["anti_patterns"]:
+            click.echo(f"  - {ap}")
+    if entry.get("related_keys"):
+        click.echo(f"Related:     {', '.join(entry['related_keys'])}")
+
+
+@_patterns_group.command("list")
+@click.option("--odoo-version", default="18.0", help="Odoo version for knowledge resolution (default: 18.0)")
+@click.option("--category", default=None, help="Filter by category (patterns, deprecations, novelties)")
+@click.option("--format", "-f", "output_format", type=click.Choice(["text", "json"]), default="text", help="Output format (text or json)")
+def patterns_list(odoo_version: str, category: str | None, output_format: str) -> None:
+    """List available knowledge keys from the version-aware Odoo knowledge base.
+
+    \b
+    Examples:
+      fba patterns list
+      fba patterns list --category deprecations --odoo-version 18.0
+    """
+    from fba.odoo_versions import VersionKnowledgeResolver
+
+    resolver = VersionKnowledgeResolver(odoo_version=odoo_version)
+    keys = resolver.list_keys(category=category)
+
+    if output_format == "json":
+        click.echo(json.dumps(keys, indent=2, ensure_ascii=False))
+        return
+
+    if not keys:
+        click.echo(f"No entries found for Odoo {odoo_version}")
+        if category:
+            click.echo(f"(category filter: {category})")
+        return
+
+    click.echo(f"Knowledge keys for Odoo {odoo_version}:")
+    if category:
+        click.echo(f"(category: {category})")
+    for k in keys:
+        entry = resolver.query(k)
+        title = entry.get("title", "") if entry else ""
+        click.echo(f"  {k}  — {title}")
+
+
+main.add_command(_patterns_group)

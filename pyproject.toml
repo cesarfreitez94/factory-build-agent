@@ -44,7 +44,7 @@ fba = "fba.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-fba = ["../templates/**/*", "../schemas/**/*"]
+fba = ["../templates/**/*", "../schemas/**/*", "odoo_versions/**/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

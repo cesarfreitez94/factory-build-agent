@@ -38,7 +38,7 @@ ROADMAP.md contiene M16 y sus feats planificados.
 
 **Objetivo**: Indexar un modulo Odoo existente sin intervencion manual.
 
-**Comando esperado**:
+**Comando**:
 
 ```bash
 fba registry index addons/my_module --odoo-version 18.0
@@ -70,26 +70,66 @@ inspeccionar estructura existente antes de planificar, extender o revisar un mod
 
 **Objetivo**: Confirmar que el framework carga patrones comunes y especificos de Odoo v18.
 
-**Comando esperado**:
+**Comandos**:
 
 ```bash
-fba patterns query wizard.confirmation --odoo-version 18.0
+# Listar todas las claves de conocimiento disponibles para Odoo 18.0
+fba patterns list --odoo-version 18.0
+
+# Consultar una entrada de conocimiento especifica en formato texto
+fba patterns query model.naming --odoo-version 18.0
+
+# Consultar en formato JSON
+fba patterns query model.naming --odoo-version 18.0 --format json
+
+# Consultar una clave inexistente (debe fallar con codigo 1)
+fba patterns query nonexistent.key --odoo-version 18.0
+
+# Filtrar por categoria de deprecaciones
+fba patterns list --category deprecations --odoo-version 18.0
+
+# Usar resolver con Odoo 17.0 (debe mostrar solo entradas base, no v18)
+fba patterns list --odoo-version 17.0
 ```
 
 **Resultado esperado**:
 
 ```text
-El resultado devuelve un patron aplicable a Odoo 18.0 con ejemplos y anti-patrones relacionados.
+fba patterns list --odoo-version 18.0:
+  4 knowledge keys mostradas: model.naming, view.form.structure, ir.actions.todo, orm.batch.operations
+
+fba patterns query model.naming --odoo-version 18.0:
+  Muestra entrada con since_version=18.0, ejemplos especificos de v18
+
+fba patterns query model.naming --odoo-version 18.0 --format json:
+  Retorna JSON valido con la entrada resuelta
+
+fba patterns query nonexistent.key:
+  Error: Key not found, exit code 1
+
+fba patterns list --category deprecations:
+  Solo muestra ir.actions.todo
+
+fba patterns list --odoo-version 17.0:
+  Solo muestra model.naming y view.form.structure (entradas base)
+  NO muestra ir.actions.todo ni orm.batch.operations (especificas de v18)
 ```
 
 ### 4. Ejecutar tests automatizados
 
 **Objetivo**: Validar el comportamiento nuevo con tests unitarios e integracion.
 
-**Comando esperado**:
+**Comandos**:
 
 ```bash
-pytest tests/test_registry_autoindex.py tests/test_odoo_patterns.py
+# Tests del version layer
+pytest tests/test_odoo_version_layer.py -v
+
+# Tests existentes no deben romperse
+pytest tests/test_registry_autoindex.py tests/test_registry_robustez.py tests/test_schema_manager.py -v
+
+# Suite completa
+pytest
 ```
 
 **Resultado esperado**:
@@ -104,6 +144,11 @@ Todos los tests pasan sin fallos.
 
 Verifica que estas usando una version posterior a `feat/16.1-module-registry-autoindexado`
 o ejecuta `pip install -e .[dev]` desde el branch correcto.
+
+### `fba patterns` no existe
+
+Verifica que estas en el branch `feat/16.2-odoo-version-layer` o posterior.
+Ejecuta `pip install -e .[dev]` para reinstalar el paquete con el nuevo grupo de comandos.
 
 ### El addon de prueba no tiene todos los artefactos
 

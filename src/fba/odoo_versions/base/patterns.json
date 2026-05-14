@@ -1,0 +1,26 @@
+{
+  "model.naming": {
+    "key": "model.naming",
+    "category": "patterns",
+    "title": "Odoo Model Naming Convention",
+    "description": "Los nombres de modelo usan dot notation en lowercase (ej. res.partner). Los modelos custom deben usar el prefijo x_.",
+    "applies_to": ["model"],
+    "since_version": null,
+    "deprecated_in": null,
+    "examples": ["res.partner", "sale.order", "x_custom.model"],
+    "anti_patterns": ["ResPartner", "saleorder", "custom_model"],
+    "related_keys": ["field.naming", "module.structure"]
+  },
+  "view.form.structure": {
+    "key": "view.form.structure",
+    "category": "patterns",
+    "title": "Odoo Form View Structure",
+    "description": "Las vistas form usan <form> como raiz, organizan campos en <sheet>, opcionalmente con <header> para botones de estado. Usar <group> para layouts y <notebook> para tabs.",
+    "applies_to": ["view"],
+    "since_version": null,
+    "deprecated_in": null,
+    "examples": ["<form><sheet><group>...</group></sheet></form>"],
+    "anti_patterns": ["<form><div>...</div></form>"],
+    "related_keys": ["view.tree.structure", "view.search.structure"]
+  }
+}

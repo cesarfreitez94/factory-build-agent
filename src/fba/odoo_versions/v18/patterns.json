@@ -1,0 +1,14 @@
+{
+  "model.naming": {
+    "key": "model.naming",
+    "category": "patterns",
+    "title": "Odoo v18 Model Naming Convention",
+    "description": "En Odoo 18, los nombres de modelo usan dot notation en lowercase. Ademas se recomienda usar el namespace propio del modulo como prefijo para modelos custom (ej. mi_modulo.mi_modelo).",
+    "applies_to": ["model"],
+    "since_version": "18.0",
+    "deprecated_in": null,
+    "examples": ["res.partner", "sale.order", "mi_modulo.mi_modelo"],
+    "anti_patterns": ["ResPartner", "mi_modulo_mi_modelo"],
+    "related_keys": ["field.naming", "module.structure"]
+  }
+}
