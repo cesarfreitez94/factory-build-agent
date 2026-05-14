@@ -53,8 +53,10 @@ gobernanza humana, gates sobre grafo, aprendizaje y control de costo.
 decisiones mas complejas. El Constructor y el Planificador deben saber que existe en un
 modulo Odoo antes de generar o extender codigo.
 
-**Alcance**: ModuleRegistry autoindexado, Odoo Pattern Knowledge Base, y aislamiento inicial
-de conocimiento por version de Odoo.
+**Alcance**: ModuleRegistry autoindexado, Odoo Pattern Knowledge Base, aislamiento inicial
+de conocimiento por version de Odoo, y observabilidad local de agentes del framework.
+
+**Relacionado**: M23: CAFL-Plugins — canal flexible para ideas de plugins sin roadmap estricto.
 
 **Branch sugerido**: `milestone/16.0-foundation-intelligence`
 
@@ -65,16 +67,32 @@ de conocimiento por version de Odoo.
 | 1 | feat/16.1-module-registry-autoindexado | M15 | Indexar modulos Odoo existentes: modelos, vistas, controllers, reportes, seguridad, data, crons, wizards y OWL | ✅ |
 | 2 | feat/16.2-odoo-version-layer | feat/16.1 | Separar conocimiento `base/`, `v18/`, `v17/` para patrones, deprecaciones y novedades | ✅ |
 | 3 | feat/16.3-pattern-knowledge-base | feat/16.2 | JSON estructurado de patrones Odoo, ejemplos, naming conventions y anti-patrones consultables por agentes | ✅ |
+| 4 | feat/16.4-agent-observer-plugin | M16 | Plugin local de OpenCode para medir tokens/costo por agente observado en `.opencode/agents`, invocaciones, herramientas y archivos observables; excluye `templates/.opencode/agents` | ✅ 2026-05-14 |
+
+---
+
+### M23: CAFL-Plugins
+
+**Estado**: En desarrollo.
+
+**Objetivo**: Canal flexible para ideas de plugins sin roadmap estricto. Mantiene un enfoque pragmático donde cada plugin se evalúa por su valor y viabilidad antes de asignarle un milestone formal.
+
+**Branch sugerido**: `milestone/23.0-cafl-plugins`
+
+### Feats
+
+| Orden | Feat | Depende de | Descripcion | Estado |
+|-------|------|------------|-------------|--------|
+| 1 | feat/16.4-agent-observer-plugin | M16 | Plugin de seguimiento y trazabilidad de agentes meta del framework. Observa `.opencode/agents/`, registra hashes de prompts, tokens/costo por agente, invocaciones agente-a-agente, y genera reportes Markdown y JSONL por sesion en `.factory/observability/` | ✅ 2026-05-14 |
 
 **Verificacion esperada**
 
 ```bash
-fba registry index addons/my_module --odoo-version 18.0
-fba registry inspect my_module
-test -f .factory/registry_index.json
-fba patterns query wizard.confirmation --odoo-version 18.0
-pytest tests/test_registry_autoindex.py tests/test_odoo_version_layer.py tests/test_knowledge_schema_validation.py
+ls -la .factory/observability/
+pytest tests/test_opencode_agent_observer_plugin.py
 ```
+
+---
 
 ---
 
