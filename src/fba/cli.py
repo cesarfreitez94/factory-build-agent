@@ -1149,7 +1149,7 @@ def migrate_check(project_dir: str | None, previous: Path | None, json_output: b
         click.echo(json.dumps(output, indent=2, ensure_ascii=False))
         raise SystemExit(0)
 
-    click.echo(f"=== Schema Migration Analysis ===")
+    click.echo("=== Schema Migration Analysis ===")
     click.echo(f"Previous: {report.previous_version} -> Current: {report.current_version}")
     click.echo(f"New version: {report.new_version}")
     click.echo(f"Changes: {report.total_changes} ({report.breaking_count} breaking, {report.non_breaking_count} non-breaking)")
