@@ -9,7 +9,11 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased] - 2026-05-14
 
+### Infraestructura de colaboracion
+- #146: Creado marco `.codex/` para trabajar con Codex en el meta-desarrollo del framework, con roles operativos, checklist de inicio M16 y plantilla de brief sin modificar runtime ni templates.
+
 ### Planificacion
+- #148/#147: Preparado arranque de M16 con epic, primer issue funcional (`feat/16.1-module-registry-autoindexado`) y brief local `.factory/fw-brief-m16.md`.
 - #144: Integrado `fba-mejoras-post-roadmap.md` al roadmap oficial como milestones planificados M16-M22.
 - #144: Movido el detalle historico de milestones completados M0-M15 a `ROADMAP_CHECK.md`, dejando `ROADMAP.md` enfocado en el roadmap activo.
 - M16-M22 quedan ordenados por dependencias: Foundation Intelligence, Semantic Core, Input & Extension Layer, Governance & Observability, Graph Enforcement Gates, Learning Loop, y Sustainability & Cost Control.
