@@ -96,7 +96,8 @@ fba patterns list --odoo-version 17.0
 
 ```text
 fba patterns list --odoo-version 18.0:
-  4 knowledge keys mostradas: model.naming, view.form.structure, ir.actions.todo, orm.batch.operations
+  Entre 50 y 80 knowledge keys mostradas, incluyendo model.naming, view.form.structure,
+  wizard.confirmation, ir.actions.todo y orm.batch.operations
 
 fba patterns query model.naming --odoo-version 18.0:
   Muestra entrada con since_version=18.0, ejemplos especificos de v18
@@ -108,10 +109,10 @@ fba patterns query nonexistent.key:
   Error: Key not found, exit code 1
 
 fba patterns list --category deprecations:
-  Solo muestra ir.actions.todo
+  Muestra 5-10 deprecaciones de la capa v18, incluyendo ir.actions.todo
 
 fba patterns list --odoo-version 17.0:
-  Solo muestra model.naming y view.form.structure (entradas base)
+  Muestra las entradas base de patrones Odoo
   NO muestra ir.actions.todo ni orm.batch.operations (especificas de v18)
 ```
 
@@ -122,6 +123,9 @@ fba patterns list --odoo-version 17.0:
 **Comandos**:
 
 ```bash
+# Validacion del Knowledge Base poblado en feat/16.3
+pytest tests/test_knowledge_schema_validation.py -v
+
 # Tests del version layer
 pytest tests/test_odoo_version_layer.py -v
 

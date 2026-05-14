@@ -3,12 +3,72 @@
     "key": "orm.batch.operations",
     "category": "novelties",
     "title": "ORM Batch Operations en Odoo 18",
-    "description": "Odoo 18 introduce operaciones batch en el ORM para crear/actualizar multiples registros de forma eficiente usando write_batch y create_batch.",
+    "description": "En Odoo 18, FBA debe aprovechar create con lista de valores y write sobre recordsets para que el ORM procese defaults, computes, access checks y prefetch en lotes eficientes.",
     "applies_to": ["model"],
     "since_version": "18.0",
     "deprecated_in": null,
-    "examples": ["model.write_batch(vals_list)", "model.create_batch(vals_list)"],
+    "examples": ["model.create(vals_list)", "records.write({'state': 'done'})"],
     "anti_patterns": ["for record in records: record.write(vals)"],
-    "related_keys": ["model.naming", "performance.optimization"]
+    "related_keys": ["performance.create.multi", "performance.prefetch.recordsets"]
+  },
+  "orm.search.display.name": {
+    "key": "orm.search.display.name",
+    "category": "novelties",
+    "title": "_search_display_name in Odoo 18",
+    "description": "Odoo 18 implementa la busqueda por nombre como _search_display_name, alineandola con otros campos y reemplazando la necesidad de generar name_get para busqueda.",
+    "applies_to": ["model"],
+    "since_version": "18.0",
+    "deprecated_in": null,
+    "examples": ["def _search_display_name(self, operator, value): return [('reference', operator, value)]"],
+    "anti_patterns": ["Custom name_get used to influence search domains", "Search override unrelated to display_name semantics"],
+    "related_keys": ["orm.name_get.deprecated", "model.description.rec_name"]
+  },
+  "security.combined.access.methods": {
+    "key": "security.combined.access.methods",
+    "category": "novelties",
+    "title": "Combined Access Methods",
+    "description": "Odoo 18 agrega metodos que combinan access rights y record rules para decisiones de acceso efectivas, utiles antes de exponer acciones, exports o endpoints.",
+    "applies_to": ["security"],
+    "since_version": "18.0",
+    "deprecated_in": null,
+    "examples": ["records.check_access('read')", "records._filtered_access('write')"],
+    "anti_patterns": ["check_access_rights alone before reading actual records", "sudo used to test user-level availability"],
+    "related_keys": ["security.access.api.combined", "permission.acl.matrix"]
+  },
+  "i18n.environment.translations": {
+    "key": "i18n.environment.translations",
+    "category": "novelties",
+    "title": "Translations from Environment",
+    "description": "Odoo 18 hace disponibles traducciones desde Environment, lo que permite codigo generado mas directo cuando el texto debe resolverse con el idioma y contexto activos.",
+    "applies_to": ["model"],
+    "since_version": "18.0",
+    "deprecated_in": null,
+    "examples": ["self.env._('Approved')", "env._('Missing required value')"],
+    "anti_patterns": ["Manual ir.translation lookup for normal messages", "Hardcoded language-specific branches"],
+    "related_keys": ["i18n.environment.lookup", "i18n.module.files"]
+  },
+  "release.mobile.search.panel": {
+    "key": "release.mobile.search.panel",
+    "category": "novelties",
+    "title": "Mobile Search Panel Improvements",
+    "description": "Las release notes de Odoo 18 destacan gestion mas directa de filtros en movil; los modulos generados deben mantener search views simples y utiles en pantallas pequenas.",
+    "applies_to": ["view"],
+    "since_version": "18.0",
+    "deprecated_in": null,
+    "examples": ["Primary filters first in <search>", "Small number of group-by filters"],
+    "anti_patterns": ["Long filter lists with similar names", "Required workflow hidden behind desktop-only search behavior"],
+    "related_keys": ["view.searchpanel.mobile", "view.search.structure"]
+  },
+  "orm.date.part.grouping": {
+    "key": "orm.date.part.grouping",
+    "category": "novelties",
+    "title": "Date-Part Grouping Availability",
+    "description": "En Odoo 18 estan disponibles agrupaciones por partes numericas de fecha en read_group, _read_group y dominios, utiles para reportes con periodos calendario.",
+    "applies_to": ["model"],
+    "since_version": "18.0",
+    "deprecated_in": null,
+    "examples": ["read_group(domain, ['amount_total:sum'], ['date_order:month'])", "groupby=['date_order:year_number']"],
+    "anti_patterns": ["Manual Python grouping of thousands of dated records", "String slicing dates for reporting buckets"],
+    "related_keys": ["performance.read_group", "view.search.structure"]
   }
 }
