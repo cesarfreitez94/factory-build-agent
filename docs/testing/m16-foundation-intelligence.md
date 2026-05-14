@@ -48,8 +48,22 @@ fba registry inspect my_module
 **Resultado esperado**:
 
 ```text
-El registry detecta modelos, campos, vistas, controllers, seguridad, data, crons, wizards y OWL components cuando existan.
-La salida incluye odoo_version y registry_version.
+El comando actualiza `.factory/module_registry.json` con un resumen compatible con `SchemaManager`.
+El comando genera o actualiza `.factory/registry_index.json` con el indice profundo.
+El registry detecta modelos, campos, vistas, controllers, reportes, seguridad, data/demo,
+crons, wizards y OWL components cuando existan.
+La salida incluye odoo_version, registry_version, conteos por artefacto y modelos detectados.
+Si se ejecuta sobre una carpeta `addons/`, indexa todos los modulos hijos con `__manifest__.py`.
+Si un modulo ya existe en el registry, la version recien indexada tiene prioridad; si no cambia,
+el archivo no se reescribe.
+```
+
+**Uso del indice profundo**:
+
+```text
+`.factory/module_registry.json` sigue siendo el artefacto liviano para lookup de modelos.
+`.factory/registry_index.json` es el artefacto rico para agentes y comandos que necesiten
+inspeccionar estructura existente antes de planificar, extender o revisar un modulo.
 ```
 
 ### 3. Probar resolucion de patrones por version
@@ -88,7 +102,8 @@ Todos los tests pasan sin fallos.
 
 ### `fba registry index` no existe
 
-M16 todavia no esta implementado. Esta guia define la validacion esperada para el milestone.
+Verifica que estas usando una version posterior a `feat/16.1-module-registry-autoindexado`
+o ejecuta `pip install -e .[dev]` desde el branch correcto.
 
 ### El addon de prueba no tiene todos los artefactos
 

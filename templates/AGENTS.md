@@ -24,6 +24,8 @@ El flujo de desarrollo sigue estas fases:
 
 El estado actual del proyecto se encuentra en `.factory/state.json`.
 El registro de eventos esta en `.factory/events.jsonl`.
+El registry liviano de modelos Odoo esta en `.factory/module_registry.json`.
+El indice profundo de addons existentes esta en `.factory/registry_index.json` cuando se genera con `fba registry index`.
 
 ## Artefactos
 
@@ -33,6 +35,8 @@ Los artefactos generados se almacenan en `.factory/`:
 - `sdd.md` - Documento de Diseno del Software
 - `plan.md` - Plan tecnico
 - `tasks.md` - Lista de tareas implementables
+- `module_registry.json` - Registry compatible usado por `SchemaManager`
+- `registry_index.json` - Indice profundo de addons Odoo existentes: modelos, campos, vistas, controllers, seguridad, data/demo, crons, wizards y OWL
 - `playwright/` - Specs y reportes de browser automation generados por `fba test --playwright`
 - `perf/` - Reportes de benchmarks generados por `fba perf`
 

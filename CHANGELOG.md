@@ -12,6 +12,9 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 ### Infraestructura de colaboracion
 - #146: Creado marco `.codex/` para trabajar con Codex en el meta-desarrollo del framework, con roles operativos, checklist de inicio M16 y plantilla de brief sin modificar runtime ni templates.
 
+### M16: Foundation Intelligence
+- #147 feat/16.1: `fba registry index/inspect` autoindexa addons Odoo individuales o carpetas `addons/`, mezcla resultados con `.factory/module_registry.json` dando prioridad al indice nuevo, y persiste el detalle profundo en `.factory/registry_index.json`.
+
 ### Planificacion
 - #148/#147: Preparado arranque de M16 con epic, primer issue funcional (`feat/16.1-module-registry-autoindexado`) y brief local `.factory/fw-brief-m16.md`.
 - #144: Integrado `fba-mejoras-post-roadmap.md` al roadmap oficial como milestones planificados M16-M22.

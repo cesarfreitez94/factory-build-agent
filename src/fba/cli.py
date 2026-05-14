@@ -15,6 +15,7 @@ from fba.i18n_manager import I18nManager
 from fba.migration_manager import MigrationError, MigrationManager
 from fba.performance import PerformanceError, PerformanceRunner
 from fba.playwright_manager import PlaywrightError, PlaywrightManager
+from fba.registry_indexer import RegistryIndexer, RegistryIndexError
 from fba.schema_manager import SchemaManager
 from fba.stable_ids import StableIdError, StableIdManager
 from fba.state import StateManager, _atomic_write
@@ -1093,6 +1094,102 @@ def trace(entity_id: str, project_dir: str | None) -> None:
 
 main.add_command(_deps_group)
 main.add_command(_schema_group)
+
+
+_registry_group = click.group("registry")(lambda: None)
+_registry_group.help = "Odoo module registry indexing and inspection."
+
+
+@_registry_group.command("index")
+@click.argument("addon_path", type=click.Path(exists=True, path_type=Path))
+@click.option("--odoo-version", default="18.0", help="Odoo version for indexed knowledge (default: 18.0)")
+@PROJECT_DIR_OPTION
+def registry_index(addon_path: Path, odoo_version: str, project_dir: str | None) -> None:
+    """Index one Odoo addon or an addons directory into .factory registry artifacts."""
+    target = _resolve_project_dir(project_dir)
+
+    try:
+        result = RegistryIndexer(target).index(addon_path, odoo_version=odoo_version)
+    except RegistryIndexError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    click.echo("Registry index completed.")
+    click.echo(f"  Odoo version: {result.odoo_version}")
+    click.echo(f"  Modules: {', '.join(result.module_names)}")
+    click.echo(f"  Module registry: {result.registry_path}")
+    click.echo(f"  Deep index: {result.index_path}")
+    click.echo(f"  module_registry.json changed: {'yes' if result.registry_changed else 'no'}")
+    click.echo(f"  registry_index.json changed: {'yes' if result.index_changed else 'no'}")
+
+
+@_registry_group.command("inspect")
+@click.argument("module_name")
+@PROJECT_DIR_OPTION
+def registry_inspect(module_name: str, project_dir: str | None) -> None:
+    """Inspect an indexed Odoo module by technical name."""
+    target = _resolve_project_dir(project_dir)
+    registry_path = target / ".factory" / "module_registry.json"
+    index_path = target / ".factory" / "registry_index.json"
+
+    registry_data: dict[str, Any] = {}
+    index_data: dict[str, Any] = {}
+    try:
+        if registry_path.exists():
+            registry_data = json.loads(registry_path.read_text())
+        if index_path.exists():
+            index_data = json.loads(index_path.read_text())
+    except json.JSONDecodeError as e:
+        click.echo(f"Error: Invalid registry JSON: {e}", err=True)
+        raise SystemExit(1)
+
+    module = index_data.get("modules", {}).get(module_name)
+    registry_module = registry_data.get("modules", {}).get(module_name)
+    if module is None and registry_module is None:
+        click.echo(f"Module '{module_name}' not found in registry.")
+        raise SystemExit(1)
+
+    click.echo(f"Module: {module_name}")
+    click.echo(f"  Odoo version: {index_data.get('odoo_version') or registry_data.get('odoo_version', 'unknown')}")
+    click.echo(f"  Registry version: {index_data.get('registry_version') or registry_data.get('registry_version', 'legacy')}")
+
+    if module is None:
+        models = registry_module.get("models", [])
+        click.echo("  Deep index: not available")
+        click.echo(f"  Models: {len(models)}")
+        for model_name in models:
+            click.echo(f"    - {model_name}")
+        return
+
+    counts = module.get("artifact_counts", {})
+    click.echo(f"  Display name: {module.get('display_name', module_name)}")
+    click.echo(f"  Depends: {', '.join(module.get('depends', [])) or '(none)'}")
+    click.echo("  Artifact counts:")
+    for key in [
+        "models",
+        "fields",
+        "views",
+        "controllers",
+        "routes",
+        "reports",
+        "security",
+        "data_files",
+        "demo_files",
+        "crons",
+        "wizards",
+        "owl_components",
+    ]:
+        click.echo(f"    {key}: {counts.get(key, 0)}")
+
+    click.echo("  Models:")
+    for model in module.get("models", []):
+        label = model.get("name", "")
+        mode = model.get("mode", "unknown")
+        fields = len(model.get("fields", []))
+        click.echo(f"    - {label} ({mode}, {fields} fields)")
+
+
+main.add_command(_registry_group)
 
 
 _migrate_group = click.group("migrate")(lambda: None)

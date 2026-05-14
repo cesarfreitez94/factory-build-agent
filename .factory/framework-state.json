@@ -1,24 +1,24 @@
 {
   "schema_version": "1.0",
-  "last_updated": "2026-05-14T00:00:00Z",
+  "last_updated": "2026-05-14T03:30:00Z",
   "last_session": {
     "date": "2026-05-14",
     "agent": "codex",
-    "action": "Preparacion M16: creados label milestone/16, epic #148, issue #147 para feat/16.1 y brief local .factory/fw-brief-m16.md.",
-    "completed_feats": [],
-    "pending_feats": ["16.1 (#147)", "16.2", "16.3"],
+    "action": "Implementacion feat/16.1: ModuleRegistry autoindexado con registry_index.json y CLI fba registry index/inspect.",
+    "completed_feats": ["16.1 (#147)"],
+    "pending_feats": ["16.2", "16.3"],
     "blockers": []
   },
   "active_milestone": {
     "id": "M16",
     "name": "Foundation Intelligence",
     "branch": "milestone/16.0-foundation-intelligence",
-    "status": "planned",
+    "status": "in_progress",
     "feats_total": 3,
-    "feats_done": 0,
-    "feats_pending": ["16.1", "16.2", "16.3"],
+    "feats_done": 1,
+    "feats_pending": ["16.2", "16.3"],
     "ready_for_user_review": false,
-    "start_date": null
+    "start_date": "2026-05-14"
   },
   "roadmap_status": {
     "M0": "completed",
@@ -33,7 +33,7 @@
     "M13": "completed",
     "M14": "completed",
     "M15": "completed",
-    "M16": "planned",
+    "M16": "in_progress",
     "M17": "planned",
     "M18": "planned",
     "M19": "planned",
@@ -54,7 +54,7 @@
     {"milestone":"M13","name":"Reliability & Quality (Capa 2)","status":"completed","start_date":"2026-05-13","end_date":"2026-05-13","caps":"Security scans + cache + pre-commit + mypy"},
     {"milestone":"M14","name":"Odoo Depth (Capa 3)","status":"completed","start_date":"2026-05-13","end_date":"2026-05-13","caps":"Wizards/workflows + migraciones + i18n"},
     {"milestone":"M15","name":"Advanced QA (Capa 4)","status":"completed","start_date":"2026-05-13","end_date":"2026-05-13","caps":"Playwright + performance benchmarks + concurrency"},
-    {"milestone":"M16","name":"Foundation Intelligence","status":"planned","caps":"ModuleRegistry autoindexado + Odoo Pattern Knowledge Base + version-aware knowledge"},
+    {"milestone":"M16","name":"Foundation Intelligence","status":"in_progress","start_date":"2026-05-14","caps":"ModuleRegistry autoindexado + Odoo Pattern Knowledge Base + version-aware knowledge"},
     {"milestone":"M17","name":"Semantic Core","status":"planned","caps":"Semantic graph + ontologia + graph queries + agent emission"},
     {"milestone":"M18","name":"Input & Extension Layer","status":"planned","caps":"Connector specification ingestion + CKM + CREATE/EXTEND mode"},
     {"milestone":"M19","name":"Governance & Observability","status":"planned","caps":"Human checkpoints + agent decision observability"},

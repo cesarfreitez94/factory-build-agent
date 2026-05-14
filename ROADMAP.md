@@ -20,7 +20,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M13: Reliability & Quality | ✅ Completado | 2026-05-13 / 2026-05-13 |
 | M14: Odoo Depth | ✅ Completado | 2026-05-13 / 2026-05-13 |
 | M15: Advanced QA | ✅ Completado | 2026-05-13 / 2026-05-13 |
-| M16: Foundation Intelligence | ⏳ Planificado | Pendiente |
+| M16: Foundation Intelligence | 🔄 En progreso | 2026-05-14 |
 | M17: Semantic Core | ⏳ Planificado | Pendiente |
 | M18: Input & Extension Layer | ⏳ Planificado | Pendiente |
 | M19: Governance & Observability | ⏳ Planificado | Pendiente |
@@ -47,7 +47,7 @@ gobernanza humana, gates sobre grafo, aprendizaje y control de costo.
 
 ### M16: Foundation Intelligence
 
-**Estado**: Planificado.
+**Estado**: En progreso.
 
 **Objetivo**: Dar al framework una base de conocimiento version-aware antes de pedirle
 decisiones mas complejas. El Constructor y el Planificador deben saber que existe en un
@@ -62,7 +62,7 @@ de conocimiento por version de Odoo.
 
 | Orden | Feat | Depende de | Descripcion | Estado |
 |-------|------|------------|-------------|--------|
-| 1 | feat/16.1-module-registry-autoindexado | M15 | Indexar modulos Odoo existentes: modelos, vistas, controllers, reportes, seguridad, data, crons, wizards y OWL | ⏳ |
+| 1 | feat/16.1-module-registry-autoindexado | M15 | Indexar modulos Odoo existentes: modelos, vistas, controllers, reportes, seguridad, data, crons, wizards y OWL | ✅ |
 | 2 | feat/16.2-odoo-version-layer | feat/16.1 | Separar conocimiento `base/`, `v18/`, `v17/` para patrones, deprecaciones y novedades | ⏳ |
 | 3 | feat/16.3-pattern-knowledge-base | feat/16.2 | YAML estructurado de patrones Odoo, ejemplos, naming conventions y anti-patrones consultables por agentes | ⏳ |
 
@@ -71,6 +71,7 @@ de conocimiento por version de Odoo.
 ```bash
 fba registry index addons/my_module --odoo-version 18.0
 fba registry inspect my_module
+test -f .factory/registry_index.json
 fba patterns query wizard.confirmation --odoo-version 18.0
 pytest tests/test_registry_autoindex.py tests/test_odoo_patterns.py
 ```
