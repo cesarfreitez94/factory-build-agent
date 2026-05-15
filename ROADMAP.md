@@ -27,6 +27,8 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M20: Graph Enforcement Gates | ⏳ Planificado | Pendiente |
 | M21: Learning Loop | ⏳ Planificado | Pendiente |
 | M22: Sustainability & Cost Control | ⏳ Planificado | Pendiente |
+| M23: CAFL-Plugins | ⏳ Planificado | Canal flexible de plugins |
+| M24: Meta-Framework Builders | ⏳ Planificado | Meta-agentes para construccion automatica |
 
 ---
 
@@ -84,6 +86,7 @@ de conocimiento por version de Odoo, y observabilidad local de agentes del frame
 | Orden | Feat | Depende de | Descripcion | Estado |
 |-------|------|------------|-------------|--------|
 | 1 | feat/16.4-agent-observer-plugin | M16 | Plugin de seguimiento y trazabilidad de agentes meta del framework. Observa `.opencode/agents/`, registra hashes de prompts, tokens/costo por agente, invocaciones agente-a-agente, y genera reportes Markdown y JSONL por sesion en `.factory/observability/` | ✅ 2026-05-14 |
+| 2 | feat/24.1-workflow-v2-schema-contracts | M23 | Schemas JSON para workflow v2 y sistema de builders (ver M24) | ⏳ Planificado |
 
 **Verificacion esperada**
 
@@ -279,6 +282,43 @@ fba cost estimate --phase all
 fba models policy validate
 fba doctor --complexity
 pytest tests/test_cost_estimator.py tests/test_model_policy.py
+```
+
+---
+
+### M24: Meta-Framework Builders
+
+**Estado**: En desarrollo.
+
+**Objetivo**: Proveer al framework-orchestrator de componentes reutilizables para construir
+briefs, planificar feats, y orquestrar implementacion automatica sin intervencion manual.
+
+**Alcance**: Intent builder, Plan builder, Roadmap slice builder, Task packet builder,
+Context bundle broker, Policy constraints generator, y Workflow v2 migration.
+
+**Relacionado**: M23 (CAFL-Plugins) — M24 extiende el sistema de plugins con builders especializados.
+
+**Branch sugerido**: `milestone/24.0-meta-framework-builders`
+
+### Feats
+
+| Orden | Feat | Depende de | Descripcion | Estado |
+|-------|------|------------|-------------|--------|
+| 1 | feat/24.1-workflow-v2-schema-contracts | M23 | Schemas JSON para workflow v2: intent, plan, roadmap_slice, task_packet, policy_constraints, context_bundle, decisions, git_operation, implementation_report, review_report, test_report, framework_state.v2 | ✅ |
+| 2 | feat/24.2-workflow-v2-migration | feat/24.1 | Migration de workflow v1 a v2 con drift detection y validation | ✅ |
+| 3 | feat/24.3-policy-constraints-generator | feat/24.2 | Generador de constraints desde roadmap_slice y plan | ✅ |
+| 4 | feat/24.4-context-bundle-broker | feat/24.3 | Broker para distribuir context bundles a agentes | ✅ |
+| 5 | feat/24.5-task-packet-builder | feat/24.4 | Constructor de task packets para executor | ✅ |
+| 6 | feat/24.6-plan-builder | feat/24.5 | Constructor de planes desde intent y constraints | ✅ |
+| 7 | feat/24.7-roadmap-slice-builder | feat/24.6 | Constructor de roadmap slices para milestones | ✅ |
+| 8 | feat/24.8-intent-builder | feat/24.7 | Constructor de intents desde roadmap y feedback | ✅ |
+
+**Verificacion esperada**
+
+```bash
+pytest tests/test_meta_*.py
+ruff check src/fba/meta_*
+fba meta validate
 ```
 
 ---

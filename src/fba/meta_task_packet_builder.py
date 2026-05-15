@@ -18,7 +18,6 @@ from typing import Any, Mapping, cast
 
 import jsonschema
 
-
 BASE_CONTRACTS = ["plan", "policy_constraints", "schema_catalog", "task_packet"]
 BASE_ALLOWED_OPERATION_ORDER = [
     "read",
@@ -162,7 +161,6 @@ def generate_task_packet(
 
     root = Path(project_dir).resolve()
     timestamp = _normalize_timestamp(now)
-    stamp = timestamp[:10].replace("-", "")
     packet = build_task_packet(root, plan, policy_constraints, schema_catalog, task_id, now=timestamp)
 
     artifact_dir = root / ".factory" / "meta" / "artifacts" / "task_packets"
@@ -370,7 +368,7 @@ def _acceptance_criteria(
 
     values.append(f"[task] Complete {task.get('title', task.get('task_id', 'the task'))}.")
     values.append(f"[task] Respect the effective scope for {len(allowed_files)} allowed files.")
-    values.append(f"[task] Validate the packet against schemas/meta/task_packet.schema.json.")
+    values.append("[task] Validate the packet against schemas/meta/task_packet.schema.json.")
 
     required_checks = set(_string_list(policy_constraints.get("required_checks", [])))
     if "changelog_required" in required_checks:

@@ -17,7 +17,6 @@ from typing import Any, Mapping, cast
 
 import jsonschema
 
-
 SMALL_COMPLETE_FILE_LINES = 80
 MAX_RANGE_LINES = 120
 MAX_RANGES_PER_ITEM = 4

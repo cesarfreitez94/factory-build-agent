@@ -14,11 +14,10 @@ import tempfile
 import unicodedata
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence, cast
 
 import jsonschema
-
 
 DEFAULT_SCOPE_EXCLUDES = [
     ".factory/framework-state.json",

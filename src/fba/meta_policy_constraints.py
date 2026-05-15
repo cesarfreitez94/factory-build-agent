@@ -16,7 +16,6 @@ from typing import Any, Mapping, cast
 
 import jsonschema
 
-
 POLICY_REFS = [
     "CONTRIBUTING.md::branch_policy",
     "CONTRIBUTING.md::commit_policy",

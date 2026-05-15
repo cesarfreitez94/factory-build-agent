@@ -18,7 +18,6 @@ from typing import Any, Mapping, cast
 
 import jsonschema
 
-
 MAX_NORMAL_TASKS = 5
 MAX_CONFIRMATION_TASKS = 8
 BASE_CONTRACT_INPUTS = ["intent", "policy_constraints", "roadmap_slice"]

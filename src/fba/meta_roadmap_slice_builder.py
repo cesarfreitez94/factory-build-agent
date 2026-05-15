@@ -18,7 +18,6 @@ from typing import Any, Mapping, cast
 
 import jsonschema
 
-
 ALLOWED_OPERATIONS = [
     "read_contract",
     "validate_schema",
