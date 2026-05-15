@@ -1,0 +1,138 @@
+{
+  "contract_name": "schema_catalog",
+  "contract_version": "2.0",
+  "catalog_id": "SCAT-20260515-001",
+  "updated_at": "2026-05-15T06:56:58.506460+00:00",
+  "contracts": [
+    {
+      "contract_name": "schema_catalog",
+      "contract_version": "2.0",
+      "path": "schemas/meta/schema_catalog.schema.json",
+      "status": "active",
+      "owner": "framework-registry",
+      "consumers": [
+        "meta-migration"
+      ]
+    },
+    {
+      "contract_name": "decisions",
+      "contract_version": "2.0",
+      "path": "schemas/meta/decisions.schema.json",
+      "status": "active",
+      "owner": "framework-registry",
+      "consumers": [
+        "meta-migration"
+      ]
+    },
+    {
+      "contract_name": "framework_state_v2",
+      "contract_version": "2.0",
+      "path": "schemas/meta/framework_state.v2.schema.json",
+      "status": "experimental",
+      "owner": "framework-registry",
+      "consumers": [
+        "meta-migration"
+      ],
+      "depends_on": [
+        "schema_catalog@2.0"
+      ]
+    },
+    {
+      "contract_name": "intent",
+      "contract_version": "2.0",
+      "path": "schemas/meta/intent.schema.json",
+      "status": "active",
+      "owner": "framework-planner"
+    },
+    {
+      "contract_name": "policy_constraints",
+      "contract_version": "2.0",
+      "path": "schemas/meta/policy_constraints.schema.json",
+      "status": "active",
+      "owner": "framework-planner"
+    },
+    {
+      "contract_name": "roadmap_slice",
+      "contract_version": "2.0",
+      "path": "schemas/meta/roadmap_slice.schema.json",
+      "status": "active",
+      "owner": "framework-planner"
+    },
+    {
+      "contract_name": "plan",
+      "contract_version": "2.0",
+      "path": "schemas/meta/plan.schema.json",
+      "status": "active",
+      "owner": "framework-planner"
+    },
+    {
+      "contract_name": "task_packet",
+      "contract_version": "2.0",
+      "path": "schemas/meta/task_packet.schema.json",
+      "status": "active",
+      "owner": "framework-builder"
+    },
+    {
+      "contract_name": "context_bundle",
+      "contract_version": "2.0",
+      "path": "schemas/meta/context_bundle.schema.json",
+      "status": "active",
+      "owner": "framework-builder"
+    },
+    {
+      "contract_name": "implementation_report",
+      "contract_version": "2.0",
+      "path": "schemas/meta/implementation_report.schema.json",
+      "status": "active",
+      "owner": "framework-builder"
+    },
+    {
+      "contract_name": "test_report",
+      "contract_version": "2.0",
+      "path": "schemas/meta/test_report.schema.json",
+      "status": "active",
+      "owner": "framework-builder"
+    },
+    {
+      "contract_name": "review_report",
+      "contract_version": "2.0",
+      "path": "schemas/meta/review_report.schema.json",
+      "status": "active",
+      "owner": "framework-builder"
+    },
+    {
+      "contract_name": "git_operation",
+      "contract_version": "2.0",
+      "path": "schemas/meta/git_operation.schema.json",
+      "status": "active",
+      "owner": "framework-git"
+    }
+  ],
+  "global_policies": [
+    {
+      "policy_id": "CONTRIBUTING",
+      "path": "CONTRIBUTING.md",
+      "mode": "reference"
+    },
+    {
+      "policy_id": "ROADMAP",
+      "path": "ROADMAP.md",
+      "mode": "reference"
+    }
+  ],
+  "compatibility_matrix": [
+    {
+      "from": "framework_state@1.0",
+      "to": "framework_state_v2@2.0",
+      "status": "requires_migration",
+      "notes": "V1 remains authoritative during the hybrid migration window."
+    },
+    {
+      "from": "intent@2.0",
+      "to": "plan@2.0",
+      "status": "compatible",
+      "notes": "Planning contracts remain stable."
+    }
+  ],
+  "human_summary": "Initial schema catalog for the schema-driven meta-workflow migration."
+}
