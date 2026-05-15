@@ -9,6 +9,9 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### M17 Semantic Core
+- #157 feat/17.1: Ontologia cerrada NodeType/EdgeType para el grafo semantico, schema `schemas/graph.schema.json`, comando `fba graph validate` y documentacion inicial de testing M17.
+
 ---
 
 ## M16: Foundation Intelligence — 2026-05-14

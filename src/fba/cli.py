@@ -17,6 +17,7 @@ from fba.performance import PerformanceError, PerformanceRunner
 from fba.playwright_manager import PlaywrightError, PlaywrightManager
 from fba.registry_indexer import RegistryIndexer, RegistryIndexError
 from fba.schema_manager import SchemaManager
+from fba.semantic_graph import SemanticGraphError, SemanticGraphValidator
 from fba.stable_ids import StableIdError, StableIdManager
 from fba.state import StateManager, _atomic_write
 
@@ -1021,6 +1022,9 @@ def diff(file_v1: Path, file_v2: Path, output_format: str) -> None:
 _deps_group = click.group("deps")(lambda: None)
 _deps_group.help = "Odoo dependency integrity analysis."
 
+_graph_group = click.group("graph")(lambda: None)
+_graph_group.help = "Semantic graph validation and query commands."
+
 
 @_deps_group.command("check")
 @PROJECT_DIR_OPTION
@@ -1062,6 +1066,30 @@ def deps_check(project_dir: str | None) -> None:
     click.echo(f"\nAll {len(results)} module(s) have clean dependencies.")
 
 
+@_graph_group.command("validate")
+@PROJECT_DIR_OPTION
+@click.option("--graph", "graph_path", default=None, type=click.Path(path_type=Path), help="Graph JSON path (default: .factory/graph.json)")
+def graph_validate(project_dir: str | None, graph_path: Path | None) -> None:
+    """Validate .factory/graph.json against schema and edge references."""
+    target = _resolve_project_dir(project_dir)
+    path = graph_path if graph_path else target / ".factory" / "graph.json"
+
+    try:
+        result = SemanticGraphValidator().validate_file(path)
+    except SemanticGraphError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    if result.valid:
+        click.echo("✅ graph: valid")
+        return
+
+    click.echo(f"❌ graph: {len(result.errors)} validation error(s)")
+    for error in result.errors:
+        click.echo(f"  - {error}")
+    raise SystemExit(1)
+
+
 @main.command()
 @click.argument("entity_id")
 @PROJECT_DIR_OPTION
@@ -1093,6 +1121,7 @@ def trace(entity_id: str, project_dir: str | None) -> None:
 
 
 main.add_command(_deps_group)
+main.add_command(_graph_group)
 main.add_command(_schema_group)
 
 

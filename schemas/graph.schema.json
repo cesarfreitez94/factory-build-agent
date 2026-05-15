@@ -1,0 +1,140 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://factory-build-agent.local/schemas/graph.schema.json",
+  "title": "FBA Semantic Graph",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "nodes", "edges"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/node"
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/edge"
+      }
+    }
+  },
+  "definitions": {
+    "uuidV4": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "nodeType": {
+      "type": "string",
+      "enum": [
+        "stakeholder",
+        "business_need",
+        "requirement",
+        "functional_requirement",
+        "non_functional_requirement",
+        "business_rule",
+        "user_story",
+        "impact",
+        "actor",
+        "goal",
+        "deliverable",
+        "event",
+        "command",
+        "aggregate",
+        "policy",
+        "read_model",
+        "example",
+        "acceptance_criterion",
+        "odoo_module",
+        "odoo_model",
+        "odoo_field",
+        "odoo_view",
+        "odoo_action",
+        "external_system",
+        "api_endpoint",
+        "integration_flow",
+        "test_case",
+        "quality_attribute",
+        "risk",
+        "adr"
+      ]
+    },
+    "edgeType": {
+      "type": "string",
+      "enum": [
+        "derives_from",
+        "satisfies",
+        "impacts",
+        "depends_on",
+        "blocks",
+        "covers",
+        "validates",
+        "refines",
+        "owned_by",
+        "emits",
+        "triggers",
+        "handled_by",
+        "updates",
+        "reads",
+        "maps_to",
+        "integrates_with",
+        "implements",
+        "tests",
+        "documents",
+        "governs",
+        "related_to"
+      ]
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "label"],
+      "properties": {
+        "id": { "$ref": "#/definitions/uuidV4" },
+        "type": { "$ref": "#/definitions/nodeType" },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "source_artifact": {
+          "type": "string",
+          "minLength": 1
+        },
+        "properties": { "$ref": "#/definitions/metadata" },
+        "metadata": { "$ref": "#/definitions/metadata" }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "source", "target"],
+      "properties": {
+        "id": { "$ref": "#/definitions/uuidV4" },
+        "type": { "$ref": "#/definitions/edgeType" },
+        "source": { "$ref": "#/definitions/uuidV4" },
+        "target": { "$ref": "#/definitions/uuidV4" },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "properties": { "$ref": "#/definitions/metadata" },
+        "metadata": { "$ref": "#/definitions/metadata" }
+      }
+    }
+  }
+}
