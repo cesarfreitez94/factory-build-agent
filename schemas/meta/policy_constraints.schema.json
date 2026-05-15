@@ -105,6 +105,7 @@
           "issue_required_before_code",
           "no_direct_commit_to_main",
           "tests_required_before_pr",
+          "changelog_required",
           "manual_review_before_main_pr"
         ]
       }

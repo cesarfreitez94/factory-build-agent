@@ -133,7 +133,7 @@ def test_policy_constraints_valid():
         "policy_refs": ["CONTRIBUTING", "CHANGELOG"],
         "allowed_operations": ["design_schema"],
         "blocked_operations": ["create_agent", "create_prompt"],
-        "required_checks": ["issue_required_before_code", "no_direct_commit_to_main"],
+        "required_checks": ["issue_required_before_code", "no_direct_commit_to_main", "changelog_required"],
         "requires_user_confirmation": False
     }
     Draft7Validator(schema).validate(instance)
