@@ -17,7 +17,7 @@ from fba.performance import PerformanceError, PerformanceRunner
 from fba.playwright_manager import PlaywrightError, PlaywrightManager
 from fba.registry_indexer import RegistryIndexer, RegistryIndexError
 from fba.schema_manager import SchemaManager
-from fba.semantic_graph import SemanticGraphError, SemanticGraphValidator
+from fba.semantic_graph import GraphManager, SemanticGraphError, SemanticGraphValidator
 from fba.stable_ids import StableIdError, StableIdManager
 from fba.state import StateManager, _atomic_write
 
@@ -1088,6 +1088,73 @@ def graph_validate(project_dir: str | None, graph_path: Path | None) -> None:
     for error in result.errors:
         click.echo(f"  - {error}")
     raise SystemExit(1)
+
+
+@_graph_group.command("trace")
+@click.argument("node_id")
+@PROJECT_DIR_OPTION
+def graph_trace(node_id: str, project_dir: str | None) -> None:
+    """Trace a graph node with incoming/outgoing relationships."""
+    target = _resolve_project_dir(project_dir)
+    try:
+        trace_result = GraphManager(target).full_trace(node_id)
+    except SemanticGraphError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    node = trace_result["node"]
+    click.echo(f"Trace: {node['label']} ({node['type']})")
+    click.echo(f"  ID: {node['id']}")
+    click.echo(f"  Incoming: {len(trace_result['incoming'])}")
+    for record in trace_result["incoming"]:
+        click.echo(f"    <- {record['edge']['type']} from {record['source']['label']}")
+    click.echo(f"  Outgoing: {len(trace_result['outgoing'])}")
+    for record in trace_result["outgoing"]:
+        click.echo(f"    -> {record['edge']['type']} to {record['target']['label']}")
+
+
+@_graph_group.command("impact")
+@click.argument("node_id")
+@PROJECT_DIR_OPTION
+def graph_impact(node_id: str, project_dir: str | None) -> None:
+    """Show downstream graph impact for a node."""
+    target = _resolve_project_dir(project_dir)
+    try:
+        impacted = GraphManager(target).impact_of(node_id)
+    except SemanticGraphError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    click.echo(f"Impact: {len(impacted)} relationship(s)")
+    for record in impacted:
+        click.echo(f"  {record['source']['label']} --{record['edge']['type']}--> {record['target']['label']}")
+
+
+@_graph_group.command("orphans")
+@PROJECT_DIR_OPTION
+def graph_orphans(project_dir: str | None) -> None:
+    """List graph nodes without incoming or outgoing edges."""
+    _print_graph_orphans(project_dir)
+
+
+@_graph_group.command("orphan-nodes")
+@PROJECT_DIR_OPTION
+def graph_orphan_nodes(project_dir: str | None) -> None:
+    """List graph nodes without incoming or outgoing edges."""
+    _print_graph_orphans(project_dir)
+
+
+def _print_graph_orphans(project_dir: str | None) -> None:
+    target = _resolve_project_dir(project_dir)
+    try:
+        orphans = GraphManager(target).orphan_nodes()
+    except SemanticGraphError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    click.echo(f"Orphan nodes: {len(orphans)}")
+    for node in orphans:
+        click.echo(f"  - {node['label']} ({node['type']}) {node['id']}")
 
 
 @main.command()
