@@ -112,11 +112,11 @@ class TestVersionKnowledgeResolver:
 
     def test_odoo_version_to_dir_normalization(self) -> None:
         """Version strings are normalized correctly to directory names."""
-        from fba.odoo_versions.version_resolver import VersionKnowledgeResolver as VKR
-        assert VKR._odoo_version_to_dir("18.0") == "v18"
-        assert VKR._odoo_version_to_dir("17.0") == "v17"
-        assert VKR._odoo_version_to_dir("v18") == "v18"
-        assert VKR._odoo_version_to_dir("V18") == "v18"
+        from fba.odoo_versions.version_resolver import VersionKnowledgeResolver
+        assert VersionKnowledgeResolver._odoo_version_to_dir("18.0") == "v18"
+        assert VersionKnowledgeResolver._odoo_version_to_dir("17.0") == "v17"
+        assert VersionKnowledgeResolver._odoo_version_to_dir("v18") == "v18"
+        assert VersionKnowledgeResolver._odoo_version_to_dir("V18") == "v18"
 
     def test_unknown_version_graceful(self) -> None:
         """Resolver for an unknown version (e.g. 14.0) loads only base entries."""

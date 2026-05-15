@@ -7,7 +7,6 @@ from typing import Any
 
 import jsonschema
 
-
 ROOT = Path(__file__).resolve().parent.parent
 KNOWLEDGE_ROOT = ROOT / "src" / "fba" / "odoo_versions"
 SCHEMA_PATH = ROOT / "schemas" / "knowledge_entry.schema.json"

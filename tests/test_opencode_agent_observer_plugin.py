@@ -2,7 +2,6 @@
 
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parent.parent
 PLUGIN_PATH = ROOT / ".opencode" / "plugins" / "fba-agent-observer.ts"
 

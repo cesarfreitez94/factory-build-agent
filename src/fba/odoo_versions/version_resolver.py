@@ -3,7 +3,6 @@ import re
 from pathlib import Path
 from typing import Any
 
-
 _VERSION_DIR_PATTERN = re.compile(r"^v\d+/?$")
 
 
