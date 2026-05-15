@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://opencode.ai/fba/schemas/meta/task_packet.schema.json",
+  "title": "FBA Task Packet",
+  "description": "Atomic task packet for the implementation stage.",
+  "type": "object",
+  "required": [
+    "contract_name",
+    "contract_version",
+    "packet_id",
+    "plan_id",
+    "task_id",
+    "created_at",
+    "objective",
+    "allowed_files",
+    "forbidden_files",
+    "allowed_operations",
+    "acceptance_criteria",
+    "inputs_required"
+  ],
+  "properties": {
+    "contract_name": {
+      "type": "string",
+      "const": "task_packet"
+    },
+    "contract_version": {
+      "type": "string",
+      "const": "2.0"
+    },
+    "packet_id": {
+      "type": "string",
+      "pattern": "^TPACKET-[0-9]{8}-[0-9]{3}$"
+    },
+    "plan_id": {
+      "type": "string",
+      "pattern": "^PLAN-[0-9]{8}-[0-9]{3}$"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^TASK-[0-9]{8}-[0-9]{3}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "allowed_files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "forbidden_files": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "allowed_operations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "read",
+          "create_schema",
+          "modify_schema",
+          "validate_schema",
+          "run_tests",
+          "request_git_operation"
+        ]
+      }
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "inputs_required": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^TASK-[0-9]{8}-[0-9]{3}$"
+      }
+    },
+    "test_requirements": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "policy_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "risk_notes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "human_summary": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

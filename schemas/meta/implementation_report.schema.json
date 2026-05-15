@@ -1,0 +1,173 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://opencode.ai/fba/schemas/meta/implementation_report.schema.json",
+  "title": "FBA Implementation Report",
+  "description": "Factual record of work performed for a task packet.",
+  "type": "object",
+  "required": [
+    "contract_name",
+    "contract_version",
+    "report_id",
+    "packet_id",
+    "created_at",
+    "status",
+    "changed_files",
+    "created_artifacts",
+    "acceptance_status",
+    "blockers"
+  ],
+  "properties": {
+    "contract_name": {
+      "type": "string",
+      "const": "implementation_report"
+    },
+    "contract_version": {
+      "type": "string",
+      "const": "2.0"
+    },
+    "report_id": {
+      "type": "string",
+      "pattern": "^IMPL-[0-9]{8}-[0-9]{3}$"
+    },
+    "packet_id": {
+      "type": "string",
+      "pattern": "^TPACKET-[0-9]{8}-[0-9]{3}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["completed", "partial", "failed", "blocked"]
+    },
+    "changed_files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "change_type"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "change_type": {
+            "type": "string",
+            "enum": ["created", "modified", "deleted", "renamed"]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "created_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["contract_name", "artifact_id", "path"],
+        "properties": {
+          "contract_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "contract_version": {
+            "type": "string"
+          },
+          "artifact_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "acceptance_status": {
+      "type": "string",
+      "enum": ["passed", "failed", "not_evaluated"]
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "message"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "commands_run": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["command", "exit_code"],
+        "properties": {
+          "command": {
+            "type": "string",
+            "minLength": 1
+          },
+          "exit_code": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "status": {
+            "type": "string",
+            "enum": ["passed", "failed", "skipped"]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "deviations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "follow_up_tasks": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "human_summary": {
+      "type": "string"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": ["failed", "blocked"]
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "required": ["blockers"],
+        "properties": {
+          "blockers": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,156 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://opencode.ai/fba/schemas/meta/review_report.schema.json",
+  "title": "FBA Review Report",
+  "description": "Structured quality, compliance, and release recommendation report.",
+  "type": "object",
+  "required": [
+    "contract_name",
+    "contract_version",
+    "report_id",
+    "implementation_report_id",
+    "test_report_id",
+    "created_at",
+    "status",
+    "findings",
+    "policy_compliance",
+    "recommendation"
+  ],
+  "properties": {
+    "contract_name": {
+      "type": "string",
+      "const": "review_report"
+    },
+    "contract_version": {
+      "type": "string",
+      "const": "2.0"
+    },
+    "report_id": {
+      "type": "string",
+      "pattern": "^REV-[0-9]{8}-[0-9]{3}$"
+    },
+    "implementation_report_id": {
+      "type": "string",
+      "pattern": "^IMPL-[0-9]{8}-[0-9]{3}$"
+    },
+    "test_report_id": {
+      "type": "string",
+      "pattern": "^TEST-[0-9]{8}-[0-9]{3}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["approved", "approved_with_risks", "changes_requested", "blocked"]
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "location", "message"],
+        "properties": {
+          "severity": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "location": {
+            "type": "object",
+            "required": ["path"],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "line_start": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "line_end": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "recommendation": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "policy_compliance": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["policy_ref", "status"],
+        "properties": {
+          "policy_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": ["passed", "failed", "not_applicable"]
+          },
+          "details": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "recommendation": {
+      "type": "string",
+      "enum": ["proceed_to_git", "fix_required", "ask_user", "stop"]
+    },
+    "residual_risks": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required_fixes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "approved_with_notes": {
+      "type": "string"
+    },
+    "human_summary": {
+      "type": "string"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "changes_requested"
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "required": ["required_fixes"],
+        "properties": {
+          "required_fixes": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

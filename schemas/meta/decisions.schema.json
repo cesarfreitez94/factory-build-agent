@@ -1,0 +1,145 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://opencode.ai/fba/schemas/meta/decisions.schema.json",
+  "title": "FBA Decision Record",
+  "description": "JSONL line schema for decisions and approvals in the meta-workflow.",
+  "type": "object",
+  "required": [
+    "contract_name",
+    "contract_version",
+    "decision_id",
+    "created_at",
+    "decision_type",
+    "status",
+    "question",
+    "options",
+    "selected_option",
+    "required_by"
+  ],
+  "properties": {
+    "contract_name": {
+      "type": "string",
+      "const": "decisions"
+    },
+    "contract_version": {
+      "type": "string",
+      "const": "2.0"
+    },
+    "decision_id": {
+      "type": "string",
+      "pattern": "^DEC-[0-9]{8}-[0-9]{3}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "decision_type": {
+      "type": "string",
+      "enum": ["user_confirmation", "policy_gate", "review_gate", "git_gate", "workflow", "architecture"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "resolved", "cancelled"]
+    },
+    "question": {
+      "type": "string",
+      "minLength": 1
+    },
+    "options": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "selected_option": {
+      "type": ["string", "null"]
+    },
+    "required_by": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "rationale": {
+      "type": "string"
+    },
+    "related_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["contract_name"],
+        "properties": {
+          "contract_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "artifact_id": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "supersedes_decision_id": {
+      "type": "string",
+      "pattern": "^DEC-[0-9]{8}-[0-9]{3}$"
+    },
+    "human_summary": {
+      "type": "string"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "resolved"
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "required": ["selected_option", "resolved_at"],
+        "properties": {
+          "selected_option": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "cancelled"
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "selected_option": {
+            "type": ["string", "null"]
+          }
+        }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

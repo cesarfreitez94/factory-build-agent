@@ -1,0 +1,123 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://opencode.ai/fba/schemas/meta/policy_constraints.schema.json",
+  "title": "FBA Policy Constraints",
+  "description": "Normalized policy constraints derived from global policies and the user intent.",
+  "type": "object",
+  "required": [
+    "contract_name",
+    "contract_version",
+    "constraints_id",
+    "intent_id",
+    "created_at",
+    "policy_refs",
+    "allowed_operations",
+    "blocked_operations",
+    "required_checks",
+    "requires_user_confirmation"
+  ],
+  "properties": {
+    "contract_name": {
+      "type": "string",
+      "const": "policy_constraints"
+    },
+    "contract_version": {
+      "type": "string",
+      "const": "2.0"
+    },
+    "constraints_id": {
+      "type": "string",
+      "pattern": "^POLICY-[0-9]{8}-[0-9]{3}$"
+    },
+    "intent_id": {
+      "type": "string",
+      "pattern": "^INTENT-[0-9]{8}-[0-9]{3}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "policy_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "allowed_operations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "design_schema",
+          "read_contract",
+          "validate_schema",
+          "create_task_packet",
+          "build_context_bundle",
+          "run_tests",
+          "create_review_report",
+          "request_git_operation",
+          "execute_git_operation",
+          "create_agent",
+          "create_prompt",
+          "modify_odoo_generator",
+          "write_markdown_operational",
+          "commit",
+          "push",
+          "open_pr",
+          "merge_pr"
+        ]
+      }
+    },
+    "blocked_operations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "design_schema",
+          "read_contract",
+          "validate_schema",
+          "create_task_packet",
+          "build_context_bundle",
+          "run_tests",
+          "create_review_report",
+          "request_git_operation",
+          "execute_git_operation",
+          "create_agent",
+          "create_prompt",
+          "modify_odoo_generator",
+          "write_markdown_operational",
+          "commit",
+          "push",
+          "open_pr",
+          "merge_pr"
+        ]
+      }
+    },
+    "required_checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "issue_required_before_code",
+          "no_direct_commit_to_main",
+          "tests_required_before_pr",
+          "manual_review_before_main_pr"
+        ]
+      }
+    },
+    "requires_user_confirmation": {
+      "type": "boolean"
+    },
+    "rationale": {
+      "type": "string"
+    },
+    "human_summary": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}
