@@ -11,6 +11,7 @@ from fba.contract_engine import ContractEngine, ContractError
 from fba.dependency_analyzer import DependencyAnalyzer, DependencyError
 from fba.diff_engine import DiffEngine, DiffError
 from fba.gate import GateError
+from fba.graph_emission import GraphEmissionError, consolidate_graph_emissions
 from fba.i18n_manager import I18nManager
 from fba.migration_manager import MigrationError, MigrationManager
 from fba.performance import PerformanceError, PerformanceRunner
@@ -1155,6 +1156,26 @@ def _print_graph_orphans(project_dir: str | None) -> None:
     click.echo(f"Orphan nodes: {len(orphans)}")
     for node in orphans:
         click.echo(f"  - {node['label']} ({node['type']}) {node['id']}")
+
+
+@_graph_group.command("consolidate")
+@PROJECT_DIR_OPTION
+@click.option("--emissions-dir", default=None, type=click.Path(path_type=Path), help="Directory with agent graph emission JSON files")
+def graph_consolidate(project_dir: str | None, emissions_dir: Path | None) -> None:
+    """Merge agent graph emissions into .factory/graph.json."""
+    target = _resolve_project_dir(project_dir)
+    try:
+        result = consolidate_graph_emissions(target, emissions_dir=emissions_dir)
+    except GraphEmissionError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    click.echo("Graph emissions consolidated.")
+    click.echo(f"  Emissions: {result.emissions}")
+    click.echo(f"  Nodes added: {result.nodes_added}")
+    click.echo(f"  Nodes updated: {result.nodes_updated}")
+    click.echo(f"  Edges added: {result.edges_added}")
+    click.echo(f"  Edges skipped: {result.edges_skipped}")
 
 
 @main.command()

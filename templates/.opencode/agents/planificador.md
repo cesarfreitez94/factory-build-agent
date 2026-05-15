@@ -356,6 +356,30 @@ The traceability matrix must satisfy:
 - Every RNF from the PRD must appear in at least one traceability entry
 - No orphan SDD components (all must trace back to a PRD requirement)
 
+## Semantic Graph Emission
+
+After generating `.factory/sdd.json`, also write or update
+`.factory/graph_emissions/planificador.json` with design nodes and requirement links:
+
+```json
+{
+  "agent": "planificador",
+  "artifact": ".factory/sdd.json",
+  "nodes": [
+    {"ref": "module:<module_name>", "type": "odoo_module", "label": "<module_name>"},
+    {"ref": "model:<model.name>", "type": "odoo_model", "label": "<model.name>"},
+    {"ref": "field:<model.name>.<field.name>", "type": "odoo_field", "label": "<field.name>"}
+  ],
+  "edges": [
+    {"type": "implements", "source": "RF-01", "target": "model:<model.name>"},
+    {"type": "owned_by", "source": "field:<model.name>.<field.name>", "target": "model:<model.name>"}
+  ]
+}
+```
+
+Use requirement refs from PRD traceability arrays. Do not write directly to
+`.factory/graph.json`; consolidation is done with `fba graph consolidate`.
+
 ## Validation
 
 After generating sdd.json, validate it:

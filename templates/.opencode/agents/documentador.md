@@ -116,6 +116,29 @@ Render the PRD as a well-formatted Markdown document with these sections:
 | ... | ... |
 ```
 
+## Semantic Graph Emission
+
+After generating `.factory/prd.json`, also write or update
+`.factory/graph_emissions/documentador.json` with PRD traceability nodes:
+
+```json
+{
+  "agent": "documentador",
+  "artifact": ".factory/prd.json",
+  "nodes": [
+    {"ref": "RF-01", "type": "functional_requirement", "label": "RF-01"},
+    {"ref": "RNF-01", "type": "non_functional_requirement", "label": "RNF-01"},
+    {"ref": "CA-01", "type": "acceptance_criterion", "label": "CA-01"}
+  ],
+  "edges": [
+    {"type": "validates", "source": "CA-01", "target": "RF-01"}
+  ]
+}
+```
+
+Use `ref` equal to PRD requirement and acceptance-criterion IDs. Do not write
+directly to `.factory/graph.json`; consolidation is done with `fba graph consolidate`.
+
 ## Validation
 
 After generating prd.json, validate it:
