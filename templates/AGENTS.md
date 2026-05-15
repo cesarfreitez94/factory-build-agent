@@ -11,7 +11,7 @@ Este proyecto usa Factory Build Agent para el desarrollo de modulos Odoo v18.
 
 El flujo de desarrollo sigue estas fases:
 
-1. **Elicitacion** (`/fba:elicit`) - Elicitacion de requisitos usando BABOK
+1. **Elicitacion** (`/fba:elicit`) - Elicitacion de requisitos usando BABOK + Impact Mapping + Event Storming + Example Mapping por defecto
 2. **Especificacion** (`/fba:specify`) - Generacion de PRD.md
 3. **Planificacion** (`/fba:plan`) - Generacion de SDD.md y plan tecnico
 4. **Tareas** (`/fba:tasks`) - Desglose de tareas implementables

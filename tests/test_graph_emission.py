@@ -111,3 +111,58 @@ def test_graph_consolidate_cli_reports_summary(tmp_path):
     assert result.exit_code == 0
     assert "Graph emissions consolidated" in result.output
     assert "Nodes added: 1" in result.output
+
+
+def test_elicitador_full_method_stack_emission_consolidates(tmp_path):
+    project = _project(tmp_path)
+    _write_emission(
+        project,
+        "elicitador.json",
+        {
+            "agent": "elicitador",
+            "artifact": ".factory/context/elicitation.json",
+            "nodes": [
+                {"ref": "goal:primary", "type": "goal", "label": "Reducir tiempos de mantenimiento"},
+                {"ref": "ACT-01", "type": "actor", "label": "Jefe de flota"},
+                {"ref": "IMP-01", "type": "impact", "label": "Planificar mantenimiento preventivo"},
+                {"ref": "DEL-01", "type": "deliverable", "label": "Calendario de mantenimientos"},
+                {"ref": "RF-01", "type": "functional_requirement", "label": "Programar mantenimiento"},
+                {"ref": "EVT-01", "type": "event", "label": "Mantenimiento vencido"},
+                {"ref": "CMD-01", "type": "command", "label": "Programar mantenimiento"},
+                {"ref": "AGG-01", "type": "aggregate", "label": "Vehiculo"},
+                {"ref": "POL-01", "type": "policy", "label": "Notificar vencimiento"},
+                {"ref": "RM-01", "type": "read_model", "label": "Tablero de mantenimiento"},
+                {"ref": "BR-01", "type": "business_rule", "label": "Kilometraje requerido"},
+                {"ref": "EX-01", "type": "example", "label": "Vehiculo supera umbral"},
+            ],
+            "edges": [
+                {"type": "impacts", "source": "ACT-01", "target": "goal:primary"},
+                {"type": "satisfies", "source": "DEL-01", "target": "IMP-01"},
+                {"type": "maps_to", "source": "DEL-01", "target": "RF-01"},
+                {"type": "triggers", "source": "CMD-01", "target": "EVT-01"},
+                {"type": "handled_by", "source": "CMD-01", "target": "AGG-01"},
+                {"type": "triggers", "source": "EVT-01", "target": "POL-01"},
+                {"type": "reads", "source": "RM-01", "target": "AGG-01"},
+                {"type": "validates", "source": "EX-01", "target": "BR-01"},
+            ],
+        },
+    )
+
+    result = GraphEmissionManager(project).consolidate()
+
+    graph = json.loads((project / ".factory" / "graph.json").read_text())
+    assert result.nodes_added == 12
+    assert result.edges_added == 8
+    assert {node["type"] for node in graph["nodes"]} >= {
+        "goal",
+        "actor",
+        "impact",
+        "deliverable",
+        "event",
+        "command",
+        "aggregate",
+        "policy",
+        "read_model",
+        "business_rule",
+        "example",
+    }

@@ -6,6 +6,7 @@ import pytest
 import yaml
 
 AGENTS_DIR = Path(__file__).resolve().parent.parent / "templates" / ".opencode" / "agents"
+COMMANDS_DIR = Path(__file__).resolve().parent.parent / "templates" / ".opencode" / "commands"
 
 
 def _agent_paths():
@@ -124,6 +125,27 @@ class TestElicitadorAgent:
         assert "Stakeholders" in body or "stakeholders" in body.lower()
         assert "functional_requirements" in body
         assert "non_functional_requirements" in body
+
+    def test_elicitador_has_full_method_stack_prompt(self):
+        _, body = _load_agent_md(AGENTS_DIR / "elicitador.md")
+
+        assert "--method-stack full" in body
+        assert "Impact Mapping" in body
+        assert "Event Storming" in body
+        assert "Example Mapping" in body
+        assert "methodology_stack" in body
+        assert "graph_emissions/elicitador.json" in body
+
+    def test_elicit_command_defaults_to_full_method_stack_and_keeps_question_tool(self):
+        body = (COMMANDS_DIR / "fba:elicit.md").read_text()
+
+        assert "--method-stack full" in body
+        assert "--method-stack babok" in body
+        assert "Impact Mapping" in body
+        assert "Event Storming" in body
+        assert "Example Mapping" in body
+        assert "question" in body
+        assert "methodology_stack" in body
 
     def test_elicitador_mentions_elicitation_json(self):
         _, body = _load_agent_md(AGENTS_DIR / "elicitador.md")

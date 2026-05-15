@@ -74,13 +74,17 @@ interactive selection UI for the user.
 1. **Receive the user's module idea** from `/fba:elicit "description"` or
    by asking for it.
 
-2. **Consult the BABOK methodology guide** in `.opencode/agents/elicitador.md`.
-   This agent defines the knowledge areas and question generation principles —
-   use it as a reference, not as the UI presenter.
+2. **Consult the methodology guide** in `.opencode/agents/elicitador.md`.
+   `/fba:elicit` defaults to `--method-stack full`, chaining BABOK, Impact
+   Mapping, Event Storming, and Example Mapping. Use `--method-stack babok`
+   only when the user explicitly requests the legacy minimum flow. The
+   elicitador agent defines the knowledge areas and question generation
+   principles; use it as a reference, not as the UI presenter.
 
 3. **Generate contextual selection questions** based on the user's module
    idea. The questions must be tailored to the specific domain (inventory,
-   sales, HR, fleet, etc.) — never use generic templates.
+   sales, HR, fleet, etc.) and cover the selected method stack; never use
+   generic templates.
 
 4. **Present questions using the `question` tool**:
    - Each question has 4-6 lettered options (A, B, C, ...)
@@ -92,7 +96,11 @@ interactive selection UI for the user.
    the `question` tool for follow-up questions.
 
 6. **Generate `elicitation.json`** from the selections. See
-   `.opencode/agents/elicitador.md` for the output format.
+   `.opencode/agents/elicitador.md` for the output format. In full mode,
+   include the backward-compatible `methodology_stack` extension.
+
+7. **Generate graph emission** in `.factory/graph_emissions/elicitador.json`
+   with refs from `elicitation.json`. Do not write directly to `.factory/graph.json`.
 
 ### Why Not Delegate to Elicitador?
 
@@ -100,9 +108,9 @@ Subagents do NOT have access to the `question` tool. If you delegate
 elicitation to the elicitador subagent, questions are presented as plain
 text and the user must type responses — defeating the purpose of selection-based UI.
 
-The elicitador agent exists as a **methodology reference** (BABOK knowledge
-areas, question generation principles, validation rules) — not as an
-interactive question-asker.
+The elicitador agent exists as a **methodology reference** (BABOK, Impact
+Mapping, Event Storming, Example Mapping, question generation principles,
+validation rules) — not as an interactive question-asker.
 
 ## Validation
 

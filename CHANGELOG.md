@@ -13,6 +13,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 - #157 feat/17.1: Ontologia cerrada NodeType/EdgeType para el grafo semantico, schema `schemas/graph.schema.json`, comando `fba graph validate` y documentacion inicial de testing M17.
 - #159 feat/17.2: `GraphManager` persiste `.factory/graph.json` con atomic writes, genera UUID v4 via `StableIdManager` y expone queries `full_trace`, `impact_of`, `is_covered`, `orphan_nodes`, `dependents` y `governing_adrs` con comandos `fba graph trace/impact/orphans`.
 - #161 feat/17.3: Protocolo de emision semantica en `.factory/graph_emissions/*.json`, consolidacion idempotente con `fba graph consolidate`, y prompts de agentes actualizados para emitir trazabilidad.
+- #165 feat/17.4: `/fba:elicit` usa `--method-stack full` por defecto con BABOK, Impact Mapping, Event Storming y Example Mapping, mantiene compatibilidad de `elicitation.json` y extiende la emision semantica del elicitador.
 
 ---
 

@@ -1,12 +1,14 @@
 ---
-description: Elicit requirements for an Odoo v18 module using BABOK methodology with interactive selection
+description: Elicit Odoo v18 requirements using the full BABOK, Impact Mapping, Event Storming, and Example Mapping stack
 agent: orchestrator
 ---
 
 # fba:elicit
 
-Elicit functional and non-functional requirements following BABOK methodology
-for an Odoo v18 module.
+Elicit functional and non-functional requirements for an Odoo v18 module using
+`--method-stack full` by default. Full mode chains BABOK, Impact Mapping, Event
+Storming, and Example Mapping. Use `--method-stack babok` only when the user
+explicitly requests the legacy minimum flow.
 
 ## Pre-conditions
 - `.factory/state.json` must have `current_phase: "init"`.
@@ -23,13 +25,15 @@ to run the appropriate command to reach the correct phase.
 ### 2. Receive Initial Description
 If the user provided a module description in the command (e.g.,
 `/fba:elicit "modulo de registro de vehiculos"`), use it directly.
+If the command includes `--method-stack babok`, use the BABOK-only flow.
+Otherwise, default to `--method-stack full`.
 Otherwise, ask the user to describe their module idea in natural language.
 
-### 3. Consult BABOK Methodology
-Read `.opencode/agents/elicitador.md` to understand the BABOK methodology
-guidelines for Odoo v18 module elicitation. Based on the user's module
-description, determine which BABOK knowledge areas are most relevant and
-what specific questions will yield the best requirements.
+### 3. Consult Methodology Stack
+Read `.opencode/agents/elicitador.md` to understand the methodology stack for
+Odoo v18 module elicitation. Based on the user's module description and selected
+method stack, determine which areas are most relevant and what specific
+questions will yield the best requirements.
 
 ### 4. Execute Elicitation via Question Tool
 
@@ -40,8 +44,11 @@ they choose "Otro (especificar)".
 
 **Question Generation Guidelines:**
 
-Based on the user's module idea, generate 8-12 selection-based questions
-grouped into these BABOK categories:
+Based on the user's module idea, generate selection-based questions grouped by
+method. In `full` mode, use 10-16 total questions. In `babok` mode, use the
+legacy 8-12 BABOK questions.
+
+**BABOK baseline:**
 
 | Category | Focus | Min Questions |
 |----------|-------|---------------|
@@ -52,6 +59,14 @@ grouped into these BABOK categories:
 | E. Constraints & Dependencies | Technical limits, Odoo dependencies, data | 1 |
 | F. Acceptance Criteria | Measurable criteria for module acceptance | 1 |
 
+**Additional full-stack coverage:**
+
+| Method | Focus | Min Questions |
+|--------|-------|---------------|
+| Impact Mapping | Goal, actors, impacts, deliverables | 2 |
+| Event Storming | Events, commands, aggregates, policies/read models | 2 |
+| Example Mapping | Business rules, examples, edge cases, open questions | 2 |
+
 **For each question:**
 - Provide 4-6 predefined options as lettered choices (A, B, C, ...)
 - ALWAYS include "Otro (especificar)" as the last option
@@ -60,6 +75,7 @@ grouped into these BABOK categories:
 
 **After the first batch**, if responses are incomplete or reveal gaps:
 - Ask targeted follow-up questions for the missing BABOK categories
+- In `full` mode, ask targeted follow-ups for missing Impact Mapping, Event Storming, or Example Mapping coverage
 - Always use the `question` tool with selection format
 
 ### 5. Generate Structured Output
@@ -77,25 +93,38 @@ Ensure the JSON file has all required sections:
 - `dependencies[]`: external dependencies
 - `acceptance_criteria[]`: (id CA-NN, criterion, related_requirements)
 - `glossary[]`: (term, definition)
+- `methodology_stack`: optional extension. Required when method stack is `full`;
+  include Impact Mapping, Event Storming, and Example Mapping sections with
+  stable IDs such as ACT-01, IMP-01, DEL-01, EVT-01, CMD-01, AGG-01, BR-01, EX-01.
 
-### 6. Update State and Record Events
+### 6. Generate Semantic Graph Emission
+
+After saving `elicitation.json`, write or update
+`.factory/graph_emissions/elicitador.json` using refs from the artifact. In
+`full` mode, include nodes for goal, actor, impact, deliverable, event,
+command, aggregate, policy, read_model, business_rule, and example when present.
+Do not write directly to `.factory/graph.json`; consolidation is done with
+`fba graph consolidate`.
+
+### 7. Update State and Record Events
 After saving `elicitation.json`:
 1. Record the elicitation event:
-   ```bash
-   fba record elicitation_complete \
-     --data '{"methodology":"BABOK","rf_count":N,"rnf_count":M}'
-   ```
+    ```bash
+    fba record elicitation_complete \
+      --data '{"methodology":"BABOK","method_stack":"full","rf_count":N,"rnf_count":M}'
+    ```
 2. Transition to elicitation phase:
    ```bash
    fba transition elicitation
    ```
 
-### 7. Report Results and Ask to Proceed
+### 8. Report Results and Ask to Proceed
 Summarize what was elicited:
 - Number of stakeholders identified
 - Number of functional requirements (RF)
 - Number of non-functional requirements (RNF)
 - Number of acceptance criteria (CA)
+- Method stack used and number of Impact Mapping/Event Storming/Example Mapping items, when `full`
 - Key constraints and dependencies
 
 Then follow the **Phase Progression Protocol** from the orchestrator agent
@@ -105,6 +134,7 @@ sub-agent using the `task` tool with the instructions from
 
 ## Post-conditions
 - `.factory/context/elicitation.json` exists with structured requirements.
+- `.factory/graph_emissions/elicitador.json` exists with semantic graph emission.
 - `.factory/state.json` has `current_phase: "elicitation"`, phases.elicitation.status: "in_progress".
 - `.factory/events.jsonl` contains the `elicitation_complete` event.
 - Ready for the next phase: documentation.
@@ -115,7 +145,7 @@ sub-agent using the `task` tool with the instructions from
 User: /fba:elicit "modulo de registro de vehiculos con marca, modelo, ano, placa"
 
 Agent (Orchestrator):
-[Consults BABOK methodology in elicitador.md]
+[Consults method stack in elicitador.md]
 [Generates contextual questions for fleet management domain]
 
 > [Uses question tool]
