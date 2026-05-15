@@ -36,6 +36,28 @@ traceability to the SSOT.
 - `.factory/test_report.json` — structured machine-readable report
 - `.factory/test_report.md` — human-readable report
 
+## Semantic Graph Emission
+
+After generating `.factory/test_report.json`, also write or update
+`.factory/graph_emissions/tester_qa.json` with test coverage nodes:
+
+```json
+{
+  "agent": "tester_qa",
+  "artifact": ".factory/test_report.json",
+  "nodes": [
+    {"ref": "test:<test_name>", "type": "test_case", "label": "<test_name>"}
+  ],
+  "edges": [
+    {"type": "tests", "source": "test:<test_name>", "target": "RF-01"},
+    {"type": "covers", "source": "test:<test_name>", "target": "model:<model.name>"}
+  ]
+}
+```
+
+Use requirement/model refs from `schema.json` traceability. Do not write
+directly to `.factory/graph.json`; consolidation is done with `fba graph consolidate`.
+
 ## Procedure
 
 ### 1. Load the SSOT

@@ -723,6 +723,30 @@ Manifest rules:
 4. Per-task commits — each task gets its own git commit
 5. No interpretation — the schema IS the SSOT. Render exactly what it specifies.
 
+### Semantic Graph Emission
+
+After schema assembly or code rendering, write or update
+`.factory/graph_emissions/code-generator.json` with generated implementation nodes:
+
+```json
+{
+  "agent": "code-generator",
+  "artifact": ".factory/schema.json",
+  "nodes": [
+    {"ref": "model:<model.name>", "type": "odoo_model", "label": "<model.name>"},
+    {"ref": "field:<model.name>.<field.name>", "type": "odoo_field", "label": "<field.name>"},
+    {"ref": "view:<view.name>", "type": "odoo_view", "label": "<view.name>"}
+  ],
+  "edges": [
+    {"type": "owned_by", "source": "field:<model.name>.<field.name>", "target": "model:<model.name>"},
+    {"type": "implements", "source": "RF-01", "target": "model:<model.name>"}
+  ]
+}
+```
+
+Use refs from `schema.json` and existing traceability arrays. Do not write
+directly to `.factory/graph.json`; consolidation is done with `fba graph consolidate`.
+
 ### Odoo v18 Prohibited Patterns (DO NOT USE)
 
 - `<tree>` — use `<list>`

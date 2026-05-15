@@ -26,6 +26,7 @@ El estado actual del proyecto se encuentra en `.factory/state.json`.
 El registro de eventos esta en `.factory/events.jsonl`.
 El registry liviano de modelos Odoo esta en `.factory/module_registry.json`.
 El indice profundo de addons existentes esta en `.factory/registry_index.json` cuando se genera con `fba registry index`.
+El grafo semantico persistido esta en `.factory/graph.json`; los agentes pueden emitir nodos y aristas en `.factory/graph_emissions/*.json` y consolidarlos con `fba graph consolidate`.
 
 ## Artefactos
 
@@ -37,6 +38,8 @@ Los artefactos generados se almacenan en `.factory/`:
 - `tasks.md` - Lista de tareas implementables
 - `module_registry.json` - Registry compatible usado por `SchemaManager`
 - `registry_index.json` - Indice profundo de addons Odoo existentes: modelos, campos, vistas, controllers, seguridad, data/demo, crons, wizards y OWL
+- `graph.json` - Grafo semantico consolidado para trazabilidad de requisitos, diseno, codigo, pruebas y revisiones
+- `graph_emissions/` - Emisiones parciales de nodos/aristas generadas por agentes antes de consolidar
 - `playwright/` - Specs y reportes de browser automation generados por `fba test --playwright`
 - `perf/` - Reportes de benchmarks generados por `fba perf`
 

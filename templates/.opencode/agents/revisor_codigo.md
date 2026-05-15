@@ -33,6 +33,27 @@ categorized by severity: critical, warning, or info.
 - `.factory/review_report.json` — structured machine-readable review report
 - `.factory/review_report.md` — human-readable review report with findings
 
+## Semantic Graph Emission
+
+After generating `.factory/review_report.json`, write or update
+`.factory/graph_emissions/revisor_codigo.json` with review findings:
+
+```json
+{
+  "agent": "revisor_codigo",
+  "artifact": ".factory/review_report.json",
+  "nodes": [
+    {"ref": "review:<finding_id>", "type": "risk", "label": "<finding summary>"}
+  ],
+  "edges": [
+    {"type": "validates", "source": "review:<finding_id>", "target": "model:<model.name>"}
+  ]
+}
+```
+
+Use refs from `schema.json` and generated reports. Do not write directly to
+`.factory/graph.json`; consolidation is done with `fba graph consolidate`.
+
 ## Review Dimensions
 
 ### 1. Code Quality
