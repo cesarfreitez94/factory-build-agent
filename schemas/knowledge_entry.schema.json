@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencode.ai/fba/schemas/knowledge_entry.schema.json",
+  "title": "Odoo Knowledge Entry",
+  "description": "Schema for version-aware Odoo pattern, deprecation, and novelty entries.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "key",
+    "category",
+    "title",
+    "description",
+    "applies_to",
+    "since_version",
+    "deprecated_in",
+    "examples",
+    "anti_patterns",
+    "related_keys"
+  ],
+  "properties": {
+    "key": {
+      "type": "string",
+      "minLength": 3,
+      "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["patterns", "deprecations", "novelties"]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 8
+    },
+    "description": {
+      "type": "string",
+      "minLength": 40
+    },
+    "applies_to": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": ["model", "view", "controller", "wizard", "report", "security", "workflow", "data"]
+      }
+    },
+    "since_version": {
+      "type": ["string", "null"],
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "deprecated_in": {
+      "type": ["string", "null"],
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "examples": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "anti_patterns": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "related_keys": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_]*(\\.[a-z0-9_]+)+$"
+      }
+    }
+  }
+}

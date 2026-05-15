@@ -7,6 +7,34 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [Unreleased]
+
+---
+
+## M16: Foundation Intelligence — 2026-05-14
+
+### Resumen
+- ModuleRegistry autoindexado con `fba registry index/inspect`
+- Odoo version layer (`base/`, `v18/`, `v17/`) + CLI patterns
+- Odoo Pattern Knowledge Base con JSON patterns, schema y tests
+- Agent Observer Plugin para monitorear agentes meta y generar reportes de observabilidad por sesion
+
+### Feats completados
+- #147 feat/16.1: `fba registry index/inspect` autoindexa addons Odoo individuales o carpetas `addons/`, mezcla resultados con `.factory/module_registry.json` dando prioridad al indice nuevo, y persiste el detalle profundo en `.factory/registry_index.json`.
+- #151 feat/16.2: Capa version-aware `src/fba/odoo_versions/` con resolver `base/` + `v18/`/`v17/`, merge version-sobre-base y CLI `fba patterns query/list`.
+- #152 feat/16.3: Odoo Pattern Knowledge Base poblado con entradas JSON de patrones, deprecaciones y novedades para Odoo, schema `knowledge_entry.schema.json` y tests de integridad/cobertura.
+- #154 feat/16.4: Agent Observer Plugin — plugin local `.opencode/plugins/fba-agent-observer.ts` para monitorear agentes meta del framework en `.opencode/agents`, atribuir tokens/costo por agente observado, registrar invocaciones agente-a-agente, herramientas y acceso observable a archivos, y generar reportes Markdown y JSONL por sesion en `.factory/observability/`.
+- #146: Infraestructura de colaboracion — creado marco `.codex/` para trabajar con Codex en el meta-desarrollo del framework, con roles operativos, checklist de inicio M16 y plantilla de brief sin modificar runtime ni templates.
+
+### Planificacion
+- #148/#147: Preparado arranque de M16 con epic, primer issue funcional (`feat/16.1-module-registry-autoindexado`) y brief local `.factory/fw-brief-m16.md`.
+- #144: Integrado `fba-mejoras-post-roadmap.md` al roadmap oficial como milestones planificados M16-M22.
+- #144: Movido el detalle historico de milestones completados M0-M15 a `ROADMAP_CHECK.md`, dejando `ROADMAP.md` enfocado en el roadmap activo.
+- M16-M22 quedan ordenados por dependencias: Foundation Intelligence, Semantic Core, Input & Extension Layer, Governance & Observability, Graph Enforcement Gates, Learning Loop, y Sustainability & Cost Control.
+- Reactivados conceptos pospuestos de M6-M9 cuando ahora tienen prerequisitos cubiertos; los restantes quedan explicitamente pospuestos.
+
+---
+
 ## M15: Advanced QA (Capa 4) — 2026-05-13
 
 ### Nuevas Capacidades
@@ -37,9 +65,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [Unreleased] - 2026-05-13
-
-### M13: Reliability & Quality (Capa 2) — ✅ Completado
+## M13: Reliability & Quality (Capa 2) — 2026-05-13
 - #129 feat/13.5: `ValidationCache` — cache de validacion hash-based en `.factory/.cache/`. Skip de re-validacion si el hash del artefacto no cambio (SHA256). Coexiste con diff engine de M12. Comando: `fba gate --verbose` muestra cache hits/misses. 22 tests.
 - #127 feat/13.1: Fix meta-desarrollo (pre-parte del milestone): permissions, subtask, git flow corregidos
 - #1 feat/13.2: Security scans: bandit + pip-audit + detect-secrets como gates fail-fast en construction

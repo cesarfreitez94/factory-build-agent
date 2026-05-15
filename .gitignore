@@ -70,6 +70,21 @@ venv.bak/
 .opencode/local/
 .opencode/log/
 
+# Node.js
+node_modules/
+
+# TypeScript compiled output
+*.js
+*.mjs
+
+# Caches
+.ruff_cache/
+.mypy_cache/
+.codex/
+
+# Coverage
+.coverage
+
 # Factory Build Agent target projects (these are output, not source)
 .factory/*
 !.factory/framework-state.json

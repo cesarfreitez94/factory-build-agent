@@ -1,6 +1,8 @@
 # Pre-commit hooks for Factory Build Agent
 # See: https://github.com/pre-commit/pre-commit-hooks
 
+exclude: ^\.codex/
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0

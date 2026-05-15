@@ -1,0 +1,98 @@
+{
+  "ir.actions.todo": {
+    "key": "ir.actions.todo",
+    "category": "deprecations",
+    "title": "ir.actions.todo deprecado en Odoo 18",
+    "description": "El modelo ir.actions.todo fue removido en Odoo 18. Usar ir.actions.server con estado 'code' o actividades del sistema en su lugar.",
+    "applies_to": ["model", "workflow"],
+    "since_version": null,
+    "deprecated_in": "18.0",
+    "examples": ["ir.actions.server with state='code'", "workflow.server.action"],
+    "anti_patterns": ["ir.actions.todo"],
+    "related_keys": ["workflow.server.action", "action.server.states"]
+  },
+  "orm.name_get.deprecated": {
+    "key": "orm.name_get.deprecated",
+    "category": "deprecations",
+    "title": "name_get Legacy Display API",
+    "description": "En codigo objetivo Odoo 18, no generar nuevas dependencias de name_get; usar display_name y _search_display_name para comportamiento de nombre y busqueda consistente.",
+    "applies_to": ["model"],
+    "since_version": null,
+    "deprecated_in": "16.4",
+    "examples": ["record.display_name", "def _search_display_name(self, operator, value): ..."],
+    "anti_patterns": ["def name_get(self): ... in new generated models", "Domains built around name_get return tuples"],
+    "related_keys": ["orm.search.display.name", "model.description.rec_name"]
+  },
+  "field.group_operator.renamed": {
+    "key": "field.group_operator.renamed",
+    "category": "deprecations",
+    "title": "group_operator renamed to aggregator",
+    "description": "El atributo group_operator de fields.Field fue renombrado a aggregator; para Odoo 18, generar aggregator en campos agregables usados por read_group.",
+    "applies_to": ["model"],
+    "since_version": null,
+    "deprecated_in": "17.2",
+    "examples": ["amount_total = fields.Monetary(aggregator='sum')"],
+    "anti_patterns": ["fields.Float(group_operator='sum')", "Assuming read_group aggregate without field metadata review"],
+    "related_keys": ["performance.read_group", "performance.search.fetch"]
+  },
+  "orm.flush_search.deprecated": {
+    "key": "orm.flush_search.deprecated",
+    "category": "deprecations",
+    "title": "_flush_search Deprecated",
+    "description": "El metodo _flush_search fue deprecado antes de Odoo 18; el flush de campos usados por consultas debe quedar en execute_query y en metadatos SQL del ORM.",
+    "applies_to": ["model"],
+    "since_version": null,
+    "deprecated_in": "17.1",
+    "examples": ["self.env.cr.execute(query)", "self.env.execute_query(sql)"],
+    "anti_patterns": ["self._flush_search(domain, fields)", "Manual flush search helper in generated code"],
+    "related_keys": ["performance.search.fetch", "performance.prefetch.recordsets"]
+  },
+  "orm.inselect.removed": {
+    "key": "orm.inselect.removed",
+    "category": "deprecations",
+    "title": "inselect Domain Operator Removed",
+    "description": "El operador interno inselect fue removido; para Odoo 18, usar in con Query o SQL object cuando se necesita expresar una subconsulta segura.",
+    "applies_to": ["model"],
+    "since_version": null,
+    "deprecated_in": "17.4",
+    "examples": ["('id', 'in', query)", "('partner_id', 'in', SQL(...))"],
+    "anti_patterns": ["('id', 'inselect', raw_sql)", "String-concatenated SQL inside domains"],
+    "related_keys": ["performance.search.fetch", "security.access.api.combined"]
+  },
+  "orm.fields_get_keys.deprecated": {
+    "key": "orm.fields_get_keys.deprecated",
+    "category": "deprecations",
+    "title": "fields_get_keys Deprecated",
+    "description": "fields_get_keys es API legacy; para introspeccion de campos en Odoo 18, usar fields_get y filtrar las claves o atributos requeridos.",
+    "applies_to": ["model"],
+    "since_version": null,
+    "deprecated_in": "15.3",
+    "examples": ["fields = self.fields_get(attributes=['string', 'type'])"],
+    "anti_patterns": ["self.fields_get_keys()", "Assuming field metadata from private model internals"],
+    "related_keys": ["model.description.rec_name", "field.naming"]
+  },
+  "field.column_format.removed": {
+    "key": "field.column_format.removed",
+    "category": "deprecations",
+    "title": "Deprecated Field Column Attributes Removed",
+    "description": "Atributos tecnicos antiguos como column_format y column_cast_from no deben generarse para Odoo 18; usar parametros modernos de fields.Field y migraciones explicitas.",
+    "applies_to": ["model"],
+    "since_version": null,
+    "deprecated_in": "15.2",
+    "examples": ["fields.Char(index='btree')", "migration script for column shape changes"],
+    "anti_patterns": ["fields.Char(column_format='...')", "Relying on removed column_cast_from behavior"],
+    "related_keys": ["field.naming", "migration.script.layout"]
+  },
+  "view.tree.root.deprecated": {
+    "key": "view.tree.root.deprecated",
+    "category": "deprecations",
+    "title": "Legacy tree View Root in Generated v18 Code",
+    "description": "Para codigo generado hacia Odoo 18, FBA trata tree como legado y emite list en view_mode y en la arquitectura XML de vistas tabulares.",
+    "applies_to": ["view"],
+    "since_version": null,
+    "deprecated_in": "18.0",
+    "examples": ["<list><field name='name'/></list>", "view_mode='list,form'"],
+    "anti_patterns": ["<tree>...</tree>", "view_mode='tree,form'"],
+    "related_keys": ["view.list.root", "view.list.structure"]
+  }
+}
