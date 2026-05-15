@@ -1,24 +1,27 @@
 {
   "schema_version": "1.0",
-  "last_updated": "2026-05-14T23:30:00Z",
+  "last_updated": "2026-05-15T04:55:00Z",
   "last_session": {
-    "date": "2026-05-14",
+    "date": "2026-05-15",
     "agent": "framework-orchestrator",
-    "action": "Cierre de feat 16.4 + creación milestone M23: CAFL-Plugins",
-    "completed_feats": ["feat/16.4-agent-observer-plugin"],
-    "pending_feats": [],
+    "action": "Cierre M17.3 — feat/17.3-agent-graph-emission mergeado a main via PR #163",
+    "completed_feats": ["feat/17.1-graph-ontology", "feat/17.2-graph-store-queries", "feat/17.3-agent-graph-emission"],
+    "pending_feats": ["feat/17.4-elicitation-method-stack"],
     "blockers": []
   },
   "active_milestone": {
-    "id": "M23",
-    "name": "CAFL-Plugins",
-    "branch": "milestone/23.0-cafl-plugins",
+    "id": "M17",
+    "name": "Semantic Core",
+    "branch": "milestone/17.0-semantic-core",
     "status": "in_progress",
-    "feats_total": 1,
-    "feats_done": 0,
-    "feats_pending": ["feat/23.1-agent-observer-plugin"],
+    "feats_total": 4,
+    "feats_done": 3,
+    "feats_pending": ["feat/17.4-elicitation-method-stack"],
     "feats": {
-      "feat/23.1-agent-observer-plugin": { "status": "planned" }
+      "feat/17.1-graph-ontology": { "status": "completed", "merged": true, "issue": 157 },
+      "feat/17.2-graph-store-queries": { "status": "completed", "merged": true, "issue": 159 },
+      "feat/17.3-agent-graph-emission": { "status": "completed", "merged": true, "issue": 161, "pr": 163 },
+      "feat/17.4-elicitation-method-stack": { "status": "planned" }
     },
     "ready_for_user_review": false,
     "start_date": "2026-05-14"
@@ -36,14 +39,14 @@
     "M13": "completed",
     "M14": "completed",
     "M15": "completed",
-    "M16": "completed_with_extras",
-    "M17": "planned",
+    "M16": "completed",
+    "M17": "in_progress",
     "M18": "planned",
     "M19": "planned",
     "M20": "planned",
     "M21": "planned",
     "M22": "planned",
-    "M23": "in_progress"
+    "M23": "paused"
   },
   "roadmap_summary": [
     {"milestone":"M0","name":"Fundacion","status":"completed","start_date":"2026-05-02","end_date":"2026-05-02"},
@@ -59,7 +62,7 @@
     {"milestone":"M14","name":"Odoo Depth (Capa 3)","status":"completed","start_date":"2026-05-13","end_date":"2026-05-13","caps":"Wizards/workflows + migraciones + i18n"},
     {"milestone":"M15","name":"Advanced QA (Capa 4)","status":"completed","start_date":"2026-05-13","end_date":"2026-05-13","caps":"Playwright + performance benchmarks + concurrency"},
     {"milestone":"M16","name":"Foundation Intelligence","status":"completed","start_date":"2026-05-14","end_date":"2026-05-14","caps":"ModuleRegistry autoindexado + Odoo Pattern Knowledge Base + version-aware knowledge"},
-    {"milestone":"M17","name":"Semantic Core","status":"planned","caps":"Semantic graph + ontologia + graph queries + agent emission"},
+    {"milestone":"M17","name":"Semantic Core","status":"in_progress","start_date":"2026-05-14","caps":"Semantic graph + ontologia + graph queries + agent emission"},
     {"milestone":"M18","name":"Input & Extension Layer","status":"planned","caps":"Connector specification ingestion + CKM + CREATE/EXTEND mode"},
     {"milestone":"M19","name":"Governance & Observability","status":"planned","caps":"Human checkpoints + agent decision observability"},
     {"milestone":"M20","name":"Graph Enforcement Gates","status":"planned","caps":"Architectural + semantic + delivery gates over graph/code/results"},
@@ -99,10 +102,16 @@
       "status": "completed"
     },
     {
+      "file": ".factory/fw-brief-m17.md",
+      "description": "M17 Semantic Core: feat/17.1 + feat/17.2 + feat/17.3 completados, feat/17.4 pendiente",
+      "created": "2026-05-14",
+      "status": "completed"
+    },
+    {
       "file": ".factory/fw-brief-m23.md",
       "description": "M23 CAFL-Plugins: plugin de observabilidad para agentes del framework",
       "created": "2026-05-14T00:00:00Z",
-      "status": "in_progress"
+      "status": "paused"
     }
   ],
   "pending_decisions": [
@@ -129,6 +138,14 @@
       "created": "2026-05-14",
       "resolved": "2026-05-14",
       "resolution": "M23 creado con feat 23.1 (agent-observer-plugin)"
+    },
+    {
+      "id": "D2026-05-15-001",
+      "description": "Cierre M17.3 — feat/17.3-agent-graph-emission mergeado a main via PR #163",
+      "status": "resolved",
+      "created": "2026-05-15",
+      "resolved": "2026-05-15",
+      "resolution": "PR #163 mergeado a main. M17 con feat/17.1 + feat/17.2 + feat/17.3 completados. feat/17.4 pendiente."
     }
   ],
   "agents": {
