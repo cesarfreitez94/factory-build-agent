@@ -21,7 +21,7 @@ Ver tambien: [README.md](README.md) | [AGENTS.md](AGENTS.md) | [docs/PRD.md](doc
 | M14: Odoo Depth | ✅ Completado | 2026-05-13 / 2026-05-13 |
 | M15: Advanced QA | ✅ Completado | 2026-05-13 / 2026-05-13 |
 | M16: Foundation Intelligence | ✅ Completado | 2026-05-14 / 2026-05-14 |
-| M17: Semantic Core | ⏳ Planificado | Pendiente |
+| M17: Semantic Core | 🔄 En progreso | Feat 17.2 en desarrollo |
 | M18: Input & Extension Layer | ⏳ Planificado | Pendiente |
 | M19: Governance & Observability | ⏳ Planificado | Pendiente |
 | M20: Graph Enforcement Gates | ⏳ Planificado | Pendiente |
@@ -98,7 +98,7 @@ pytest tests/test_opencode_agent_observer_plugin.py
 
 ### M17: Semantic Core
 
-**Estado**: Planificado.
+**Estado**: En progreso.
 
 **Objetivo**: Introducir el grafo semantico como memoria compartida y trazable del sistema,
 sin infraestructura externa en la primera iteracion.
@@ -112,8 +112,8 @@ y emision gradual desde agentes existentes.
 
 | Orden | Feat | Depende de | Descripcion | Estado |
 |-------|------|------------|-------------|--------|
-| 1 | feat/17.1-graph-ontology | M16 | NodeType y EdgeType para BABOK, Impact Mapping, Event Storming, Example Mapping, Odoo, integraciones y calidad | ⏳ |
-| 2 | feat/17.2-graph-store-queries | feat/17.1 | Persistencia JSON + queries: impact_of, is_covered, orphan_nodes, dependents, governing_adrs, full_trace | ⏳ |
+| 1 | feat/17.1-graph-ontology | M16 | NodeType y EdgeType cerrados para BABOK, Impact Mapping, Event Storming, Example Mapping, Odoo, integraciones y calidad; schema `graph.schema.json` y `fba graph validate` | ✅ |
+| 2 | feat/17.2-graph-store-queries | feat/17.1 | Persistencia JSON + queries: impact_of, is_covered, orphan_nodes, dependents, governing_adrs, full_trace | 🔄 |
 | 3 | feat/17.3-agent-graph-emission | feat/17.2 | Protocolo para que Elicitador, Documentador, Planificador, Constructor, Tester y Revisores emitan nodos/aristas | ⏳ |
 | 4 | feat/17.4-elicitation-method-stack | feat/17.3 | Encadenar BABOK + Impact Mapping + Event Storming + Example Mapping dentro de `/fba:elicit` | ⏳ |
 

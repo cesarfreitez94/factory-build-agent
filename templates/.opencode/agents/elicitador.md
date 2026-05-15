@@ -178,6 +178,31 @@ Regardless of how questions are asked, the final output is always
 - At least 1 acceptance criterion must be defined
 - All IDs must follow patterns: RF-NN, RNF-NN, CA-NN
 
+## Semantic Graph Emission
+
+After generating `.factory/context/elicitation.json`, also write or update
+`.factory/graph_emissions/elicitador.json` with semantic nodes discovered in
+elicitation:
+
+```json
+{
+  "agent": "elicitador",
+  "artifact": ".factory/context/elicitation.json",
+  "nodes": [
+    {"ref": "stakeholder:<name>", "type": "stakeholder", "label": "<name>"},
+    {"ref": "RF-01", "type": "functional_requirement", "label": "<short RF label>"},
+    {"ref": "RNF-01", "type": "non_functional_requirement", "label": "<short RNF label>"},
+    {"ref": "CA-01", "type": "acceptance_criterion", "label": "<criterion summary>"}
+  ],
+  "edges": [
+    {"type": "validates", "source": "CA-01", "target": "RF-01"}
+  ]
+}
+```
+
+Use stable `ref` values matching artifact IDs so `fba graph consolidate` can
+merge emissions idempotently.
+
 ## Record Completion
 After the orchestrator generates and saves elicitation.json:
 - Run: `fba record elicitation_complete --data '{"methodology":"BABOK","rf_count":X,"rnf_count":Y}'`

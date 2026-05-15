@@ -11,12 +11,14 @@ from fba.contract_engine import ContractEngine, ContractError
 from fba.dependency_analyzer import DependencyAnalyzer, DependencyError
 from fba.diff_engine import DiffEngine, DiffError
 from fba.gate import GateError
+from fba.graph_emission import GraphEmissionError, consolidate_graph_emissions
 from fba.i18n_manager import I18nManager
 from fba.migration_manager import MigrationError, MigrationManager
 from fba.performance import PerformanceError, PerformanceRunner
 from fba.playwright_manager import PlaywrightError, PlaywrightManager
 from fba.registry_indexer import RegistryIndexer, RegistryIndexError
 from fba.schema_manager import SchemaManager
+from fba.semantic_graph import GraphManager, SemanticGraphError, SemanticGraphValidator
 from fba.stable_ids import StableIdError, StableIdManager
 from fba.state import StateManager, _atomic_write
 
@@ -1021,6 +1023,9 @@ def diff(file_v1: Path, file_v2: Path, output_format: str) -> None:
 _deps_group = click.group("deps")(lambda: None)
 _deps_group.help = "Odoo dependency integrity analysis."
 
+_graph_group = click.group("graph")(lambda: None)
+_graph_group.help = "Semantic graph validation and query commands."
+
 
 @_deps_group.command("check")
 @PROJECT_DIR_OPTION
@@ -1062,6 +1067,117 @@ def deps_check(project_dir: str | None) -> None:
     click.echo(f"\nAll {len(results)} module(s) have clean dependencies.")
 
 
+@_graph_group.command("validate")
+@PROJECT_DIR_OPTION
+@click.option("--graph", "graph_path", default=None, type=click.Path(path_type=Path), help="Graph JSON path (default: .factory/graph.json)")
+def graph_validate(project_dir: str | None, graph_path: Path | None) -> None:
+    """Validate .factory/graph.json against schema and edge references."""
+    target = _resolve_project_dir(project_dir)
+    path = graph_path if graph_path else target / ".factory" / "graph.json"
+
+    try:
+        result = SemanticGraphValidator().validate_file(path)
+    except SemanticGraphError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    if result.valid:
+        click.echo("✅ graph: valid")
+        return
+
+    click.echo(f"❌ graph: {len(result.errors)} validation error(s)")
+    for error in result.errors:
+        click.echo(f"  - {error}")
+    raise SystemExit(1)
+
+
+@_graph_group.command("trace")
+@click.argument("node_id")
+@PROJECT_DIR_OPTION
+def graph_trace(node_id: str, project_dir: str | None) -> None:
+    """Trace a graph node with incoming/outgoing relationships."""
+    target = _resolve_project_dir(project_dir)
+    try:
+        trace_result = GraphManager(target).full_trace(node_id)
+    except SemanticGraphError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    node = trace_result["node"]
+    click.echo(f"Trace: {node['label']} ({node['type']})")
+    click.echo(f"  ID: {node['id']}")
+    click.echo(f"  Incoming: {len(trace_result['incoming'])}")
+    for record in trace_result["incoming"]:
+        click.echo(f"    <- {record['edge']['type']} from {record['source']['label']}")
+    click.echo(f"  Outgoing: {len(trace_result['outgoing'])}")
+    for record in trace_result["outgoing"]:
+        click.echo(f"    -> {record['edge']['type']} to {record['target']['label']}")
+
+
+@_graph_group.command("impact")
+@click.argument("node_id")
+@PROJECT_DIR_OPTION
+def graph_impact(node_id: str, project_dir: str | None) -> None:
+    """Show downstream graph impact for a node."""
+    target = _resolve_project_dir(project_dir)
+    try:
+        impacted = GraphManager(target).impact_of(node_id)
+    except SemanticGraphError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    click.echo(f"Impact: {len(impacted)} relationship(s)")
+    for record in impacted:
+        click.echo(f"  {record['source']['label']} --{record['edge']['type']}--> {record['target']['label']}")
+
+
+@_graph_group.command("orphans")
+@PROJECT_DIR_OPTION
+def graph_orphans(project_dir: str | None) -> None:
+    """List graph nodes without incoming or outgoing edges."""
+    _print_graph_orphans(project_dir)
+
+
+@_graph_group.command("orphan-nodes")
+@PROJECT_DIR_OPTION
+def graph_orphan_nodes(project_dir: str | None) -> None:
+    """List graph nodes without incoming or outgoing edges."""
+    _print_graph_orphans(project_dir)
+
+
+def _print_graph_orphans(project_dir: str | None) -> None:
+    target = _resolve_project_dir(project_dir)
+    try:
+        orphans = GraphManager(target).orphan_nodes()
+    except SemanticGraphError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    click.echo(f"Orphan nodes: {len(orphans)}")
+    for node in orphans:
+        click.echo(f"  - {node['label']} ({node['type']}) {node['id']}")
+
+
+@_graph_group.command("consolidate")
+@PROJECT_DIR_OPTION
+@click.option("--emissions-dir", default=None, type=click.Path(path_type=Path), help="Directory with agent graph emission JSON files")
+def graph_consolidate(project_dir: str | None, emissions_dir: Path | None) -> None:
+    """Merge agent graph emissions into .factory/graph.json."""
+    target = _resolve_project_dir(project_dir)
+    try:
+        result = consolidate_graph_emissions(target, emissions_dir=emissions_dir)
+    except GraphEmissionError as e:
+        click.echo(f"Error: {e}", err=True)
+        raise SystemExit(1)
+
+    click.echo("Graph emissions consolidated.")
+    click.echo(f"  Emissions: {result.emissions}")
+    click.echo(f"  Nodes added: {result.nodes_added}")
+    click.echo(f"  Nodes updated: {result.nodes_updated}")
+    click.echo(f"  Edges added: {result.edges_added}")
+    click.echo(f"  Edges skipped: {result.edges_skipped}")
+
+
 @main.command()
 @click.argument("entity_id")
 @PROJECT_DIR_OPTION
@@ -1093,6 +1209,7 @@ def trace(entity_id: str, project_dir: str | None) -> None:
 
 
 main.add_command(_deps_group)
+main.add_command(_graph_group)
 main.add_command(_schema_group)
 
 

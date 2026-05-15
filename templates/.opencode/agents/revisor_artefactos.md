@@ -32,6 +32,27 @@ agent that owns the artifact for correction.
 - `.factory/gate_report.json` — Machine-readable validation report
 - Gate pass/fail displayed to the user with actionable diagnostics
 
+## Semantic Graph Emission
+
+After generating `.factory/gate_report.json`, write or update
+`.factory/graph_emissions/revisor_artefactos.json` with validation coverage:
+
+```json
+{
+  "agent": "revisor_artefactos",
+  "artifact": ".factory/gate_report.json",
+  "nodes": [
+    {"ref": "gate:<phase>", "type": "quality_attribute", "label": "Gate <phase>"}
+  ],
+  "edges": [
+    {"type": "validates", "source": "gate:<phase>", "target": "RF-01"}
+  ]
+}
+```
+
+Use refs already emitted by artifact-producing agents. Do not write directly to
+`.factory/graph.json`; consolidation is done with `fba graph consolidate`.
+
 ## Validation Levels
 
 ### Level 1: Artifact Existence

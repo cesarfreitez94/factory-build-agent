@@ -32,6 +32,27 @@ prevent that.
 
 - `.factory/semantic_report.json` — structured validation report
 
+## Semantic Graph Emission
+
+After generating `.factory/semantic_report.json`, write or update
+`.factory/graph_emissions/validador_semantico.json` with semantic validation nodes:
+
+```json
+{
+  "agent": "validador_semantico",
+  "artifact": ".factory/semantic_report.json",
+  "nodes": [
+    {"ref": "semantic:<phase>", "type": "quality_attribute", "label": "Semantic validation <phase>"}
+  ],
+  "edges": [
+    {"type": "validates", "source": "semantic:<phase>", "target": "RF-01"}
+  ]
+}
+```
+
+Use refs already emitted by artifact-producing agents. Do not write directly to
+`.factory/graph.json`; consolidation is done with `fba graph consolidate`.
+
 ## Procedure
 
 ### 1. Identify the Semantic Check Rule
