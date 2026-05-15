@@ -43,8 +43,9 @@ El framework soporta un sistema de plugins locales de OpenCode para extender su 
 - Concurrency safety: `StateManager` warns when `state.json` changed since load; `fba doctor --concurrency` checks rollback/temp markers.
 - Communication: Hybrid (file-based artifacts + event log + git).
 - Semantic graph: M17 introduces the closed ontology and schema for `.factory/graph.json`,
-  `GraphManager` JSON persistence with atomic writes, `fba graph validate`, and graph queries
-  (`trace`, `impact`, `orphans`/`orphan-nodes`); later M17 feats add agent emission.
+  `GraphManager` JSON persistence with atomic writes, `fba graph validate`, graph queries
+  (`trace`, `impact`, `orphans`/`orphan-nodes`), agent emission, and elicitation graph
+  coverage from BABOK + Impact Mapping + Event Storming + Example Mapping.
 - Post-M15 planned state artifacts: `.factory/graph.json` for semantic graph persistence,
   `.factory/decisions.jsonl` for agent decision observability, and
   `.factory/failure_patterns.json` for structured learning from recurring failures.
@@ -53,7 +54,7 @@ El framework soporta un sistema de plugins locales de OpenCode para extender su 
 
 1 project orchestrator + 9 sub-agents defined declaratively in `templates/.opencode/` (copied to user projects by `fba init`):
 - **Orchestrator** — Coordinates phases, validates artifacts, invokes sub-agents.
-- **Elicitador** — Requirements elicitation using BABOK methodology.
+- **Elicitador** — Requirements elicitation using BABOK + Impact Mapping + Event Storming + Example Mapping.
 - **Documentador** — Generates PRD.md and SDD.md documentation.
 - **Planificador** — Generates technical plan and Odoo v18 architecture.
 - **Revisor de Artefactos** — Validates artifacts against schemas and cross-artifact coherence.

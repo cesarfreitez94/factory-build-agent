@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0",
-  "last_updated": "2026-05-15T04:55:00Z",
+  "last_updated": "2026-05-15T05:15:00Z",
   "last_session": {
     "date": "2026-05-15",
     "agent": "framework-orchestrator",
-    "action": "Cierre M17.3 — feat/17.3-agent-graph-emission mergeado a main via PR #163",
-    "completed_feats": ["feat/17.1-graph-ontology", "feat/17.2-graph-store-queries", "feat/17.3-agent-graph-emission"],
-    "pending_feats": ["feat/17.4-elicitation-method-stack"],
+    "action": "Cierre M17.3 — feat/17.3-agent-graph-emission mergeado a main via PR #163 | Cierre implementacion 17.4 — feat/17.4-elicitation-method-stack completado en la sesion actual",
+    "completed_feats": ["feat/17.1-graph-ontology", "feat/17.2-graph-store-queries", "feat/17.3-agent-graph-emission", "feat/17.4-elicitation-method-stack"],
+    "pending_feats": [],
     "blockers": []
   },
   "active_milestone": {
@@ -15,15 +15,15 @@
     "branch": "milestone/17.0-semantic-core",
     "status": "in_progress",
     "feats_total": 4,
-    "feats_done": 3,
-    "feats_pending": ["feat/17.4-elicitation-method-stack"],
+    "feats_done": 4,
+    "feats_pending": [],
     "feats": {
       "feat/17.1-graph-ontology": { "status": "completed", "merged": true, "issue": 157 },
       "feat/17.2-graph-store-queries": { "status": "completed", "merged": true, "issue": 159 },
       "feat/17.3-agent-graph-emission": { "status": "completed", "merged": true, "issue": 161, "pr": 163 },
-      "feat/17.4-elicitation-method-stack": { "status": "planned" }
+      "feat/17.4-elicitation-method-stack": { "status": "completed", "merged": false, "issue": 165 }
     },
-    "ready_for_user_review": false,
+    "ready_for_user_review": true,
     "start_date": "2026-05-14"
   },
   "roadmap_status": {
@@ -62,7 +62,7 @@
     {"milestone":"M14","name":"Odoo Depth (Capa 3)","status":"completed","start_date":"2026-05-13","end_date":"2026-05-13","caps":"Wizards/workflows + migraciones + i18n"},
     {"milestone":"M15","name":"Advanced QA (Capa 4)","status":"completed","start_date":"2026-05-13","end_date":"2026-05-13","caps":"Playwright + performance benchmarks + concurrency"},
     {"milestone":"M16","name":"Foundation Intelligence","status":"completed","start_date":"2026-05-14","end_date":"2026-05-14","caps":"ModuleRegistry autoindexado + Odoo Pattern Knowledge Base + version-aware knowledge"},
-    {"milestone":"M17","name":"Semantic Core","status":"in_progress","start_date":"2026-05-14","caps":"Semantic graph + ontologia + graph queries + agent emission"},
+    {"milestone":"M17","name":"Semantic Core","status":"in_progress","start_date":"2026-05-14","caps":"Semantic graph + ontologia + graph queries + agent emission + method stack"},
     {"milestone":"M18","name":"Input & Extension Layer","status":"planned","caps":"Connector specification ingestion + CKM + CREATE/EXTEND mode"},
     {"milestone":"M19","name":"Governance & Observability","status":"planned","caps":"Human checkpoints + agent decision observability"},
     {"milestone":"M20","name":"Graph Enforcement Gates","status":"planned","caps":"Architectural + semantic + delivery gates over graph/code/results"},
@@ -146,6 +146,12 @@
       "created": "2026-05-15",
       "resolved": "2026-05-15",
       "resolution": "PR #163 mergeado a main. M17 con feat/17.1 + feat/17.2 + feat/17.3 completados. feat/17.4 pendiente."
+    },
+    {
+      "id": "D2026-05-15-002",
+      "description": "Abrir PR de milestone/17.0 a main requiere validacion manual del usuario siguiendo docs/testing/m17-semantic-core.md",
+      "status": "pending",
+      "created": "2026-05-15"
     }
   ],
   "agents": {

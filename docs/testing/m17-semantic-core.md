@@ -48,12 +48,35 @@ Orphan nodes: N
 
 Las APIs internas cubiertas por tests son: `full_trace`, `impact_of`, `is_covered`, `orphan_nodes`, `dependents` y `governing_adrs`.
 
+## Feat 17.4 - Stack metodologico de elicitacion
+
+**Objetivo**: validar que `/fba:elicit` usa `--method-stack full` por defecto y que la elicitacion puede emitir nodos semanticos de BABOK, Impact Mapping, Event Storming y Example Mapping sin romper `elicitation.json`.
+
+**Comando manual en un proyecto inicializado**:
+```text
+/fba:elicit "modulo de control de mantenimiento preventivo de vehiculos"
+```
+
+**Resultado esperado**:
+- El orquestador usa el `question` tool para preguntas interactivas.
+- `.factory/context/elicitation.json` conserva los campos existentes y agrega `methodology_stack.mode = "full"`.
+- `.factory/graph_emissions/elicitador.json` incluye refs para requisitos y, cuando aplique, `ACT-01`, `IMP-01`, `DEL-01`, `EVT-01`, `CMD-01`, `AGG-01`, `BR-01` y `EX-01`.
+- El evento `elicitation_complete` incluye `method_stack: "full"`.
+
+Para probar el flujo legacy minimo:
+
+```text
+/fba:elicit --method-stack babok "modulo de control de mantenimiento preventivo de vehiculos"
+```
+
+**Resultado esperado**: el flujo genera el `elicitation.json` compatible sin exigir las secciones extra del stack completo.
+
 ## Tests automatizados
 
 ```bash
-pytest tests/test_semantic_graph.py
+pytest tests/test_semantic_graph.py tests/test_graph_emission.py tests/test_agent_definitions.py tests/test_cli.py
 ```
 
 ## Estado del milestone
 
-Feat 17.2 agrega persistencia local y queries fundamentales. La emision automatica desde agentes queda pendiente para feat 17.3.
+Feat 17.4 completa la cobertura de elicitacion semantica de M17. El cierre del milestone requiere validacion manual del usuario antes del PR a `main`.

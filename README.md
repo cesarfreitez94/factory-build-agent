@@ -11,7 +11,7 @@ Framework multi-agente para desarrollo de modulos Odoo v18 con IA.
 Factory Build Agent es un framework de desarrollo por agentes de IA que automatiza
 el ciclo completo de creacion de modulos Odoo v18:
 
-- **Elicita** requisitos usando metodologia BABOK (Business Analysis Body of Knowledge)
+- **Elicita** requisitos usando BABOK + Impact Mapping + Event Storming + Example Mapping
 - **Genera** PRD (Product Requirements Document) y SDD (Software Design Document)
 - **Construye** modulos Odoo v18 automaticamente (modelos, vistas, seguridad, datos)
 - **Prueba** los modulos generados con tests unitarios y de integracion
@@ -107,7 +107,7 @@ FBA has **two orchestrator levels**:
 #### Project Orchestrator (Odoo module generation)
 1 orchestrator + 9 sub-agents for Odoo v18 module lifecycle:
 - **Orchestrator** — Coordinates phases, validates artifacts, invokes sub-agents
-- **Elicitador** — BABOK-based requirements elicitation
+- **Elicitador** — Requirements elicitation with BABOK + Impact Mapping + Event Storming + Example Mapping
 - **Documentador** — PRD.md + SDD.md generation
 - **Planificador** — Technical plan + Odoo v18 architecture
 - **Code Generator** — Schema Manager (SSOT) + Code Renderer
