@@ -1,0 +1,43 @@
+{
+  "contract_name": "policy_constraints",
+  "contract_version": "2.0",
+  "constraints_id": "POLICY-20260515-001",
+  "intent_id": "INTENT-20260515-001",
+  "created_at": "2026-05-15T14:00:00Z",
+  "policy_refs": [
+    "CONTRIBUTING.md::branch_policy",
+    "CONTRIBUTING.md::commit_policy",
+    "CONTRIBUTING.md::tests_policy",
+    "CONTRIBUTING.md::pr_policy",
+    "CHANGELOG.md::unreleased"
+  ],
+  "allowed_operations": [
+    "read_contract",
+    "validate_schema",
+    "create_task_packet",
+    "build_context_bundle",
+    "run_tests",
+    "create_review_report",
+    "request_git_operation",
+    "design_schema"
+  ],
+  "blocked_operations": [
+    "execute_git_operation",
+    "commit",
+    "push",
+    "open_pr",
+    "merge_pr",
+    "modify_odoo_generator",
+    "create_agent",
+    "create_prompt"
+  ],
+  "required_checks": [
+    "no_direct_commit_to_main",
+    "changelog_required",
+    "issue_required_before_code",
+    "tests_required_before_pr"
+  ],
+  "requires_user_confirmation": false,
+  "rationale": "Normalized from repository policies and the current intent. Architecture, schema, agent, command, or workflow changes require changelog tracking. Git execution is deferred to a future authorized git_operation.",
+  "human_summary": "Issue-backed work must avoid direct commits to main and route git execution through git_operation. Tests are required before PR. Changelog updates are required for architecture or workflow-impacting changes. Odoo generator changes are blocked by intent scope."
+}
