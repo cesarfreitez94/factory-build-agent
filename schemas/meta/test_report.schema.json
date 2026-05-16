@@ -1,0 +1,187 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://opencode.ai/fba/schemas/meta/test_report.schema.json",
+  "title": "FBA Test Report",
+  "description": "Structured result of validation and test execution.",
+  "type": "object",
+  "required": [
+    "contract_name",
+    "contract_version",
+    "report_id",
+    "implementation_report_id",
+    "created_at",
+    "status",
+    "test_runs",
+    "failures",
+    "coverage"
+  ],
+  "properties": {
+    "contract_name": {
+      "type": "string",
+      "const": "test_report"
+    },
+    "contract_version": {
+      "type": "string",
+      "const": "2.0"
+    },
+    "report_id": {
+      "type": "string",
+      "pattern": "^TEST-[0-9]{8}-[0-9]{3}$"
+    },
+    "implementation_report_id": {
+      "type": "string",
+      "pattern": "^IMPL-[0-9]{8}-[0-9]{3}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["passed", "failed", "partial", "not_run"]
+    },
+    "test_runs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["command", "status", "exit_code"],
+        "properties": {
+          "command": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": ["passed", "failed", "skipped"]
+          },
+          "exit_code": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "kind": {
+            "type": "string",
+            "enum": ["pytest", "jsonschema", "lint", "security", "custom"]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "failures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["test_name", "message"],
+        "properties": {
+          "test_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string"
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["required", "satisfied"],
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "satisfied": {
+          "type": "boolean"
+        },
+        "details": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "skipped_tests": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "environment": {
+      "type": "object",
+      "properties": {
+        "runtime": {
+          "type": "string"
+        },
+        "os": {
+          "type": "string"
+        },
+        "python_version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "performance": {
+      "type": "object",
+      "properties": {
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "memory_mb": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "not_run_reason": {
+      "type": "string"
+    },
+    "human_summary": {
+      "type": "string"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "failed"
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "failures": {
+            "minItems": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "not_run"
+          }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "required": ["not_run_reason"]
+      }
+    }
+  ],
+  "additionalProperties": false
+}

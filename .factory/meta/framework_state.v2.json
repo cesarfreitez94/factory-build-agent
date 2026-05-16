@@ -1,0 +1,30 @@
+{
+  "contract_name": "framework_state_v2",
+  "contract_version": "2.0",
+  "state_id": "FWSTATE-20260515-001",
+  "updated_at": "2026-05-15T13:00:00Z",
+  "workflow_version": "meta_v2",
+  "current_phase": "implementation",
+  "active_intent_id": null,
+  "active_plan_id": null,
+  "active_task_id": null,
+  "active_milestone": {
+    "id": "M18",
+    "status": "in_progress",
+    "branch": "milestone/18.0-input-extension-layer",
+    "name": "Input & Extension Layer"
+  },
+  "last_completed_step": null,
+  "artifacts": [
+    {
+      "contract_name": "framework_state_v2",
+      "contract_version": "2.0",
+      "artifact_id": "FWSTATE-20260515-001",
+      "path": ".factory/meta/framework_state.v2.json",
+      "status": "valid",
+      "version": 1
+    }
+  ],
+  "pending_decisions": [],
+  "human_summary": "V2 shadow projection generated from the authoritative V1 framework state."
+}

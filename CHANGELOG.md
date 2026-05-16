@@ -9,6 +9,16 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### M24 Meta-Framework Builders
+- #168 feat/24.1: Schemas JSON para workflow v2: intent, plan, roadmap_slice, task_packet, policy_constraints, context_bundle, decisions, git_operation, implementation_report, review_report, test_report, framework_state.v2.
+- #168 feat/24.2: Migration de workflow v1 a v2 con drift detection y validation.
+- #168 feat/24.3: Policy constraints generator — genera constraints desde roadmap_slice y plan.
+- #168 feat/24.4: Context bundle broker — broker para distribuir context bundles a agentes.
+- #168 feat/24.5: Task packet builder — constructor de task packets para executor.
+- #168 feat/24.6: Plan builder — constructor de planes desde intent y constraints.
+- #168 feat/24.7: Roadmap slice builder — constructor de roadmap slices para milestones.
+- #168 feat/24.8: Intent builder — constructor de intents desde roadmap y feedback.
+
 ### M17 Semantic Core
 - #157 feat/17.1: Ontologia cerrada NodeType/EdgeType para el grafo semantico, schema `schemas/graph.schema.json`, comando `fba graph validate` y documentacion inicial de testing M17.
 - #159 feat/17.2: `GraphManager` persiste `.factory/graph.json` con atomic writes, genera UUID v4 via `StableIdManager` y expone queries `full_trace`, `impact_of`, `is_covered`, `orphan_nodes`, `dependents` y `governing_adrs` con comandos `fba graph trace/impact/orphans`.

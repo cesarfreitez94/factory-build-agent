@@ -1,0 +1,175 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://opencode.ai/fba/schemas/meta/framework_state.v2.schema.json",
+  "title": "FBA Framework Meta-Workflow State V2",
+  "description": "Persistent state for the schema-driven meta-workflow V2.",
+  "type": "object",
+  "required": [
+    "contract_name",
+    "contract_version",
+    "state_id",
+    "updated_at",
+    "workflow_version",
+    "current_phase",
+    "artifacts",
+    "pending_decisions"
+  ],
+  "properties": {
+    "contract_name": {
+      "type": "string",
+      "const": "framework_state_v2"
+    },
+    "contract_version": {
+      "type": "string",
+      "const": "2.0"
+    },
+    "state_id": {
+      "type": "string",
+      "pattern": "^FWSTATE-[0-9]{8}-[0-9]{3}$"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "workflow_version": {
+      "type": "string",
+      "const": "meta_v2"
+    },
+    "current_phase": {
+      "type": "string",
+      "enum": [
+        "idle",
+        "intent",
+        "policy_constraints",
+        "roadmap_slice",
+        "planning",
+        "tasking",
+        "context",
+        "implementation",
+        "testing",
+        "review",
+        "git_operation",
+        "completed",
+        "blocked"
+      ]
+    },
+    "active_intent_id": {
+      "type": ["string", "null"],
+      "pattern": "^INTENT-[0-9]{8}-[0-9]{3}$"
+    },
+    "active_plan_id": {
+      "type": ["string", "null"],
+      "pattern": "^PLAN-[0-9]{8}-[0-9]{3}$"
+    },
+    "active_task_id": {
+      "type": ["string", "null"],
+      "pattern": "^TASK-[0-9]{8}-[0-9]{3}$"
+    },
+    "active_milestone": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "required": ["id", "status", "branch"],
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^M[0-9]+$"
+            },
+            "name": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": ["planned", "in_progress", "completed", "paused"]
+            },
+            "branch": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "last_completed_step": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "enum": [
+            "intent",
+            "policy_constraints",
+            "roadmap_slice",
+            "plan",
+            "task_packet",
+            "context_bundle",
+            "implementation_report",
+            "test_report",
+            "review_report",
+            "git_operation"
+          ]
+        }
+      ]
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["contract_name", "artifact_id", "path", "status"],
+        "properties": {
+          "contract_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "contract_version": {
+            "type": "string"
+          },
+          "artifact_id": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["draft", "valid", "published"]
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "pending_decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["decision_id", "status"],
+        "properties": {
+          "decision_id": {
+            "type": "string",
+            "pattern": "^DEC-[0-9]{8}-[0-9]{3}$"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "resolved", "cancelled"]
+          },
+          "question": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "human_summary": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

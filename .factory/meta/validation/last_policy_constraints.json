@@ -1,0 +1,8 @@
+{
+  "contract_name": "policy_constraints_validation",
+  "contract_version": "2.0",
+  "validated_at": "2026-05-15T14:00:00Z",
+  "artifact_path": ".factory/meta/artifacts/policy_constraints/POLICY-20260515-001.json",
+  "schema_path": "schemas/meta/policy_constraints.schema.json",
+  "schema_valid": true
+}

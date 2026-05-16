@@ -1,0 +1,240 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://opencode.ai/fba/schemas/meta/roadmap_slice.schema.json",
+  "title": "FBA Roadmap Slice",
+  "description": "Minimal roadmap and policy slice needed to plan the next execution step.",
+  "type": "object",
+  "required": [
+    "contract_name",
+    "contract_version",
+    "slice_id",
+    "intent_id",
+    "created_at",
+    "active_milestone",
+    "relevant_milestones",
+    "policy_refs",
+    "allowed_operations",
+    "blocked_operations",
+    "source_refs"
+  ],
+  "properties": {
+    "contract_name": {
+      "type": "string",
+      "const": "roadmap_slice"
+    },
+    "contract_version": {
+      "type": "string",
+      "const": "2.0"
+    },
+    "slice_id": {
+      "type": "string",
+      "pattern": "^RSLICE-[0-9]{8}-[0-9]{3}$"
+    },
+    "intent_id": {
+      "type": "string",
+      "pattern": "^INTENT-[0-9]{8}-[0-9]{3}$"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "active_milestone": {
+      "type": "object",
+      "required": ["id", "status", "branch"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^M[0-9]+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["planned", "in_progress", "completed", "paused"]
+        },
+        "branch": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "relevant_milestones": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "status"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^M[0-9]+$"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["planned", "in_progress", "completed", "paused"]
+          },
+          "branch": {
+            "type": "string"
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "policy_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "allowed_operations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "enum": [
+          "design_schema",
+          "read_contract",
+          "validate_schema",
+          "create_task_packet",
+          "build_context_bundle",
+          "run_tests",
+          "create_review_report",
+          "request_git_operation",
+          "execute_git_operation",
+          "create_agent",
+          "create_prompt",
+          "modify_odoo_generator",
+          "write_markdown_operational",
+          "commit",
+          "push",
+          "open_pr",
+          "merge_pr"
+        ]
+      }
+    },
+    "blocked_operations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "design_schema",
+          "read_contract",
+          "validate_schema",
+          "create_task_packet",
+          "build_context_bundle",
+          "run_tests",
+          "create_review_report",
+          "request_git_operation",
+          "execute_git_operation",
+          "create_agent",
+          "create_prompt",
+          "modify_odoo_generator",
+          "write_markdown_operational",
+          "commit",
+          "push",
+          "open_pr",
+          "merge_pr"
+        ]
+      }
+    },
+    "source_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["path"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "section": {
+            "type": "string"
+          },
+          "line_ranges": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["start", "end"],
+              "properties": {
+                "start": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "end": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "open_issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["issue_id", "title", "status"],
+        "properties": {
+          "issue_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "branch_context": {
+      "type": "object",
+      "required": ["current", "base"],
+      "properties": {
+        "current": {
+          "type": "string"
+        },
+        "base": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "recent_changes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "risk_notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "human_summary": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

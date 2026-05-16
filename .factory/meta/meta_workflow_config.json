@@ -1,0 +1,11 @@
+{
+  "meta_workflow_version": "v1",
+  "authoritative_state": ".factory/framework-state.json",
+  "projected_state": ".factory/meta/framework_state.v2.json",
+  "fallback_enabled": true,
+  "rollback_enabled": true,
+  "projection_mode": "shadow",
+  "schema_catalog_path": ".factory/meta/schema_catalog.json",
+  "migration_path": ".factory/meta/migration.json",
+  "validation_path": ".factory/meta/validation"
+}

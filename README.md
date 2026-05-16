@@ -63,7 +63,7 @@ opencode .
 
 ## Current Status
 
-**11/13 milestones completados** | **719 tests** | **0 failures**
+**13/15 milestones completados** | **719+ tests** | **0 failures**
 
 | Milestone | Status |
 |-----------|--------|
@@ -78,7 +78,11 @@ opencode .
 | M12: Diff & Trazabilidad | ✅ |
 | M13: Reliability & Quality | ✅ |
 | M14: Odoo Depth | ✅ |
-| M15: Advanced QA | ⏳ |
+| M15: Advanced QA | ✅ |
+| M16: Foundation Intelligence | ✅ |
+| M17: Semantic Core | ✅ |
+| M24: Meta-Framework Builders | ✅ |
+| M25: Meta-Framework v2 Agents | ⏳ |
 
 ### M14: Odoo Depth (latest)
 Enterprise-grade Odoo v18 module generation:
@@ -124,8 +128,8 @@ Los agentes se comunican mediante un sistema hibrido: artefactos en archivos
 
 See [ROADMAP.md](ROADMAP.md) for full details.
 
-- **M0-M5, M10-M14**: ✅ Completed (11 milestones)
-- **M15: Advanced QA**: ⏳ Planned — Playwright E2E, performance, concurrency
+- **M0-M17, M24**: ✅ Completed (14 milestones)
+- **M25: Meta-Framework v2 Agents**: ⏳ Planned — Nueva arquitectura de agentes meta
 
 ## Documentacion
 

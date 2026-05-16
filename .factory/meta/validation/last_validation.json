@@ -1,0 +1,11 @@
+{
+  "checked_at": "2026-05-15T06:56:58.506514+00:00",
+  "schema_path": "/home/cafl/projects/factory-build-agent/schemas/meta/framework_state.v2.schema.json",
+  "state_path": "/home/cafl/projects/factory-build-agent/.factory/meta/framework_state.v2.json",
+  "schema_valid": true,
+  "active_milestone_match": true,
+  "pending_decisions_projected": true,
+  "status": "passed",
+  "state_id": "FWSTATE-20260515-001",
+  "notes": []
+}

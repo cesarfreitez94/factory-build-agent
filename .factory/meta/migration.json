@@ -1,0 +1,14 @@
+{
+  "migration_id": "MIG-20260515-001",
+  "created_at": "2026-05-15T06:56:58.506496+00:00",
+  "meta_workflow_version": "v1",
+  "mode": "shadow_projection",
+  "status": "projected",
+  "source_state_path": ".factory/framework-state.json",
+  "target_state_path": ".factory/meta/framework_state.v2.json",
+  "source_schema_version": "1.0",
+  "target_contract_version": "2.0",
+  "projected_state_id": "FWSTATE-20260515-001",
+  "decision_mappings": [],
+  "migration_notes": []
+}

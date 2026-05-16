@@ -1,0 +1,11 @@
+{
+  "checked_at": "2026-05-15T06:56:58.506510+00:00",
+  "status": "clean",
+  "active_milestone_match": true,
+  "pending_decisions_projected": true,
+  "source_pending_decision_ids": [],
+  "projected_pending_decision_ids": [],
+  "decision_mappings": [],
+  "unmapped_pending_decisions": [],
+  "notes": []
+}
