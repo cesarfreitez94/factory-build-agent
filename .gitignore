@@ -89,3 +89,4 @@ node_modules/
 .factory/*
 !.factory/framework-state.json
 !templates/.factory/*
+!.factory/meta/session_notes
